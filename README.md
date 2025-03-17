@@ -139,10 +139,8 @@ the template variables, but it requires a few more commands.
 To create a new project repo with `copier`:
 
 ```shell
-# Ensure you have Python 3.11+ and pipx installed. (If not, see below.)
-
-# Install copier:
-pipx install copier
+# Install copier via uv:
+uvx install copier
 
 # Clone this template:
 copier copy gh:jlevy/simple-modern-uv your-project-name
