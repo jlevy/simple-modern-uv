@@ -167,6 +167,13 @@ simple-modern-uv uses uses the tools I've come to think are best for new project
   It helps to keep these docs and reminders on uv Python setup/installation, basic dev
   workflows, and VSCode extensions in the template itself so they are up to date.
 
+- **Agent rules** with a few sensible general and specific rules for modern Python.
+  These are usable for Cursor, Claude Code, and OpenAI Codex.
+  These are in [.cursor/rules](.cursor/rules) and copied by the [Makefile](Makefile) to
+  [`CLAUDE.md`](https://docs.anthropic.com/en/docs/claude-code/memory) and
+  [`AGENTS.md`](https://github.com/openai/codex#memory--project-docs).
+  (Of course you can adjust these as you wish.)
+
 ## What's the Best Python Type Checker?
 
 The choice of what tool to use for type checking deserves some explanation.
