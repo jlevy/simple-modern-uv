@@ -37,5 +37,5 @@ jobs:
       - name: Build package
         run: uv build
 
-      - name: Publish to PyPI (using uv)
-        uses: pypa/gh-action-pypi-publish@release/v1
+      - name: Publish to PyPI
+        uses: uv publish --trusted-publishing always
