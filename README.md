@@ -160,12 +160,34 @@ simple-modern-uv uses uses the tools I've come to think are best for new project
 - [**codespell**](https://github.com/codespell-project/codespell) for drop-in spell
   checking.
 
-- **Starter docs** you can include if you wish for users
-  ([README.md](https://github.com/jlevy/simple-modern-uv/blob/main/template/README.md.jinja))
-  and developers
-  ([development.md](https://github.com/jlevy/simple-modern-uv/blob/main/template/development.md.jinja)).
-  It helps to keep these docs and reminders on uv Python setup/installation, basic dev
-  workflows, and VSCode extensions in the template itself so they are up to date.
+## Starter Docs
+
+The template includes a few **starter docs** for you, collaborators, and users:
+
+- [README.md](https://github.com/jlevy/simple-modern-uv/blob/main/template/README.md.jinja)
+  is a placeholder for your project readme.
+
+- [installation.md](https://github.com/jlevy/simple-modern-uv/blob/main/template/installation.md)
+  has brief reminders on the modern ways to install uv and Python.
+
+- [development.md](https://github.com/jlevy/simple-modern-uv/blob/main/template/development.md.jinja)
+  covers basic developer workflows.
+
+- [publishing.md](https://github.com/jlevy/simple-modern-uv/blob/main/template/publishing.md)
+  covers how to publish your project to PyPI.
+
+> [!TIP]
+> 
+> If you haven't done it before, publishing a package to PyPI can be a bit confusing,
+> especially because the
+> [official Python docs](https://packaging.python.org/en/latest/guides/section-build-and-publish/)
+> cover older and more complex workflows.
+> Be sure to check `publishing.md` for a modern and simple way that uses uv and GitHub
+> actions.
+
+You can edit or delete these, but typically it's sufficient to just edit the README.md.
+It helps to have the others in separate files so they get updated whenever you update
+the template.
 
 ## Agent Rules
 
