@@ -18,7 +18,7 @@ The `Makefile` simply offers shortcuts to `uv` commands for developer convenienc
 
 ```shell
 # First, install all dependencies and set up your virtual environment.
-# This simply runs `uv sync --all-extras --dev` to install all packages,
+# This simply runs `uv sync --all-extras` to install all packages,
 # including dev dependencies and optional dependencies.
 make install
 

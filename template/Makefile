@@ -9,7 +9,7 @@
 default: agent-rules install lint test 
 
 install:
-	uv sync --all-extras --dev
+	uv sync --all-extras
 
 lint:
 	uv run python devtools/lint.py

@@ -29,13 +29,13 @@ jobs:
         run: uv python install
 
       - name: Install all dependencies
-        run: uv sync --all-extras --dev
+        run: uv sync --all-extras
 
       - name: Run tests
         run: uv run pytest
-        
+
       - name: Build package
         run: uv build
 
-      - name: Publish to PyPI (using uv)
-        uses: pypa/gh-action-pypi-publish@release/v1
+      - name: Publish to PyPI
+        uses: uv publish --trusted-publishing always
