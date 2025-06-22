@@ -38,4 +38,4 @@ jobs:
         run: uv build
 
       - name: Publish to PyPI
-        uses: uv publish --trusted-publishing always
+        run: uv publish --trusted-publishing always
