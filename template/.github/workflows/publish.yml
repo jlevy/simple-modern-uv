@@ -39,3 +39,6 @@ jobs:
 
       - name: Publish to PyPI
         run: uv publish --trusted-publishing always
+        # Although uv is newer and faster, the "official" publishing option is the one from PyPA,
+        # which uses twine. If desired, replace `uv publish` with:
+        # uses: pypa/gh-action-pypi-publish@release/v1
