@@ -40,7 +40,7 @@ jobs:
         uses: astral-sh/setup-uv@v5
         with:
           # Update this as needed:
-          version: "0.8.13"
+          version: "0.9.5"
           enable-cache: true
           python-version: ${{ matrix.python-version }}
 
