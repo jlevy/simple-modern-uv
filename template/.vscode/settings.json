@@ -1,0 +1,14 @@
+{
+  "python.defaultInterpreterPath": "./.venv/bin/python",
+  "python.formatting.provider": "ruff",
+  "python.linting.enabled": true,
+  "python.linting.ruffEnabled": true,
+  "basedpyright.importStrategy": "useBundled",
+  "basedpyright.analysis.typeCheckingMode": "strict",
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": "explicit",
+    "source.fixAll.ruff": true
+  },
+  "ruff.lint.args": ["--config=pyproject.toml"]
+}

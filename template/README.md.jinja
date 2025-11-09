@@ -1,22 +1,24 @@
 # {{ package_name }}
 
-👉\[\[\[**This is the initial readme for your
-[simple-modern-uv](https://github.com/jlevy/simple-modern-uv) template.** Fill it in and
-delete this message!
-Below are general setup instructions that you may remove or keep and adapt for your
-project.\]\]\]
+{{ package_description }}
 
-* * *
+## Setup
 
-## Project Docs
+Requires [uv](https://docs.astral.sh/uv/).
 
-For how to install uv and Python, see [installation.md](installation.md).
+```shell
+# 1. Clone the repository and navigate into it
+# 2. Install dependencies
+make install
+```
 
-For development workflows, see [development.md](development.md).
+This command creates a virtual environment in `.venv` and installs all necessary packages defined in `pyproject.toml`.
 
-For instructions on publishing to PyPI, see [publishing.md](publishing.md).
+## Development Workflow
 
-* * *
+This template is optimized for VS Code and includes a recommended configuration in `.vscode/settings.json` that enables format-on-save.
 
-*This project was built from
-[simple-modern-uv](https://github.com/jlevy/simple-modern-uv).*
+- **Lint & Format:** `make lint`
+- **Run Tests:** `make test`
+
+*This project was built from a streamlined version of [simple-modern-uv](https://github.com/jlevy/simple-modern-uv).*
