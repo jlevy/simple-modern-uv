@@ -163,13 +163,13 @@ The template includes a few **starter docs** for you, collaborators, and users:
 - [README.md](https://github.com/jlevy/simple-modern-uv/blob/main/template/README.md.jinja)
   is a placeholder for your project readme.
 
-- [installation.md](https://github.com/jlevy/simple-modern-uv/blob/main/template/installation.md)
+- [installation.md](https://github.com/jlevy/simple-modern-uv/blob/main/template/docs/installation.md)
   has brief reminders on the modern ways to install uv and Python.
 
-- [development.md](https://github.com/jlevy/simple-modern-uv/blob/main/template/development.md.jinja)
+- [development.md](https://github.com/jlevy/simple-modern-uv/blob/main/template/docs/development.md.jinja)
   covers basic developer workflows.
 
-- [publishing.md](https://github.com/jlevy/simple-modern-uv/blob/main/template/publishing.md)
+- [publishing.md](https://github.com/jlevy/simple-modern-uv/blob/main/template/docs/publishing.md)
   covers how to publish your project to PyPI.
 
 If you haven’t done it before, publishing a package to PyPI can be a bit confusing,
