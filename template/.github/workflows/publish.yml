@@ -21,7 +21,7 @@ jobs:
       - name: Install uv (official Astral action)
         uses: astral-sh/setup-uv@v5
         with:
-          version: "0.9.5"
+          version: "0.9.25"
           enable-cache: true
           python-version: "3.12"
 
