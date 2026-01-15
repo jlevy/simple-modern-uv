@@ -6,7 +6,7 @@ Appropriately enough, the comic is out of date.)
 
 # simple-modern-uv
 
-[![image](https://img.shields.io/pypi/pyversions/uvinit.svg)](https://pypi.python.org/pypi/uvinit)
+[![image](https://img.shields.io/pypi/pyversions/uvtemplate.svg)](https://pypi.python.org/pypi/uvtemplate)
 [![uv](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json)](https://github.com/astral-sh/uv)
 [![Copier](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/copier-org/copier/master/img/badge/badge-grayscale-border.json)](https://github.com/copier-org/copier)
 [![X (formerly Twitter)
@@ -25,10 +25,10 @@ You can try out this template right from your terminal.
 Try running:
 
 ```shell
-uvx uvinit
+uvx uvtemplate
 ```
 
-The [uvinit](https://git.new/uvinit) tool now walks you through using this template.
+The [uvtemplate](https://git.new/uvtemplate) tool now walks you through using this template.
 
 For more installation options, scroll down to [How to Use This
 Template](#how-to-use-this-template).
@@ -271,13 +271,13 @@ Option 1 is the quickest option with full flexibility.
 Option 2 is the normal way to use a Copier template by hand.
 Option 3 is handy if you prefer a GitHub template.
 
-### Option 1: Run `uvx uvinit`
+### Option 1: Run `uvx uvtemplate`
 
-I’ve now created a little tool, [uvinit](https://www.github.com/jlevy/uvinit) that
+I’ve now created a little tool, [uvtemplate](https://www.github.com/jlevy/uvtemplate) that
 copies this template for you and walks you through everything:
 
 ```shell
-uvx uvinit
+uvx uvtemplate
 ```
 
 It’s the same as running `copier` and a few `git` commands yourself, with a little more
