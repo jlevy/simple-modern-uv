@@ -1,5 +1,4 @@
-[![As usual, XKCD has a comic for
-this](https://imgs.xkcd.com/comics/python_environment.png)](https://xkcd.com/1987/)
+[![As usual, XKCD has a comic for this](https://imgs.xkcd.com/comics/python_environment.png)](https://xkcd.com/1987/)
 
 (As usual, XKCD has a comic for this.
 Appropriately enough, the comic is out of date.)
@@ -9,13 +8,12 @@ Appropriately enough, the comic is out of date.)
 [![image](https://img.shields.io/pypi/pyversions/uvtemplate.svg)](https://pypi.python.org/pypi/uvtemplate)
 [![uv](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json)](https://github.com/astral-sh/uv)
 [![Copier](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/copier-org/copier/master/img/badge/badge-grayscale-border.json)](https://github.com/copier-org/copier)
-[![X (formerly Twitter)
-Follow](https://img.shields.io/twitter/follow/ojoshe)](https://x.com/ojoshe)
+[![X (formerly Twitter) Follow](https://img.shields.io/twitter/follow/ojoshe)](https://x.com/ojoshe)
 
 ## What is This?
 
 **simple-modern-uv** is a minimal, modern **Python project template** for new projects
-(Python 3.11–3.13) based on [**uv**](https://docs.astral.sh/uv/). This template aims to
+(Python 3.11–3.14) based on [**uv**](https://docs.astral.sh/uv/). This template aims to
 be a good base for serious work but also simple so it’s an easy option for any small
 project, like an open source library or tool.
 
@@ -28,10 +26,11 @@ Try running:
 uvx uvtemplate
 ```
 
-The [uvtemplate](https://git.new/uvtemplate) tool now walks you through using this template.
+The [uvtemplate](https://git.new/uvtemplate) tool now walks you through using this
+template.
 
-For more installation options, scroll down to [How to Use This
-Template](#how-to-use-this-template).
+For more installation options, scroll down to
+[How to Use This Template](#how-to-use-this-template).
 
 ## Why a New Python Project Template?
 
@@ -236,9 +235,8 @@ This template **does not** handle:
 
 - Using Docker
 
-- Private or enterprise package repositories (but you can add this—see [uv’s docs on
-  alternative
-  indexes](https://docs.astral.sh/uv/guides/integration/alternative-indexes/))
+- Private or enterprise package repositories (but you can add this—see
+  [uv’s docs on alternative indexes](https://docs.astral.sh/uv/guides/integration/alternative-indexes/))
 
 - Building websites or docs, e.g. with [mkdocs](https://github.com/mkdocs/mkdocs)
 
@@ -273,8 +271,8 @@ Option 3 is handy if you prefer a GitHub template.
 
 ### Option 1: Run `uvx uvtemplate`
 
-I’ve now created a little tool, [uvtemplate](https://www.github.com/jlevy/uvtemplate) that
-copies this template for you and walks you through everything:
+I’ve now created a little tool, [uvtemplate](https://www.github.com/jlevy/uvtemplate)
+that copies this template for you and walks you through everything:
 
 ```shell
 uvx uvtemplate
@@ -311,8 +309,8 @@ You can enter names for the project, description, etc., or just press enter and 
 look for `changeme` in the code.
 
 Once you have the template set up, you will need to check the code into Git for uv to
-work. [Create a new GitHub
-repo](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-new-repository)
+work.
+[Create a new GitHub repo](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-new-repository)
 and add your initial code:
 
 ```shell
@@ -384,6 +382,67 @@ practices. It uses [Poetry](https://python-poetry.org/docs/basic-usage/),
 
 For [Conda](https://github.com/conda/conda) dependencies, also consider the newer
 [**pixi**](https://github.com/prefix-dev/pixi/) package manager.
+
+## Maintaining This Template
+
+If you’re contributing to this template or forking it for your own use, here’s the
+workflow for keeping dependencies up to date:
+
+### Testing and Updating Dependencies
+
+1. **Instantiate the template to a test directory:**
+
+   ```shell
+   mkdir -p /tmp/template-test
+   cd /tmp/template-test
+   copier copy --defaults /path/to/simple-modern-uv test-project
+   cd test-project
+   git init && git add . && git commit -m "Initial commit"
+   ```
+
+2. **Install and test:**
+
+   ```shell
+   uv sync --all-extras
+   uv run pytest
+   uv run python devtools/lint.py
+   ```
+
+3. **Check for newer versions:**
+
+   ```shell
+   # See what versions were actually installed
+   cat uv.lock | grep -E "^name = |^version = "
+   ```
+
+4. **Compare to template minimums and backfill updates:**
+
+   Compare the installed versions in `uv.lock` against the minimum versions specified in
+   `template/pyproject.toml.jinja`. Update the template’s minimum versions to match the
+   latest stable releases that pass all tests.
+
+5. **Check for uv updates:**
+
+   ```shell
+   # Check your local version
+   uv --version
+   
+   # Check latest release
+   curl -s https://api.github.com/repos/astral-sh/uv/releases/latest | grep tag_name
+   ```
+
+   Update the uv version in `template/.github/workflows/ci.yml` and
+   `template/.github/workflows/publish.yml` if needed.
+
+### Current Versions to Track
+
+- **Python dev dependencies** in `template/pyproject.toml.jinja`:
+
+  - pytest, pytest-sugar, ruff, codespell, rich, basedpyright, funlog
+
+- **uv version** in GitHub Actions workflows
+
+- **Python version support** (currently 3.11–3.14)
 
 ## Contributing
 
