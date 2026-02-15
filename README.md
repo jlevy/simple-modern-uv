@@ -311,7 +311,8 @@ look for `changeme` in the code.
 Once you have the template set up, you will need to check the code into Git for uv to
 work.
 [Create a new GitHub repo](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-new-repository)
-and add your initial code:
+— make sure to create it as an **empty repo** (don't add a README, .gitignore, or
+license, since the template already provides these) — and add your initial code:
 
 ```shell
 cd PROJECT

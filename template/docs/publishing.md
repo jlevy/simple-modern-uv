@@ -18,6 +18,14 @@ This part is a little confusing the first time.
 Here is the simplest way to do it.
 For the purposes of this example replace OWNER and PROJECT with the right values.
 
+**Note:** These steps assume you already have a GitHub repo with your code pushed. If
+you used [`uvx uvtemplate`](https://github.com/jlevy/uvtemplate), it handles repo
+creation for you. If you're setting up manually, create an **empty** GitHub repo (no
+README, no .gitignore, no license — the template already provides these) and push your
+code to it. See the
+[README](https://github.com/jlevy/simple-modern-uv#option-2-use-copier-and-git-yourself)
+for details.
+
 1. **Get a PyPI account** at [pypi.org](https://pypi.org/) and sign in.
 
 2. **Pick a name for the project** that isn’t already taken.
