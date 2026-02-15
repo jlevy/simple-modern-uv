@@ -1,23 +1,25 @@
 # Updating This Template
 
-This doc covers the full process for keeping the
+This doc covers the full cycle for keeping the
 [simple-modern-uv](https://github.com/jlevy/simple-modern-uv) template's dependencies
-and tools up to date, then propagating those changes to downstream projects.
+and tools up to date, then verifying the changes end-to-end.
 
 There are two repos involved:
 
 - **Template repo** (`jlevy/simple-modern-uv`): The Copier template source. All version
-  changes start here.
+  changes start here. This repo does not have CI, so testing is done via a downstream
+  project.
 - **Downstream project(s)**: Projects created from the template (e.g.
   [`jlevy/simple-modern-uv-template`](https://github.com/jlevy/simple-modern-uv-template)).
-  These pull updates via `copier update`.
+  These pull updates via `copier update` and have CI configured to run linting and tests
+  across the Python version matrix.
 
 ## Step 1: Check Latest Versions
 
-From the template repo, check what's current:
+From the template repo, check what's current on PyPI:
 
 ```shell
-# Check latest versions of each dev dependency on PyPI:
+# Check latest versions of each dev dependency:
 for pkg in ruff basedpyright pytest pytest-sugar codespell rich funlog; do
   echo "$pkg: $(curl -s https://pypi.org/pypi/$pkg/json | python3 -c "import sys,json; print(json.load(sys.stdin)['info']['version'])")"
 done
@@ -71,9 +73,9 @@ copier update --defaults
 git stash pop
 ```
 
-## Step 5: Verify Downstream
+## Step 5: Verify Locally
 
-After the copier update, confirm everything works:
+After the copier update, confirm everything works locally:
 
 ```shell
 uv sync --upgrade
@@ -84,11 +86,38 @@ uv build
 
 ## Step 6: Push Downstream and Confirm CI
 
+Commit and push the downstream project:
+
 ```shell
 git add -A
 git commit -m "Update from simple-modern-uv template vX.Y.Z."
 git push origin main
 ```
 
-Then check that CI passes on GitHub. If there are failures, fix them, and iterate from
-Step 2.
+Then check that **CI passes on GitHub** — this runs the full lint and test suite across
+all Python versions in the matrix (e.g. 3.11, 3.12, 3.13, 3.14) on the stub test file
+and template code. This is the real end-to-end validation that the template works.
+
+If CI fails, fix issues in the template repo and repeat from Step 2.
+
+## Step 7: Create a Release on the Template Repo
+
+Once CI passes downstream, create a GitHub release on the template repo. The template
+repo doesn't have its own CI, so the downstream CI run serves as the verification.
+
+```shell
+# From the template repo:
+gh release create v0.X.Y --title "v0.X.Y" --notes "$(cat <<'EOF'
+## What's Changed
+
+- **Updated dev dependencies**: ruff X.Y.Z, basedpyright X.Y.Z, etc.
+- **Updated uv** to X.Y.Z in CI workflows
+- Any other changes
+
+**Full Changelog**: https://github.com/jlevy/simple-modern-uv/compare/vPREVIOUS...v0.X.Y
+EOF
+)"
+```
+
+This makes the release visible to users and provides clear release notes on what was
+updated.
