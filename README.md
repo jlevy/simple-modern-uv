@@ -388,61 +388,42 @@ For [Conda](https://github.com/conda/conda) dependencies, also consider the newe
 If you’re contributing to this template or forking it for your own use, here’s the
 workflow for keeping dependencies up to date:
 
-### Testing and Updating Dependencies
+### Updating Dependencies
 
-1. **Instantiate the template to a test directory:**
+**1. Check latest versions on PyPI and update the template:**
 
-   ```shell
-   mkdir -p /tmp/template-test
-   cd /tmp/template-test
-   copier copy --defaults /path/to/simple-modern-uv test-project
-   cd test-project
-   git init && git add . && git commit -m "Initial commit"
-   ```
+```shell
+# Check latest versions of each dev dependency:
+for pkg in ruff basedpyright pytest pytest-sugar codespell rich funlog; do
+  echo "$pkg: $(curl -s https://pypi.org/pypi/$pkg/json | python3 -c "import sys,json; print(json.load(sys.stdin)['info']['version'])")"
+done
 
-2. **Install and test:**
+# Check latest uv version:
+curl -s https://pypi.org/pypi/uv/json | python3 -c "import sys,json; print('uv:', json.load(sys.stdin)['info']['version'])"
+```
 
-   ```shell
-   uv sync --all-extras
-   uv run pytest
-   uv run python devtools/lint.py
-   ```
+Update these in the template:
+- **Dev dependency versions** in `template/pyproject.toml.jinja`
+- **uv version** in `template/.github/workflows/ci.yml` and `publish.yml`
+- **GitHub Actions** (`actions/checkout`, `astral-sh/setup-uv`) — check for new major
+  versions at their GitHub releases pages
+- **Python version matrix** when new Python releases are available
 
-3. **Check for newer versions:**
+**2. Test with a downstream project:**
 
-   ```shell
-   # See what versions were actually installed
-   cat uv.lock | grep -E "^name = |^version = "
-   ```
+After pushing the template changes, verify by running `copier update` in a downstream
+project (such as
+[simple-modern-uv-template](https://github.com/jlevy/simple-modern-uv-template)):
 
-4. **Compare to template minimums and backfill updates:**
+```shell
+copier update
+uv sync --upgrade
+uv run python devtools/lint.py
+uv run pytest
+uv build
+```
 
-   Compare the installed versions in `uv.lock` against the minimum versions specified in
-   `template/pyproject.toml.jinja`. Update the template’s minimum versions to match the
-   latest stable releases that pass all tests.
-
-5. **Check for uv updates:**
-
-   ```shell
-   # Check your local version
-   uv --version
-   
-   # Check latest release
-   curl -s https://api.github.com/repos/astral-sh/uv/releases/latest | grep tag_name
-   ```
-
-   Update the uv version in `template/.github/workflows/ci.yml` and
-   `template/.github/workflows/publish.yml` if needed.
-
-### Current Versions to Track
-
-- **Python dev dependencies** in `template/pyproject.toml.jinja`:
-
-  - pytest, pytest-sugar, ruff, codespell, rich, basedpyright, funlog
-
-- **uv version** in GitHub Actions workflows
-
-- **Python version support** (currently 3.11–3.14)
+Then push the downstream project and confirm CI passes.
 
 ## Contributing
 

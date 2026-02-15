@@ -78,6 +78,39 @@ extensions:
   for type checking. Note that this extension works with non-Microsoft VSCode forks like
   Cursor.
 
+## Updating Versions
+
+Periodically update dependency and tool versions to stay current.
+
+**Python dependencies** (in `pyproject.toml` under `[dependency-groups] dev`):
+
+Check latest versions on PyPI for each package and bump the minimum version pins.
+Key dev dependencies: `ruff`, `basedpyright`, `pytest`, `pytest-sugar`, `codespell`,
+`rich`, `funlog`.
+
+```shell
+# After bumping versions in pyproject.toml, sync and verify:
+uv sync --upgrade
+uv run python devtools/lint.py
+uv run pytest
+```
+
+**uv version** (in `.github/workflows/ci.yml` and `publish.yml`):
+
+Check the latest uv version at <https://pypi.org/project/uv/> and update the
+`version:` field under the `astral-sh/setup-uv` step in both workflow files.
+
+**GitHub Actions** (in `.github/workflows/ci.yml` and `publish.yml`):
+
+Check for new major versions of actions used:
+- `actions/checkout` — <https://github.com/actions/checkout/releases>
+- `astral-sh/setup-uv` — <https://github.com/astral-sh/setup-uv/releases>
+
+**Python version matrix** (in `.github/workflows/ci.yml`):
+
+Update the `python-version` matrix when new Python releases are available.
+Also update the classifiers in `pyproject.toml` to match.
+
 ## Publishing Releases
 
 See [publishing.md](publishing.md) for instructions on publishing to PyPI.
