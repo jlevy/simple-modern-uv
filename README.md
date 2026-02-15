@@ -385,45 +385,9 @@ For [Conda](https://github.com/conda/conda) dependencies, also consider the newe
 
 ## Maintaining This Template
 
-If you’re contributing to this template or forking it for your own use, here’s the
-workflow for keeping dependencies up to date:
-
-### Updating Dependencies
-
-**1. Check latest versions on PyPI and update the template:**
-
-```shell
-# Check latest versions of each dev dependency:
-for pkg in ruff basedpyright pytest pytest-sugar codespell rich funlog; do
-  echo "$pkg: $(curl -s https://pypi.org/pypi/$pkg/json | python3 -c "import sys,json; print(json.load(sys.stdin)['info']['version'])")"
-done
-
-# Check latest uv version:
-curl -s https://pypi.org/pypi/uv/json | python3 -c "import sys,json; print('uv:', json.load(sys.stdin)['info']['version'])"
-```
-
-Update these in the template:
-- **Dev dependency versions** in `template/pyproject.toml.jinja`
-- **uv version** in `template/.github/workflows/ci.yml` and `publish.yml`
-- **GitHub Actions** (`actions/checkout`, `astral-sh/setup-uv`) — check for new major
-  versions at their GitHub releases pages
-- **Python version matrix** when new Python releases are available
-
-**2. Test with a downstream project:**
-
-After pushing the template changes, verify by running `copier update` in a downstream
-project (such as
-[simple-modern-uv-template](https://github.com/jlevy/simple-modern-uv-template)):
-
-```shell
-copier update
-uv sync --upgrade
-uv run python devtools/lint.py
-uv run pytest
-uv build
-```
-
-Then push the downstream project and confirm CI passes.
+If you're contributing to this template or forking it for your own use, see
+[**updating.md**](updating.md) for the full process to check for new versions, update
+the template, and verify changes in a downstream project.
 
 ## Contributing
 
