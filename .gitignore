@@ -6,6 +6,11 @@ trash/
 attic/
 .kash/
 
+*.pyc
+__pycache__/
+.env
+.venv/
+
 # Python build artifacts
 .ruff_cache/
 .poetry/
