@@ -34,6 +34,25 @@ Also check for new major versions of GitHub Actions:
 
 And check if new Python versions should be added to the test matrix.
 
+### Supply Chain Hygiene
+
+When picking versions, follow a **cooling-off period**: do not adopt any release
+published within the last 14 days. Fresh releases are the most likely to be yanked, to
+carry regressions, or (rarely) to be a compromised/typosquatted artifact that hasn't yet
+been caught. Prefer the latest version that is both at least 14 days old and has had
+subsequent patch releases without being yanked.
+
+Concretely, for each package, check the upload date before pinning:
+
+```shell
+# Show the latest version and its upload date for a package:
+curl -s https://pypi.org/pypi/PACKAGE/json | python3 -c "import sys,json; d=json.load(sys.stdin); v=d['info']['version']; print(v, d['releases'][v][0]['upload_time_iso_8601'])"
+```
+
+Only add or upgrade dependencies you can vet upstream (active maintenance, reputable
+source, clear changelog). Avoid introducing new dependencies when a small amount of
+first-party code will do.
+
 ## Step 2: Update the Template Files
 
 In the template repo, update these files as needed:
