@@ -32,6 +32,13 @@ Also check for new major versions of GitHub Actions:
 - `actions/checkout` — <https://github.com/actions/checkout/releases>
 - `astral-sh/setup-uv` — <https://github.com/astral-sh/setup-uv/releases>
 
+Note `astral-sh/setup-uv` is pinned to a full, immutable version tag (e.g.
+`@v8.1.0`) rather than a floating major tag. As of v8, Astral stopped publishing
+floating `@v8`/`@v8.1` tags in favor of immutable releases, which is a supply-chain
+improvement (a pinned tag can't be silently re-pointed). The cost is that patch updates
+no longer arrive automatically, so bump the exact version here when updating. Apply the
+cooling-off check below to the action version too.
+
 And check if new Python versions should be added to the test matrix.
 
 ### Supply Chain Hygiene

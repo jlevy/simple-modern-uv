@@ -28,8 +28,11 @@ make
 # Build wheel:
 make build
 
-# Linting:
+# Linting (auto-fixes formatting and lint issues):
 make lint
+
+# Linting in check-only mode, matching CI (fails on issues, does not modify files):
+make lint-check
 
 # Run tests:
 make test
