@@ -390,6 +390,12 @@ If you're contributing to this template or forking it for your own use, see
 [**updating.md**](updating.md) for the full process to check for new versions, update
 the template, and verify changes in a downstream project.
 
+A note on **supply chain hardening**: version updates here follow a 14-day cooling-off
+period (don't adopt releases newer than two weeks, since fresh releases are the most
+likely to be yanked, carry regressions, or be a compromised artifact), only add
+dependencies that can be vetted upstream, and pin GitHub Actions to immutable version
+tags. See [updating.md](updating.md#supply-chain-hygiene) for the rationale and details.
+
 ## Contributing
 
 I’m new to uv, so please help me improve this!
