@@ -311,7 +311,7 @@ look for `changeme` in the code.
 Once you have the template set up, you will need to check the code into Git for uv to
 work.
 [Create a new GitHub repo](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-new-repository)
-— make sure to create it as an **empty repo** (don't add a README, .gitignore, or
+— make sure to create it as an **empty repo** (don’t add a README, .gitignore, or
 license, since the template already provides these) — and add your initial code:
 
 ```shell
@@ -390,23 +390,23 @@ Dependencies are an attack surface, so this template both *follows* and *recomme
 few simple supply chain practices—for maintaining the template itself and for any
 project you build from it:
 
-- **Cooling-off period:** Don't adopt releases newer than ~14 days. Fresh releases are
-  the most likely to be yanked, carry regressions, or (rarely) be a compromised or
-  typosquatted artifact that hasn't been caught yet.
+- **Cooling-off period:** Don’t adopt releases newer than ~14 days.
+  Fresh releases are the most likely to be yanked, carry regressions, or (rarely) be a
+  compromised or typosquatted artifact that hasn’t been caught yet.
 
 - **Vet what you add:** Only add or upgrade dependencies you can verify upstream (active
   maintenance, reputable source, clear changelog), and prefer a little first-party code
   over pulling in a new dependency.
 
 - **Pin actions to immutable tags:** Pin GitHub Actions to a full, immutable version tag
-  (or commit SHA) so a tag can't be silently re-pointed under you.
+  (or commit SHA) so a tag can’t be silently re-pointed under you.
 
 See [updating.md](updating.md#supply-chain-hygiene) for the rationale, the exact
 commands to check release dates, and the full update process.
 
 ## Maintaining This Template
 
-If you're contributing to this template or forking it for your own use, see
+If you’re contributing to this template or forking it for your own use, see
 [**updating.md**](updating.md) for the full process to check for new versions, update
 the template, and verify changes in a downstream project.
 
