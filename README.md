@@ -384,17 +384,31 @@ practices. It uses [Poetry](https://python-poetry.org/docs/basic-usage/),
 For [Conda](https://github.com/conda/conda) dependencies, also consider the newer
 [**pixi**](https://github.com/prefix-dev/pixi/) package manager.
 
+## Supply Chain Hardening
+
+Dependencies are an attack surface, so this template both *follows* and *recommends* a
+few simple supply chain practices—for maintaining the template itself and for any
+project you build from it:
+
+- **Cooling-off period:** Don't adopt releases newer than ~14 days. Fresh releases are
+  the most likely to be yanked, carry regressions, or (rarely) be a compromised or
+  typosquatted artifact that hasn't been caught yet.
+
+- **Vet what you add:** Only add or upgrade dependencies you can verify upstream (active
+  maintenance, reputable source, clear changelog), and prefer a little first-party code
+  over pulling in a new dependency.
+
+- **Pin actions to immutable tags:** Pin GitHub Actions to a full, immutable version tag
+  (or commit SHA) so a tag can't be silently re-pointed under you.
+
+See [updating.md](updating.md#supply-chain-hygiene) for the rationale, the exact
+commands to check release dates, and the full update process.
+
 ## Maintaining This Template
 
 If you're contributing to this template or forking it for your own use, see
 [**updating.md**](updating.md) for the full process to check for new versions, update
 the template, and verify changes in a downstream project.
-
-A note on **supply chain hardening**: version updates here follow a 14-day cooling-off
-period (don't adopt releases newer than two weeks, since fresh releases are the most
-likely to be yanked, carry regressions, or be a compromised artifact), only add
-dependencies that can be vetted upstream, and pin GitHub Actions to immutable version
-tags. See [updating.md](updating.md#supply-chain-hygiene) for the rationale and details.
 
 ## Contributing
 
