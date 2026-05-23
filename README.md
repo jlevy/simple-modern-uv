@@ -386,23 +386,24 @@ For [Conda](https://github.com/conda/conda) dependencies, also consider the newe
 
 ## Supply Chain Hardening
 
-Dependencies are an attack surface, so this template both *follows* and *recommends* a
-few simple supply chain practices—for maintaining the template itself and for any
-project you build from it:
+Dependencies are an attack surface.
+The best resource on this is
+[**supply-chain-hardening**](https://github.com/jlevy/supply-chain-hardening), a concise
+guidebook of concrete recipes for npm, PyPI, and other ecosystems.
+**If you use this template, follow it.** Its key defaults, which this template also
+follows:
 
-- **Cooling-off period:** Don’t adopt releases newer than ~14 days.
-  Fresh releases are the most likely to be yanked, carry regressions, or (rarely) be a
-  compromised or typosquatted artifact that hasn’t been caught yet.
+- **Cooling-off period:** Don’t install or upgrade to a release less than ~14 days old
+  (most malicious publishes are caught within days).
+  For uv, enforce this with `UV_EXCLUDE_NEWER="14 days"`.
 
-- **Vet what you add:** Only add or upgrade dependencies you can verify upstream (active
-  maintenance, reputable source, clear changelog), and prefer a little first-party code
-  over pulling in a new dependency.
+- **Vet what you add:** Only add dependencies you can verify upstream, and prefer a
+  little first-party code over pulling in a new dependency.
 
-- **Pin actions to immutable tags:** Pin GitHub Actions to a full, immutable version tag
-  (or commit SHA) so a tag can’t be silently re-pointed under you.
+- **Pin and lock:** Commit your `uv.lock` and pin GitHub Actions to a commit SHA (or at
+  least a full, immutable version tag) so a tag can’t be silently re-pointed.
 
-See [updating.md](updating.md#supply-chain-hygiene) for the rationale, the exact
-commands to check release dates, and the full update process.
+See [updating.md](updating.md#supply-chain-hygiene) for how this template applies these.
 
 ## Maintaining This Template
 

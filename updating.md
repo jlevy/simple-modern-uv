@@ -44,12 +44,17 @@ And check if new Python versions should be added to the test matrix.
 
 ### Supply Chain Hygiene
 
-When picking versions, follow a **cooling-off period**: do not adopt any release
-published within the last 14 days.
-Fresh releases are the most likely to be yanked, to carry regressions, or (rarely) to be
-a compromised/typosquatted artifact that hasn’t yet been caught.
+These practices follow
+[supply-chain-hardening](https://github.com/jlevy/supply-chain-hardening), the
+recommended guide for this template — see it for the full rationale and per-ecosystem
+recipes.
+
+Follow a **cooling-off period**: do not adopt any release published within the last 14
+days. Fresh releases are the most likely to be yanked, to carry regressions, or (rarely)
+to be a compromised/typosquatted artifact that hasn’t yet been caught.
 Prefer the latest version that is both at least 14 days old and has had subsequent patch
 releases without being yanked.
+For resolves, uv can enforce this directly with `UV_EXCLUDE_NEWER="14 days"`.
 
 Concretely, for each package, check the upload date before pinning:
 
