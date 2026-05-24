@@ -14,6 +14,12 @@ There are two repos involved:
   These pull updates via `copier update` and have CI configured to run linting and tests
   across the Python version matrix.
 
+Release rule: the downstream repo is the release gate.
+Push the template candidate, export it into `jlevy/simple-modern-uv-template`, and wait
+for downstream CI to pass before creating a GitHub release for this template.
+The commands below assume the downstream repo is cloned next to this repo as
+`../simple-modern-uv-template`.
+
 ## Step 1: Check Latest Versions
 
 From the template repo, check what’s current on PyPI:
@@ -81,53 +87,80 @@ In the template repo, update these files as needed:
 - **Python version matrix** in `template/.github/workflows/ci.yml` and the corresponding
   classifiers in `template/pyproject.toml.jinja`
 
-## Step 3: Commit, Tag, and Push the Template
+## Step 3: Commit and Push the Template Candidate
 
-Copier requires a new Git tag to recognize an update.
-Increment the version from the last tag (check with `git tag -l | sort -V | tail -1`):
+Commit the template changes and push `main`, but do not create the release yet.
+The downstream repo needs to export the exact candidate commit first.
 
 ```shell
 git add -A
 git commit -m "Update dependencies and tool versions."
-git tag v0.X.Y
-git push origin main --tags
+git push origin main
+
+# Record the exact commit that downstream CI will validate:
+TEMPLATE_COMMIT=$(git rev-parse HEAD)
 ```
 
-## Step 4: Update a Downstream Project
+## Step 4: Export the Candidate to the Downstream Repo
 
-In a downstream project (e.g. `simple-modern-uv-template`), pull the template update.
-The working tree must be clean before running `copier update`:
+In the downstream repo, update from the pushed candidate commit.
+The working tree must be clean before running `copier update`.
 
 ```shell
-# Ensure clean working tree:
-git stash --include-untracked  # if needed
+cd ../simple-modern-uv-template
+git status --short
 
-# Pull template changes:
-copier update --defaults
+# Export the exact template candidate. This uses the _src_path already recorded in
+# .copier-answers.yml, currently gh:jlevy/simple-modern-uv.
+copier update --defaults --vcs-ref "$TEMPLATE_COMMIT"
+git diff --stat
+```
 
-# Restore stash if needed:
-git stash pop
+If the downstream repo ever needs a fresh render instead of an update, instantiate with
+the standard defaults:
+
+```shell
+copier copy --defaults --vcs-ref "$TEMPLATE_COMMIT" gh:jlevy/simple-modern-uv .
 ```
 
 ## Step 5: Verify Locally
 
-After the copier update, confirm everything works locally:
+After the copier update, confirm everything works locally.
+Use the same 14-day supply-chain cutoff the GitHub workflows compute.
 
 ```shell
-uv sync --upgrade
-uv run python devtools/lint.py
+UV_EXCLUDE_NEWER=$(python3 - <<'PY'
+from datetime import datetime, timedelta, timezone
+
+print((datetime.now(timezone.utc) - timedelta(days=14)).date())
+PY
+)
+export UV_EXCLUDE_NEWER
+
+uv sync --all-extras
+uv run python devtools/lint.py --check
 uv run pytest
 uv build
 ```
 
 ## Step 6: Push Downstream and Confirm CI
 
-Commit and push the downstream project:
+Commit and push the downstream project, then wait for GitHub Actions to finish.
 
 ```shell
 git add -A
-git commit -m "Update from simple-modern-uv template vX.Y.Z."
+git commit -m "Validate simple-modern-uv template ${TEMPLATE_COMMIT:0:7}."
 git push origin main
+
+RUN_ID=$(gh run list \
+  --repo jlevy/simple-modern-uv-template \
+  --workflow CI \
+  --branch main \
+  --event push \
+  --json databaseId \
+  -q '.[0].databaseId')
+
+gh run watch --repo jlevy/simple-modern-uv-template "$RUN_ID" --exit-status
 ```
 
 Then check that **CI passes on GitHub** — this runs the full lint and test suite across
@@ -144,17 +177,48 @@ verification.
 
 ```shell
 # From the template repo:
-gh release create v0.X.Y --title "v0.X.Y" --notes "$(cat <<'EOF'
+cd ../simple-modern-uv
+
+LAST_TAG=$(gh release list --repo jlevy/simple-modern-uv --limit 1 --json tagName -q '.[0].tagName')
+NEW_TAG="v0.X.Y"
+
+git log "${LAST_TAG}..HEAD" --oneline
+git diff --stat "${LAST_TAG}..HEAD"
+
+gh release create "$NEW_TAG" \
+  --repo jlevy/simple-modern-uv \
+  --target "$TEMPLATE_COMMIT" \
+  --title "$NEW_TAG" \
+  --notes "$(cat <<EOF
 ## What's Changed
 
 - **Updated dev dependencies**: ruff X.Y.Z, basedpyright X.Y.Z, etc.
 - **Updated uv** to X.Y.Z in CI workflows
 - Any other changes
 
-**Full Changelog**: https://github.com/jlevy/simple-modern-uv/compare/vPREVIOUS...v0.X.Y
+**Downstream validation**: jlevy/simple-modern-uv-template CI passed for ${TEMPLATE_COMMIT:0:7}
+
+**Full Changelog**: https://github.com/jlevy/simple-modern-uv/compare/${LAST_TAG}...${NEW_TAG}
 EOF
 )"
 ```
 
 This makes the release visible to users and provides clear release notes on what was
 updated.
+
+## Step 8: Record the Release Tag Downstream
+
+The pre-release downstream commit validates an exact template commit.
+After the release exists, update the downstream repo once more from the release tag so
+`.copier-answers.yml` records the public template version.
+This should either be a no-op or only change `_commit`.
+
+```shell
+cd ../simple-modern-uv-template
+copier update --defaults --vcs-ref "$NEW_TAG"
+git diff -- .copier-answers.yml
+
+git add -A
+git commit -m "Record simple-modern-uv template ${NEW_TAG}."  # skip if no diff
+git push origin main
+```

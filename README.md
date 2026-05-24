@@ -260,7 +260,7 @@ references.
 
 By default this template uses MIT license.
 If you want a different license or are not publishing your project as open source,
-update `license` in pyproject.yaml and the LICENSE file.
+update `license` in pyproject.toml and the LICENSE file.
 If desired, you may delete the `.github/workflows/publish.yml` file if you are not
 publishing to PyPI.
 
@@ -316,13 +316,12 @@ license, since the template already provides these) — and add your initial cod
 
 ```shell
 cd PROJECT
-git init
+git init --initial-branch=main
 # Make license or other initial adjustments if needed.
 git add .
 git commit -m "Initial commit from simple-modern-uv."
 # Create repo on GitHub.
 git remote add origin git@github.com:OWNER/PROJECT.git  # or https://github.com/...
-git branch -M main
 git push -u origin main
 ```
 

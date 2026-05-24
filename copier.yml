@@ -2,23 +2,22 @@
 
 _min_copier_version: "9.4.0"
 _subdirectory: template
-_message_after_copy: | 
+_message_after_copy: |
     Your package template has been copied!
 
     Remember to look for any unfilled `changeme` strings and confirm the license!
     By default this template uses MIT license.
-    See `license` in pyproject.yaml and update the LICENSE file. 
+    See `license` in pyproject.toml and update the LICENSE file.
 
     Next steps:
     
     cd PROJECT
-    git init
+    git init --initial-branch=main
     # Make license or other initial adjustments if needed.
     git add .
     git commit -m "Initial commit from simple-modern-uv."
     # Create repo on GitHub.
     git remote add origin git@github.com:OWNER/PROJECT.git  # or https://...
-    git branch -M main
     git push -u origin main
 
 package_name:
