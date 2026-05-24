@@ -18,9 +18,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Run linting and formatting.")
     # CI should not modify files: check-only mode fails on any issue instead of
     # silently fixing it, so unformatted code can't slip through.
-    parser.add_argument(
-        "--check", action="store_true", help="Check only, without modifying files."
-    )
+    parser.add_argument("--check", action="store_true", help="Check only, without modifying files.")
     args = parser.parse_args()
 
     rprint()
