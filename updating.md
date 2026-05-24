@@ -54,7 +54,9 @@ days. Fresh releases are the most likely to be yanked, to carry regressions, or 
 to be a compromised/typosquatted artifact that hasn’t yet been caught.
 Prefer the latest version that is both at least 14 days old and has had subsequent patch
 releases without being yanked.
-For resolves, uv can enforce this directly with `UV_EXCLUDE_NEWER="14 days"`.
+The CI and publish workflows enforce this by setting `UV_EXCLUDE_NEWER` to a cutoff date
+14 days back, computed at run time (uv's `--exclude-newer` takes a date, not a relative
+duration).
 
 Concretely, for each package, check the upload date before pinning:
 
@@ -71,7 +73,8 @@ Avoid introducing new dependencies when a small amount of first-party code will 
 
 In the template repo, update these files as needed:
 
-- **Dev dependency version pins** in `template/pyproject.toml.jinja`
+- **Dev dependency lower bounds** in `template/pyproject.toml.jinja` (these are `>=`
+  floors, not exact pins; CI enforces the cool-off via `UV_EXCLUDE_NEWER`)
 - **uv version** in `template/.github/workflows/ci.yml` and `publish.yml` (the
   `version:` field under `astral-sh/setup-uv`)
 - **GitHub Actions versions** (e.g. `actions/checkout@v6`) in the same workflow files

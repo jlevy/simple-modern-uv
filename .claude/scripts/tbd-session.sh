@@ -16,6 +16,10 @@ fi
 # Include npm global bin if found
 export PATH="$NPM_GLOBAL_BIN:$HOME/.local/bin:$HOME/bin:/usr/local/bin:$PATH"
 
+# Pinned version (supply-chain cool-off: never install "latest"). Keep this in
+# sync with tbd_version in .tbd/config.yml.
+TBD_VERSION="0.1.29"
+
 # Function to ensure tbd is available
 ensure_tbd() {
     # Check if tbd is already installed
@@ -28,11 +32,11 @@ ensure_tbd() {
     # Try npm first (most common for Node.js tools)
     if command -v npm &> /dev/null; then
         echo "[tbd] Installing via npm..."
-        npm install -g get-tbd 2>/dev/null || {
+        npm install -g "get-tbd@${TBD_VERSION}" 2>/dev/null || {
             # If global install fails (permissions), try local install
             echo "[tbd] Global npm install failed, trying user install..."
             mkdir -p ~/.local/bin
-            npm install --prefix ~/.local get-tbd
+            npm install --prefix ~/.local "get-tbd@${TBD_VERSION}"
             # Create symlink if needed
             if [ -f ~/.local/node_modules/.bin/tbd ]; then
                 ln -sf ~/.local/node_modules/.bin/tbd ~/.local/bin/tbd
@@ -40,10 +44,10 @@ ensure_tbd() {
         }
     elif command -v pnpm &> /dev/null; then
         echo "[tbd] Installing via pnpm..."
-        pnpm add -g get-tbd
+        pnpm add -g "get-tbd@${TBD_VERSION}"
     elif command -v yarn &> /dev/null; then
         echo "[tbd] Installing via yarn..."
-        yarn global add get-tbd
+        yarn global add "get-tbd@${TBD_VERSION}"
     else
         echo "[tbd] ERROR: No package manager found (npm, pnpm, or yarn required)"
         echo "[tbd] Please install Node.js and npm, then run: npm install -g get-tbd"

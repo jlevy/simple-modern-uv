@@ -29,6 +29,11 @@ jobs:
       - name: Set up Python (using uv)
         run: uv python install
 
+      - name: Set supply-chain cool-off cutoff
+        # uv's --exclude-newer takes a date, not a relative duration, so compute
+        # "14 days ago" at run time. (Assumes a Linux runner with GNU date.)
+        run: echo "UV_EXCLUDE_NEWER=$(date -u -d '14 days ago' +%Y-%m-%d)" >> "$GITHUB_ENV"
+
       - name: Install all dependencies
         run: uv sync --all-extras
 

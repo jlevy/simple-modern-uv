@@ -56,6 +56,12 @@ jobs:
       #   with:
       #     python-version: ${{ matrix.python-version }}
 
+      - name: Set supply-chain cool-off cutoff
+        # uv's --exclude-newer takes a date, not a relative duration, so compute
+        # "14 days ago" at run time. This keeps CI from resolving releases too new
+        # to have been vetted. (Assumes a Linux runner with GNU date.)
+        run: echo "UV_EXCLUDE_NEWER=$(date -u -d '14 days ago' +%Y-%m-%d)" >> "$GITHUB_ENV"
+
       - name: Install all dependencies
         run: uv sync --all-extras
 

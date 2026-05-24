@@ -21,37 +21,48 @@ else
 
     echo "[gh] Detected platform: ${OS}_${ARCH}"
 
-    # Get latest version from GitHub API (with fallback)
-    GH_VERSION=$(curl -fsSL https://api.github.com/repos/cli/cli/releases/latest 2>/dev/null \
-        | grep -o '"tag_name": *"v[^"]*"' | head -1 | sed 's/.*"v\([^"]*\)".*/\1/')
-
-    # Fallback version if API fails
-    GH_VERSION=${GH_VERSION:-2.83.1}
+    # Pinned version (supply-chain cool-off: never auto-fetch "latest"). Bump
+    # deliberately to a release that is at least 14 days old.
+    GH_VERSION="2.92.0"
 
     echo "[gh] Version: ${GH_VERSION}"
 
-    # Build download URL based on platform
+    # Build archive name based on platform
     if [ "$OS" = "darwin" ]; then
-        DOWNLOAD_URL="https://github.com/cli/cli/releases/download/v${GH_VERSION}/gh_${GH_VERSION}_macOS_${ARCH}.zip"
-        ARCHIVE_EXT="zip"
-    else
-        DOWNLOAD_URL="https://github.com/cli/cli/releases/download/v${GH_VERSION}/gh_${GH_VERSION}_${OS}_${ARCH}.tar.gz"
-        ARCHIVE_EXT="tar.gz"
-    fi
-
-    echo "[gh] Downloading from ${DOWNLOAD_URL}..."
-
-    # Download
-    curl -fsSL -o "/tmp/gh.${ARCHIVE_EXT}" "$DOWNLOAD_URL"
-
-    # Extract based on archive type
-    if [ "$ARCHIVE_EXT" = "zip" ]; then
-        unzip -q "/tmp/gh.zip" -d /tmp
+        ARCHIVE_NAME="gh_${GH_VERSION}_macOS_${ARCH}.zip"
         EXTRACT_DIR="/tmp/gh_${GH_VERSION}_macOS_${ARCH}"
     else
-        tar -xzf "/tmp/gh.tar.gz" -C /tmp
+        ARCHIVE_NAME="gh_${GH_VERSION}_${OS}_${ARCH}.tar.gz"
         EXTRACT_DIR="/tmp/gh_${GH_VERSION}_${OS}_${ARCH}"
     fi
+    BASE_URL="https://github.com/cli/cli/releases/download/v${GH_VERSION}"
+
+    echo "[gh] Downloading ${ARCHIVE_NAME}..."
+    curl -fsSL -o "/tmp/${ARCHIVE_NAME}" "${BASE_URL}/${ARCHIVE_NAME}"
+
+    # Verify the download against the release's published checksums before using it.
+    echo "[gh] Verifying checksum..."
+    curl -fsSL -o /tmp/gh_checksums.txt "${BASE_URL}/gh_${GH_VERSION}_checksums.txt"
+    expected=$(grep " ${ARCHIVE_NAME}\$" /tmp/gh_checksums.txt | awk '{print $1}')
+    if command -v sha256sum &> /dev/null; then
+        actual=$(sha256sum "/tmp/${ARCHIVE_NAME}" | awk '{print $1}')
+    else
+        actual=$(shasum -a 256 "/tmp/${ARCHIVE_NAME}" | awk '{print $1}')
+    fi
+    if [ -z "$expected" ] || [ "$expected" != "$actual" ]; then
+        echo "[gh] ERROR: checksum verification failed for ${ARCHIVE_NAME}"
+        echo "[gh]   expected: ${expected:-<not found>}"
+        echo "[gh]   actual:   ${actual}"
+        rm -f "/tmp/${ARCHIVE_NAME}" /tmp/gh_checksums.txt
+        exit 1
+    fi
+    echo "[gh] Checksum OK"
+
+    # Extract
+    case "$ARCHIVE_NAME" in
+        *.zip) unzip -q "/tmp/${ARCHIVE_NAME}" -d /tmp ;;
+        *)     tar -xzf "/tmp/${ARCHIVE_NAME}" -C /tmp ;;
+    esac
 
     # Install to ~/.local/bin (works in cloud and local)
     mkdir -p ~/.local/bin
@@ -59,7 +70,7 @@ else
     chmod +x ~/.local/bin/gh
 
     # Clean up
-    rm -rf "${EXTRACT_DIR}" "/tmp/gh.${ARCHIVE_EXT}"
+    rm -rf "${EXTRACT_DIR}" "/tmp/${ARCHIVE_NAME}" /tmp/gh_checksums.txt
 
     echo "[gh] Installed to ~/.local/bin/gh"
 fi
