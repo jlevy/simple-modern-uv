@@ -37,10 +37,13 @@ jobs:
           fetch-depth: 0
 
       - name: Install uv (official Astral action)
-        uses: astral-sh/setup-uv@v7
+        # Pinned to a full, immutable version tag. As of v8, setup-uv no longer
+        # publishes floating major/minor tags (e.g. `@v8`), so bump this exact
+        # version when updating.
+        uses: astral-sh/setup-uv@v8.1.0
         with:
           # Update this as needed:
-          version: "0.10.2"
+          version: "0.11.12"
           enable-cache: true
           python-version: ${{ matrix.python-version }}
 
@@ -53,11 +56,18 @@ jobs:
       #   with:
       #     python-version: ${{ matrix.python-version }}
 
+      - name: Set supply-chain cool-off cutoff
+        # uv's --exclude-newer takes a date, not a relative duration, so compute
+        # "14 days ago" at run time. This keeps CI from resolving releases too new
+        # to have been vetted. (Assumes a Linux runner with GNU date.)
+        run: echo "UV_EXCLUDE_NEWER=$(date -u -d '14 days ago' +%Y-%m-%d)" >> "$GITHUB_ENV"
+
       - name: Install all dependencies
         run: uv sync --all-extras
 
       - name: Run linting
-        run: uv run python devtools/lint.py
+        # Check-only mode so CI fails on unformatted code instead of fixing it.
+        run: uv run python devtools/lint.py --check
 
       - name: Run tests
         run: uv run pytest

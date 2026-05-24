@@ -28,8 +28,11 @@ make
 # Build wheel:
 make build
 
-# Linting:
+# Linting (auto-fixes formatting and lint issues):
 make lint
+
+# Linting in check-only mode, matching CI (fails on issues, does not modify files):
+make lint-check
 
 # Run tests:
 make test
@@ -77,6 +80,24 @@ extensions:
 - [Based Pyright](https://marketplace.visualstudio.com/items?itemName=detachhead.basedpyright)
   for type checking. Note that this extension works with non-Microsoft VSCode forks like
   Cursor.
+
+## Supply Chain Hardening
+
+Dependencies are an attack surface. Before adding or upgrading any dependency, follow
+[**supply-chain-hardening**](https://github.com/jlevy/supply-chain-hardening), a concise
+cross-ecosystem guide on installing dependencies safely. Its key defaults:
+
+- **Cool-off period:** Don't install or upgrade to a release less than 14 days old
+  (absent a documented exception)—most malicious publishes are caught within days. For
+  uv, set `UV_EXCLUDE_NEWER` to a cutoff date a couple weeks back (uv takes a date, not a
+  duration); this project's CI workflows set it automatically.
+
+- **Vet before adding:** Confirm the package is actually needed and its name is spelled
+  correctly (typosquats are common), and prefer a little first-party code over a new
+  dependency.
+
+- **Pin, lock, and audit:** Commit your `uv.lock`, pin GitHub Actions to a commit SHA or
+  immutable tag, and run a vulnerability audit (e.g. `pip-audit`) after changes.
 
 ## Publishing Releases
 

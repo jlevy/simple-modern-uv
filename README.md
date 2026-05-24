@@ -311,7 +311,7 @@ look for `changeme` in the code.
 Once you have the template set up, you will need to check the code into Git for uv to
 work.
 [Create a new GitHub repo](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-new-repository)
-— make sure to create it as an **empty repo** (don't add a README, .gitignore, or
+— make sure to create it as an **empty repo** (don’t add a README, .gitignore, or
 license, since the template already provides these) — and add your initial code:
 
 ```shell
@@ -384,9 +384,31 @@ practices. It uses [Poetry](https://python-poetry.org/docs/basic-usage/),
 For [Conda](https://github.com/conda/conda) dependencies, also consider the newer
 [**pixi**](https://github.com/prefix-dev/pixi/) package manager.
 
+## Supply Chain Hardening
+
+Dependencies are an attack surface.
+The best resource on this is
+[**supply-chain-hardening**](https://github.com/jlevy/supply-chain-hardening), a concise
+guidebook of concrete recipes for npm, PyPI, and other ecosystems.
+**If you use this template, follow it.** Its key defaults, which this template also
+follows:
+
+- **Cooling-off period:** Don’t install or upgrade to a release less than ~14 days old
+  (most malicious publishes are caught within days).
+  For uv, set `UV_EXCLUDE_NEWER` to a cutoff date a couple weeks back (uv takes a date,
+  not a duration); this template’s CI computes it automatically.
+
+- **Vet what you add:** Only add dependencies you can verify upstream, and prefer a
+  little first-party code over pulling in a new dependency.
+
+- **Pin and lock:** Commit your `uv.lock` and pin GitHub Actions to a commit SHA (or at
+  least a full, immutable version tag) so a tag can’t be silently re-pointed.
+
+See [updating.md](updating.md#supply-chain-hygiene) for how this template applies these.
+
 ## Maintaining This Template
 
-If you're contributing to this template or forking it for your own use, see
+If you’re contributing to this template or forking it for your own use, see
 [**updating.md**](updating.md) for the full process to check for new versions, update
 the template, and verify changes in a downstream project.
 
