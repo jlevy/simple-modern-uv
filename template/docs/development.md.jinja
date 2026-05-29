@@ -89,8 +89,8 @@ cross-ecosystem guide on installing dependencies safely. Its key defaults:
 
 - **Cool-off period:** Don't install or upgrade to a release less than 14 days old
   (absent a documented exception)—most malicious publishes are caught within days. For
-  uv, set `UV_EXCLUDE_NEWER` to a cutoff date a couple weeks back (uv takes a date, not a
-  duration); this project's CI workflows set it automatically.
+  uv, set `UV_EXCLUDE_NEWER` to a cool-off window (recent uv accepts a relative duration
+  like `"14 days"`); this project's CI workflows set it automatically.
 
 - **Vet before adding:** Confirm the package is actually needed and its name is spelled
   correctly (typosquats are common), and prefer a little first-party code over a new

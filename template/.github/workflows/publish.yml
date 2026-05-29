@@ -5,6 +5,13 @@ on:
     types: [published]
   workflow_dispatch: # Enable manual trigger.
 
+env:
+  # Supply-chain cool-off: only consider releases older than this, so the publish
+  # build never resolves packages too new to have been vetted. uv (>= 0.9, and the
+  # version pinned below) accepts a relative duration directly. See the Supply Chain
+  # Hardening section in docs/development.md.
+  UV_EXCLUDE_NEWER: "14 days"
+
 jobs:
   build-and-publish:
     runs-on: ubuntu-latest
@@ -29,13 +36,10 @@ jobs:
       - name: Set up Python (using uv)
         run: uv python install
 
-      - name: Set supply-chain cool-off cutoff
-        # uv's --exclude-newer takes a date, not a relative duration, so compute
-        # "14 days ago" at run time. (Assumes a Linux runner with GNU date.)
-        run: echo "UV_EXCLUDE_NEWER=$(date -u -d '14 days ago' +%Y-%m-%d)" >> "$GITHUB_ENV"
-
       - name: Install all dependencies
-        run: uv sync --all-extras
+        # --frozen: install exactly from the committed uv.lock, never re-resolving
+        # (UV_EXCLUDE_NEWER, set above, governs any resolution that does happen).
+        run: uv sync --all-extras --frozen
 
       - name: Run tests
         run: uv run pytest
