@@ -27,8 +27,17 @@ package_name:
 
 package_module:
     type: str
-    help: Package module name? (This is the Python module, so use snake_case. Or press enter to fill in later.)
-    default: changeme
+    help: Package module name? (This is the Python module, so use snake_case. Or press enter to derive it from the package name.)
+    # Derive a valid module name from the package name so dash-case or CamelCase
+    # names (fine for GitHub/PyPI) don't silently produce a broken Python module.
+    default: "{{ package_name|lower|replace('-', '_') }}"
+    # A Python module name must be a valid identifier and is conventionally
+    # lowercase snake_case; dashes/spaces/leading digits produce code that won't
+    # import (e.g. `from .polars-row-collector import *`).
+    validator: >-
+        {% if not package_module.isidentifier() or package_module != package_module.lower() %}
+        package_module must be a lowercase, snake_case Python module name (no dashes, spaces, or leading digits). For example, use "polars_row_collector" instead of "polars-row-collector".
+        {% endif %}
 
 package_description:
     type: str
