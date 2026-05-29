@@ -6,6 +6,11 @@ trash/
 attic/
 .kash/
 
+# Python tool caches
+.ruff_cache/
+
+# GitHub's standard Python .gitignore:
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
