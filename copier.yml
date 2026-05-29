@@ -1,6 +1,9 @@
 # Copier configuration.
 
-_min_copier_version: "9.4.0"
+# 9.5.0 is the floor where question validators are reliably enforced on
+# --data (non-interactive) answers and computed/dependent defaults (e.g.
+# deriving package_module from package_name) behave consistently.
+_min_copier_version: "9.5.0"
 _subdirectory: template
 _message_after_copy: |
     Your package template has been copied!
