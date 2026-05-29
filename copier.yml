@@ -14,6 +14,8 @@ _message_after_copy: |
     cd PROJECT
     git init --initial-branch=main
     # Make license or other initial adjustments if needed.
+    # Create and commit uv.lock now so CI installs reproducibly with --frozen.
+    uv sync --all-extras
     git add .
     git commit -m "Initial commit from simple-modern-uv."
     # Create repo on GitHub.
