@@ -75,29 +75,37 @@ Follow this checklist for each new release.
 
 #### Pre-Release Checklist
 
-1. **Verify all changes are committed and pushed:**
+1. **Cut the release from an up-to-date `main`:**
 
    ```shell
-   git status
+   git checkout main
+   git pull origin main
+   git status  # confirm a clean working tree
+   ```
+
+2. **Verify all changes are committed and pushed:**
+
+   ```shell
    git log origin/main..HEAD  # should be empty if pushed
    ```
 
-2. **Run linting and tests locally:**
+3. **Run linting and tests locally:**
 
    ```shell
    make lint
    make test
    ```
 
-3. **Confirm CI is passing:**
+4. **Confirm CI is passing on `main`:**
 
    ```shell
-   gh run list --limit 3
+   gh run list --branch main --limit 3
    ```
 
-   Or check the Actions tab on GitHub.
+   Or check the Actions tab on GitHub. The most recent run for the commit you're
+   about to tag must be green (a superseded older failure is fine).
 
-4. **Determine the new version number:**
+5. **Determine the new version number:**
 
    ```shell
    # Check current/latest version:
@@ -114,9 +122,7 @@ Follow this checklist for each new release.
 
 #### Create the Release
 
-5. **Generate release notes content:**
-
-   Review changes since the last release:
+6. **Review changes since the last release:**
 
    ```shell
    # Get the last release tag:
@@ -129,30 +135,28 @@ Follow this checklist for each new release.
    git diff ${LAST_TAG}..HEAD
    ```
 
-6. **Create the release with `gh`:**
+7. **Write the release notes in a file, then create the release:**
+
+   Author the notes as plain Markdown in a file (see
+   [Release Notes Format](#release-notes-format) below), then pass it with
+   `--notes-file`. Writing the notes in a file keeps the shell out of the way:
+   release notes routinely contain backticks and `$`, which a shell heredoc would
+   try to run as commands or expand as variables. End the notes with a *concrete*
+   compare link built from the actual tags (substitute the real `LAST_TAG` and
+   `NEW_TAG` values into the URL), e.g.
+   `https://github.com/OWNER/PROJECT/compare/v0.1.0...v0.2.0`.
 
    ```shell
-   NEW_TAG="vX.Y.Z"  # Replace with actual version
-   LAST_TAG=$(gh release list --limit 1 --json tagName -q '.[0].tagName')
+   NEW_TAG="vX.Y.Z"  # Replace with the actual version
 
-   gh release create "${NEW_TAG}" \
-     --title "${NEW_TAG}" \
-     --notes "$(cat <<'EOF'
-   ## What's Changed
+   # Edit release-notes.md in your editor, ending with the concrete compare link.
 
-   [Summarize changes here--see format guide below]
-
-   ### Full Changelog
-
-   https://github.com/OWNER/PROJECT/compare/${LAST_TAG}...${NEW_TAG}
-   EOF
-   )"
+   gh release create "${NEW_TAG}" --title "${NEW_TAG}" --notes-file release-notes.md
    ```
 
-   Alternatively, use `--generate-notes` for GitHub’s auto-generated notes, or
-   `--notes-file FILENAME` to read from a file.
+   Alternatively, use `--generate-notes` for GitHub’s auto-generated notes.
 
-7. **Verify the release published successfully:**
+8. **Verify the release published successfully:**
 
    ```shell
    # Check the release workflow:
@@ -160,6 +164,13 @@ Follow this checklist for each new release.
 
    # Verify on PyPI (may take a minute):
    # https://pypi.org/project/PROJECT
+   ```
+
+   Once it appears on PyPI, smoke-test that the published artifact actually resolves
+   and installs from PyPI. If your project exposes a CLI:
+
+   ```shell
+   uvx --from PROJECT==X.Y.Z PROJECT --version
    ```
 
 ### Release Notes Format

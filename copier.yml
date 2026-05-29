@@ -1,6 +1,9 @@
 # Copier configuration.
 
-_min_copier_version: "9.4.0"
+# 9.5.0 is the floor where question validators are reliably enforced on
+# --data (non-interactive) answers and computed/dependent defaults (e.g.
+# deriving package_module from package_name) behave consistently.
+_min_copier_version: "9.5.0"
 _subdirectory: template
 _message_after_copy: |
     Your package template has been copied!
@@ -14,6 +17,8 @@ _message_after_copy: |
     cd PROJECT
     git init --initial-branch=main
     # Make license or other initial adjustments if needed.
+    # Create and commit uv.lock now so CI installs reproducibly with --frozen.
+    uv sync --all-extras
     git add .
     git commit -m "Initial commit from simple-modern-uv."
     # Create repo on GitHub.
@@ -31,12 +36,14 @@ package_module:
     # Derive a valid module name from the package name so dash-case or CamelCase
     # names (fine for GitHub/PyPI) don't silently produce a broken Python module.
     default: "{{ package_name|lower|replace('-', '_') }}"
-    # A Python module name must be a valid identifier and is conventionally
-    # lowercase snake_case; dashes/spaces/leading digits produce code that won't
-    # import (e.g. `from .polars-row-collector import *`).
+    # A Python module name must be a valid identifier, conventionally lowercase
+    # snake_case, and not a reserved word; dashes/spaces/leading digits or keywords
+    # produce code that won't import (e.g. `from .polars-row-collector import *` or
+    # `from .class import *`).
     validator: >-
-        {% if not package_module.isidentifier() or package_module != package_module.lower() %}
-        package_module must be a lowercase, snake_case Python module name (no dashes, spaces, or leading digits). For example, use "polars_row_collector" instead of "polars-row-collector".
+        {% set py_keywords = ["and", "as", "assert", "async", "await", "break", "class", "continue", "def", "del", "elif", "else", "except", "finally", "for", "from", "global", "if", "import", "in", "is", "lambda", "nonlocal", "not", "or", "pass", "raise", "return", "try", "while", "with", "yield"] %}
+        {% if not package_module.isidentifier() or package_module != package_module.lower() or package_module in py_keywords %}
+        package_module must be a lowercase, snake_case Python module name and not a reserved word (no dashes, spaces, leading digits, or keywords like "class"). For example, use "polars_row_collector" instead of "polars-row-collector".
         {% endif %}
 
 package_description:

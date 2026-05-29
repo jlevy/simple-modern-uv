@@ -60,9 +60,8 @@ days. Fresh releases are the most likely to be yanked, to carry regressions, or 
 to be a compromised/typosquatted artifact that hasn’t yet been caught.
 Prefer the latest version that is both at least 14 days old and has had subsequent patch
 releases without being yanked.
-The CI and publish workflows enforce this by setting `UV_EXCLUDE_NEWER` to a cutoff date
-14 days back, computed at run time (uv's `--exclude-newer` takes a date, not a relative
-duration).
+The CI and publish workflows enforce this by setting `UV_EXCLUDE_NEWER` to a 14-day
+cool-off window (the pinned uv accepts the relative duration `"14 days"` directly).
 
 Concretely, for each package, check the upload date before pinning:
 
@@ -126,16 +125,10 @@ copier copy --defaults --vcs-ref "$TEMPLATE_COMMIT" gh:jlevy/simple-modern-uv .
 ## Step 5: Verify Locally
 
 After the copier update, confirm everything works locally.
-Use the same 14-day supply-chain cutoff the GitHub workflows compute.
+Use the same 14-day supply-chain cool-off the GitHub workflows set.
 
 ```shell
-UV_EXCLUDE_NEWER=$(python3 - <<'PY'
-from datetime import datetime, timedelta, timezone
-
-print((datetime.now(timezone.utc) - timedelta(days=14)).date())
-PY
-)
-export UV_EXCLUDE_NEWER
+export UV_EXCLUDE_NEWER="14 days"
 
 uv sync --all-extras
 uv run python devtools/lint.py --check
