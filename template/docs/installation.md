@@ -25,3 +25,7 @@ Now you can use uv to install a current Python environment:
 ```shell
 uv python install 3.13 # Or pick another version.
 ```
+
+<!-- This document follows common-doc-guidelines.md.
+See github.com/jlevy/practical-prose and review guidelines before editing.
+-->
