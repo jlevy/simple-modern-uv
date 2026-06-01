@@ -239,6 +239,8 @@ first-class support for libraries like Pydantic and Django.
 For now this template stays on BasedPyright for its maturity and more complete checks.
 But ty is a strong contender that fits naturally with uv, and this recommendation may
 change once ty reaches comparable coverage.
+For the full comparison and the objective conformance data behind this, see the
+[type-checker research doc](docs/project/research/research-2026-06-01-python-type-checkers.md).
 
 ## What Does This Template Not Include?
 
