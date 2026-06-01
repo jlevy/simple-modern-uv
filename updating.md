@@ -86,6 +86,16 @@ In the template repo, update these files as needed:
 - **Python version matrix** in `template/.github/workflows/ci.yml` and the corresponding
   classifiers in `template/pyproject.toml.jinja`
 
+Then auto-format all docs so formatting stays consistent (this repo has no CI to enforce
+it):
+
+```shell
+make format        # auto-format all Markdown docs, including *.md.jinja templates
+make format-check  # check-only, to confirm nothing is left unformatted
+```
+
+This runs the pinned `uvx flowmark-rs@0.3.1 --auto` from the top-level `Makefile`.
+
 ## Step 3: Commit and Push the Template Candidate
 
 Commit the template changes and push `main`, but do not create the release yet.
@@ -215,3 +225,7 @@ git add -A
 git commit -m "Record simple-modern-uv template ${NEW_TAG}."  # skip if no diff
 git push origin main
 ```
+
+<!-- This document follows common-doc-guidelines.md.
+See github.com/jlevy/practical-prose and review guidelines before editing.
+-->

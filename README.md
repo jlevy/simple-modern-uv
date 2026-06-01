@@ -66,8 +66,8 @@ But it shouldn’t have to be this difficult, especially since uv has now signif
 simplified Python dev tooling.
 
 If you haven’t switched to uv, I can say I too was a little hesitant.
-It’s often possible to switch dev tooling prematurely because a the new tool is shiny
-and exciting. But the advantages of uv have become too numerous to ignore.
+It’s often possible to switch dev tooling prematurely because the new tool is shiny and
+exciting. But the advantages of uv have become too numerous to ignore.
 [This article](https://www.bitecode.dev/p/a-year-of-uv-pros-cons-and-should) (Feb 2025)
 has a good overview.
 
@@ -119,7 +119,7 @@ I put a few more thoughts on why a workflow like this is underrated is in
 
 ## What Tools are In This Template?
 
-simple-modern-uv uses uses the tools I’ve come to think are best for new projects:
+simple-modern-uv uses the tools I’ve come to think are best for new projects:
 
 - [**uv**](https://github.com/astral-sh/uv) for project setup and dependencies.
   There is also a simple makefile for dev workflows, but it simply is a convenience for
@@ -224,7 +224,23 @@ BasedPyright is well maintained, is faster than Mypy, and has a good
 [VSCode extension](https://marketplace.visualstudio.com/items?itemName=detachhead.basedpyright)
 that works with Cursor and other VSCode forks.
 So I have now switched this template to use BasedPyright.
-(But please drop a note in the Discussion tab if you have better suggestions.)
+(But please file an issue if you have better suggestions.)
+
+One newer option worth watching is [**ty**](https://github.com/astral-sh/ty), Astral’s
+own type checker (from the makers of uv and ruff), written in Rust.
+It’s extremely fast—often 10–60x faster than Mypy or Pyright—and ships a language server
+with extensions for VSCode, PyCharm, Neovim, and other editors.
+As of mid-2026 it’s still in [beta](https://astral.sh/blog/ty) and on `0.0.x`
+versioning, so its API and diagnostics can change between releases.
+It also doesn’t yet match BasedPyright on
+[typing-spec coverage](https://pydevtools.com/handbook/explanation/how-do-mypy-pyright-and-ty-compare/)
+or strictness: Astral is still filling in the long tail of typing features and
+first-class support for libraries like Pydantic and Django.
+For now this template stays on BasedPyright for its maturity and more complete checks.
+But ty is a strong contender that fits naturally with uv, and this recommendation may
+change once ty reaches comparable coverage.
+For the full comparison and the objective conformance data behind this, see the
+[type-checker research doc](docs/project/research/research-python-type-checkers.md).
 
 ## What Does This Template Not Include?
 
@@ -394,10 +410,10 @@ guidebook of concrete recipes for npm, PyPI, and other ecosystems.
 **If you use this template, follow it.** Its key defaults, which this template also
 follows:
 
-- **Cooling-off period:** Don’t install or upgrade to a release less than ~14 days old
+- **Cooling-off period:** Don’t install or upgrade to a release less than 14 days old
   (most malicious publishes are caught within days).
-  For uv, set `UV_EXCLUDE_NEWER` to a cutoff date a couple weeks back (uv takes a date,
-  not a duration); this template’s CI computes it automatically.
+  For uv, set `UV_EXCLUDE_NEWER` to a cool-off window (recent uv accepts a relative
+  duration like `"14 days"`); this template’s CI sets it automatically.
 
 - **Vet what you add:** Only add dependencies you can verify upstream, and prefer a
   little first-party code over pulling in a new dependency.
@@ -415,7 +431,11 @@ the template, and verify changes in a downstream project.
 
 ## Contributing
 
-I’m new to uv, so please help me improve this!
-Please use the Discussions thread with any feedback or suggestions.
+Please [file an issue](https://github.com/jlevy/simple-modern-uv/issues) with any bugs,
+suggestions, or other ideas.
 PRs welcome on [this repository](https://github.com/jlevy/simple-modern-uv) (not on the
 GitHub template repo, which mirrors this one).
+
+<!-- This document follows common-doc-guidelines.md.
+See github.com/jlevy/practical-prose and review guidelines before editing.
+-->

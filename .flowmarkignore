@@ -1,0 +1,7 @@
+# Paths excluded from flowmark doc formatting (see Makefile: `make format`).
+# Uses gitignore syntax. Tool-managed dirs whose Markdown we don't own:
+.tbd/
+.claude/
+.agents/
+# Local third-party checkouts (also gitignored):
+attic/

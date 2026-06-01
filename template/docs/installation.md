@@ -10,7 +10,7 @@ On macOS or Linux, if you don’t have `uv` installed, a quick way to install it
 curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
-For macOS, you prefer [brew](https://brew.sh/) you can install or upgrade uv with:
+On macOS, if you prefer [brew](https://brew.sh/), you can install or upgrade uv with:
 
 ```shell
 brew update
@@ -25,3 +25,7 @@ Now you can use uv to install a current Python environment:
 ```shell
 uv python install 3.13 # Or pick another version.
 ```
+
+<!-- This document follows common-doc-guidelines.md.
+See github.com/jlevy/practical-prose and review guidelines before editing.
+-->

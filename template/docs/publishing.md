@@ -31,7 +31,7 @@ for details.
 2. **Pick a name for the project** that isn’t already taken.
 
    - Go to `https://pypi.org/project/PROJECT` to see if another project with that name
-     already exits.
+     already exists.
 
    - If needed, update your `pyproject.toml` with the correct name.
 
@@ -102,8 +102,9 @@ Follow this checklist for each new release.
    gh run list --branch main --limit 3
    ```
 
-   Or check the Actions tab on GitHub. The most recent run for the commit you're
-   about to tag must be green (a superseded older failure is fine).
+   Or check the Actions tab on GitHub.
+   The most recent run for the commit you’re about to tag must be green (a superseded
+   older failure is fine).
 
 5. **Determine the new version number:**
 
@@ -139,11 +140,11 @@ Follow this checklist for each new release.
 
    Author the notes as plain Markdown in a file (see
    [Release Notes Format](#release-notes-format) below), then pass it with
-   `--notes-file`. Writing the notes in a file keeps the shell out of the way:
-   release notes routinely contain backticks and `$`, which a shell heredoc would
-   try to run as commands or expand as variables. End the notes with a *concrete*
-   compare link built from the actual tags (substitute the real `LAST_TAG` and
-   `NEW_TAG` values into the URL), e.g.
+   `--notes-file`. Writing the notes in a file keeps the shell out of the way: release
+   notes routinely contain backticks and `$`, which a shell heredoc would try to run as
+   commands or expand as variables.
+   End the notes with a *concrete* compare link built from the actual tags (substitute
+   the real `LAST_TAG` and `NEW_TAG` values into the URL), e.g.
    `https://github.com/OWNER/PROJECT/compare/v0.1.0...v0.2.0`.
 
    ```shell
@@ -166,8 +167,8 @@ Follow this checklist for each new release.
    # https://pypi.org/project/PROJECT
    ```
 
-   Once it appears on PyPI, smoke-test that the published artifact actually resolves
-   and installs from PyPI. If your project exposes a CLI:
+   Once it appears on PyPI, smoke-test that the published artifact actually resolves and
+   installs from PyPI. If your project exposes a CLI:
 
    ```shell
    uvx --from PROJECT==X.Y.Z PROJECT --version
@@ -222,3 +223,7 @@ Guidelines:
 
 *This file was built with
 [simple-modern-uv](https://github.com/jlevy/simple-modern-uv).*
+
+<!-- This document follows common-doc-guidelines.md.
+See github.com/jlevy/practical-prose and review guidelines before editing.
+-->
