@@ -225,3 +225,7 @@ git add -A
 git commit -m "Record simple-modern-uv template ${NEW_TAG}."  # skip if no diff
 git push origin main
 ```
+
+<!-- This document follows common-doc-guidelines.md.
+See github.com/jlevy/practical-prose and review guidelines before editing.
+-->

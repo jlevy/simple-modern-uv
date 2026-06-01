@@ -435,3 +435,7 @@ Please [file an issue](https://github.com/jlevy/simple-modern-uv/issues) with an
 suggestions, or other ideas.
 PRs welcome on [this repository](https://github.com/jlevy/simple-modern-uv) (not on the
 GitHub template repo, which mirrors this one).
+
+<!-- This document follows common-doc-guidelines.md.
+See github.com/jlevy/practical-prose and review guidelines before editing.
+-->
