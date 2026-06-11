@@ -96,6 +96,8 @@ jobs:
               ;;
           esac
           test -f AGENTS.md
+          test -f CLAUDE.md
+          grep -q '@AGENTS.md' CLAUDE.md
           test -f .copier-answers.yml
 
       - name: Init git in render (dynamic versioning requires it)

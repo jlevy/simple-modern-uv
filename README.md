@@ -16,12 +16,15 @@ Appropriately enough, the comic is out of date.)
 (Python 3.11–3.14) based on [**uv**](https://docs.astral.sh/uv/). This template aims to
 be a good base for serious work but also simple so it’s an easy option for any small
 project, like an open source library or tool.
+It can also upgrade an existing project to a modern setup: uv, ruff, BasedPyright, and
+GitHub Actions. The [agent skill](#agent-quick-start) walks you through either workflow.
 
-## In a Hurry?
+## Agent Quick Start
 
 The fastest way to use this template is through your AI coding agent.
-Install the [skill](skills/simple-modern-uv/SKILL.md) (works with Claude Code, Codex,
-Cursor, Gemini CLI, and 50+ other agents):
+Install the [skill](skills/simple-modern-uv/SKILL.md) (the
+[Agent Skills](https://agentskills.io) open standard, so it works with Claude Code,
+Codex, Cursor, Gemini CLI, and 50+ other agents):
 
 ```shell
 npx skills add jlevy/simple-modern-uv
@@ -39,6 +42,12 @@ No installer handy? Paste this into any agent instead:
 > https://raw.githubusercontent.com/jlevy/simple-modern-uv/main/skills/simple-modern-uv/SKILL.md
 > and follow it to
 > [start a new Python project / upgrade this repo / update this project].
+
+Generated projects are agent-ready too: each includes an
+[`AGENTS.md`](template/AGENTS.md.jinja) following the [agents.md](https://agents.md)
+standard (read natively by Codex, Cursor, Copilot, Gemini CLI, and others) with the
+project’s build/test commands and conventions, plus a [`CLAUDE.md`](template/CLAUDE.md)
+that imports it for Claude Code.
 
 For non-agent options, scroll down to
 [How to Use This Template](#how-to-use-this-template).
@@ -193,17 +202,6 @@ You can edit or delete these, but typically it’s sufficient to just edit the R
 It helps to have the others in separate files so they get updated whenever you update
 the template.
 
-## Agent Support
-
-Generated projects include an [`AGENTS.md`](template/AGENTS.md.jinja) following the
-[agents.md](https://agents.md) standard (read natively by Codex, Cursor, Copilot, Gemini
-CLI, and others), with the project’s build/test commands and conventions.
-Claude Code users can symlink it: `ln -s AGENTS.md CLAUDE.md`.
-
-This repo also ships the [simple-modern-uv skill](skills/simple-modern-uv/SKILL.md) (the
-[Agent Skills](https://agentskills.io) open standard) so agents can apply the template
-directly; see [In a Hurry?](#in-a-hurry).
-
 ## What’s the Best Python Type Checker?
 
 The choice of what tool to use for type checking deserves some explanation.
@@ -303,7 +301,7 @@ Option 3 is handy if you prefer a GitHub template.
 ### Option 1: Use Your Agent (Recommended)
 
 Install the [agent skill](skills/simple-modern-uv/SKILL.md) and ask your agent; see
-[In a Hurry?](#in-a-hurry) above for the exact commands and prompts.
+[Agent Quick Start](#agent-quick-start) above for the exact commands and prompts.
 The skill covers three workflows: creating a **new project**, **upgrading an existing
 Python package** to this template’s structure and tooling (including migrations from
 Poetry, setuptools/pip, or PDM), and **updating** a project already built from this

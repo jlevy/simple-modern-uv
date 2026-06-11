@@ -302,9 +302,9 @@ included, so the upgrade path stays clean for existing projects):
 The template ships a concise `AGENTS.md` (~40–60 lines) in generated projects: uv
 workflow commands (`uv sync --all-extras`, `make lint`, `make test`, `uv run pytest`),
 src-layout conventions, lint/type-check expectations, and pointers into
-`docs/development.md`. A short note covers the `CLAUDE.md` symlink pattern for Claude
-Code users (which doesn’t auto-read `AGENTS.md`), without shipping a `CLAUDE.md` —
-symlinks in templates behave poorly across platforms.
+`docs/development.md`. The template also ships a two-line `CLAUDE.md` that imports
+`AGENTS.md` via Claude Code’s `@file` syntax (Claude Code doesn’t auto-read `AGENTS.md`,
+and committed symlinks behave poorly across platforms).
 Unconditional (deletable), like the other starter docs.
 This reverses the early-2025 removal of agent rules, justified by the format’s
 standardization (see Background).

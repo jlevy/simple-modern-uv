@@ -55,7 +55,13 @@ Copy from the render, adapting as you go:
   Tests go in `tests/`.
 - **Copy verbatim**: `devtools/lint.py`, `Makefile`, `.gitignore` (merge with existing
   entries), `.github/workflows/ci.yml` (and `publish.yml` if publishing),
-  `docs/installation.md`, `docs/development.md`, `AGENTS.md`.
+  `docs/installation.md`, `docs/development.md`.
+- **Agent instruction files**: copy `AGENTS.md` and `CLAUDE.md` from the render if the
+  project has neither.
+  If the project already has an `AGENTS.md`, keep its content and fold in the template’s
+  build/test commands.
+  If it already has a `CLAUDE.md`, don’t overwrite it; add the `@AGENTS.md` import line
+  at the top so Claude Code picks up the shared conventions.
 - **`.copier-answers.yml`**: copy from the render.
   This is what makes future `copier update` work; without it the project is orphaned
   from the template.
