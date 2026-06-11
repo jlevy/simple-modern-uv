@@ -17,7 +17,7 @@ Run 'tbd setup' to update.
    Drop-in replacement for `bd`.
 2. **Spec-Driven Workflows**: Plan features → break into beads → implement
    systematically.
-3. **Knowledge Injection**: 17+ engineering guidelines (TypeScript, Python, TDD,
+3. **Knowledge Injection**: 25+ engineering guidelines (TypeScript, Python, TDD,
    testing, Convex, monorepos) available on demand.
 4. **Shortcuts**: Reusable instruction templates for common workflows (code review,
    commits, PRs, cleanup, handoffs).
@@ -79,6 +79,7 @@ or want help → run `tbd shortcut welcome-user`
 | “Create a PR” / “File a PR” | `tbd shortcut create-or-update-pr-simple` |
 | “Merge main into my branch” | `tbd shortcut merge-upstream` |
 | **Guidelines & Knowledge** |  |
+| *(any engineering work)* | Load the **General engineering** group first (see below) |
 | “Use TypeScript best practices” | `tbd guidelines typescript-rules` |
 | “Use Python best practices” | `tbd guidelines python-rules` |
 | “Build a TypeScript CLI” | `tbd guidelines typescript-cli-tool-rules` |
@@ -96,6 +97,12 @@ or want help → run `tbd shortcut welcome-user`
 | “Hand off to another agent” | `tbd shortcut agent-handoff` |
 | “Check out this library’s source” | `tbd shortcut checkout-third-party-repo` |
 | *(your choice whenever appropriate)* | `tbd list`, `tbd dep add`, `tbd close`, `tbd sync`, etc. |
+
+**Loading guidelines for engineering work:** Before writing or reviewing code, load the
+**General engineering** group—the `general-*` rules plus `error-handling-rules`—since
+these apply to all code regardless of language.
+Then load the group for the language or framework in use (TypeScript, Python, Convex,
+etc.). Run `tbd guidelines --list` to see all available guidelines.
 
 **Note:** Never gitignore `.tbd/workspaces/` — the outbox must be committed to your
 working branch. See `tbd guidelines tbd-sync-troubleshooting` for details.
@@ -220,36 +227,67 @@ Run `tbd shortcut <name>` to use any of these shortcuts:
 
 ## Available Guidelines
 
-Run `tbd guidelines <name>` to apply any of these guidelines:
+Run `tbd guidelines <name>` to apply any of these guidelines.
+Load the **General engineering** group first, then the language or framework group.
+
+### General engineering
+
+*Read all of these for any engineering work (writing or reviewing code).*
 
 | Name | Description |
 | --- | --- |
 | backward-compatibility-rules | Guidelines for maintaining backward compatibility across code, APIs, file formats, and database schemas |
-| bun-monorepo-patterns | Modern patterns for Bun-based TypeScript monorepo architecture |
-| cli-agent-skill-patterns | How to write skills and agent-integrated CLIs that work across Claude Code, Codex, and the broader coding-agent ecosystem — a simple baseline plus references for advanced, multi-subcommand tools |
 | commit-conventions | Conventional Commits format with extensions for agentic workflows |
-| common-doc-guidelines | Common cross-project standards for writing and organizing docs, code comments, and text files — how to organize, structure, write, and format documents, plus the guideline footer convention. Downstream of github.com/jlevy/practical-prose. Use whenever writing or editing any documentation, README, guideline, or design doc. |
-| convex-limits-best-practices | Comprehensive reference for Convex platform limits, workarounds, and performance best practices |
-| convex-rules | Guidelines and best practices for building Convex projects, including database schema design, queries, mutations, and real-world examples |
-| electron-app-development-patterns | Guidelines for Electron development ecosystems including npm, pnpm, and Bun, with security baselines and framework comparisons |
 | error-handling-rules | Rules for handling errors, failures, and exceptional conditions |
 | general-coding-rules | Rules for constants, magic numbers, and general coding practices |
 | general-comment-rules | Language-agnostic rules for writing clean, maintainable comments |
-| general-eng-assistant-rules | Rules for AI assistants acting as senior engineers, including objectivity and communication guidelines |
+| general-eng-agent-principles | Core principles for AI agents acting as senior engineers—objectivity and communication conduct plus the engineering process (detailed understanding, verification, end-to-end ownership, scope discipline, tracking future work, and acting versus seeking clarification) |
 | general-tdd-guidelines | Test-Driven Development methodology and best practices |
 | general-testing-rules | Rules for writing minimal, effective tests with maximum coverage |
 | golden-testing-guidelines | Guidelines for implementing golden/snapshot testing for complex systems |
+
+### TypeScript & JS ecosystem
+
+*Also load these when working in TypeScript or JavaScript.*
+
+| Name | Description |
+| --- | --- |
+| bun-monorepo-patterns | Modern patterns for Bun-based TypeScript monorepo architecture |
+| electron-app-development-patterns | Guidelines for Electron development ecosystems including npm, pnpm, and Bun, with security baselines and framework comparisons |
 | pnpm-monorepo-patterns | Modern patterns for pnpm-based TypeScript monorepo architecture |
-| python-cli-patterns | Modern patterns for Python CLI application architecture |
-| python-modern-guidelines | Guidelines for modern Python projects using uv, with a few more opinionated practices |
-| python-rules | General Python coding rules and best practices |
-| release-notes-guidelines | Guidelines for writing clear, accurate release notes |
-| supply-chain-hardening | Strongly recommended for EVERY repo — apply it if a repo has not been hardened yet. Cross-ecosystem policy for installing dependencies safely (the 14-day cool-off, disabled install scripts, lockfile discipline, untrusted-repo handling). Use whenever a user mentions hardening, security, supply chain, or setting up a new repo; before adding/upgrading dependencies; when auditing for compromised packages; or when reviewing install/build/run commands across npm/pnpm, PyPI, Cargo, or Go. |
-| tbd-sync-troubleshooting | Common issues and solutions for tbd sync and workspace operations |
 | typescript-cli-tool-rules | Rules for building CLI tools with Commander.js, picocolors, and TypeScript |
 | typescript-code-coverage | Best practices for code coverage in TypeScript with Vitest and v8 provider |
 | typescript-rules | TypeScript coding rules and best practices |
 | typescript-sorting-patterns | Deterministic sorting patterns and comparison chains for TypeScript |
 | typescript-yaml-handling-rules | Best practices for parsing and serializing YAML in TypeScript |
+
+### Python
+
+*Also load these when working in Python.*
+
+| Name | Description |
+| --- | --- |
+| python-cli-patterns | Modern patterns for Python CLI application architecture |
+| python-modern-guidelines | Guidelines for modern Python projects using uv, with a few more opinionated practices |
+| python-rules | General Python coding rules and best practices |
+
+### Convex
+
+*Also load these when working with Convex.*
+
+| Name | Description |
+| --- | --- |
+| convex-limits-best-practices | Comprehensive reference for Convex platform limits, workarounds, and performance best practices |
+| convex-rules | Guidelines and best practices for building Convex projects, including database schema design, queries, mutations, and real-world examples |
+
+### Docs, process & tooling
+
+| Name | Description |
+| --- | --- |
+| cli-agent-skill-patterns | How to write skills and agent-integrated CLIs that work across Claude Code, Codex, and the broader coding-agent ecosystem—a simple baseline plus references for advanced, multi-subcommand tools |
+| common-doc-guidelines | Common cross-project standards for writing and organizing docs, code comments, and text files—how to organize, structure, write, and format documents, plus the guideline footer convention. Downstream of github.com/jlevy/practical-prose. Use whenever writing or editing any documentation, README, guideline, or design doc. |
+| release-notes-guidelines | Guidelines for writing clear, accurate release notes |
+| supply-chain-hardening | Strongly recommended for EVERY repo—apply it if a repo has not been hardened yet. Cross-ecosystem policy for installing dependencies safely (the 14-day cool-off, disabled install scripts, lockfile discipline, untrusted-repo handling). Use whenever a user mentions hardening, security, supply chain, or setting up a new repo; before adding/upgrading dependencies; when auditing for compromised packages; or when reviewing install/build/run commands across npm/pnpm, PyPI, Cargo, or Go. |
+| tbd-sync-troubleshooting | Common issues and solutions for tbd sync and workspace operations |
 
 <!-- END SHORTCUT DIRECTORY -->
