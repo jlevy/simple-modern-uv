@@ -203,9 +203,17 @@ If CI fails, fix issues in the template repo and repeat from Step 2.
 
 ## Step 7: Create a Release on the Template Repo
 
-Once CI passes downstream, create a GitHub release on the template repo.
-The template repo doesn’t have its own CI, so the downstream CI run serves as the
-verification.
+Once CI passes downstream (and this repo’s own CI is green on the candidate commit),
+create a GitHub release on the template repo.
+
+Pick the version by what changed:
+
+- **Minor** (`v0.3.0`): new or changed template questions, new files in the render, or
+  other feature-level changes.
+  Per the answer-schema policy above, the release notes must name any new question keys
+  and their defaults.
+- **Patch** (`v0.2.28`): routine dependency and tool-version bumps, doc fixes, and
+  changes that leave the render’s shape alone.
 
 ```shell
 # From the template repo:
@@ -226,6 +234,8 @@ gh release create "$NEW_TAG" \
 
 - **Updated dev dependencies**: ruff X.Y.Z, basedpyright X.Y.Z, etc.
 - **Updated uv** to X.Y.Z in CI workflows
+- **New/changed template questions** (if any): name each key, its choices, and its
+  default
 - Any other changes
 
 **Downstream validation**: jlevy/simple-modern-uv-template CI passed for ${TEMPLATE_COMMIT:0:7}
