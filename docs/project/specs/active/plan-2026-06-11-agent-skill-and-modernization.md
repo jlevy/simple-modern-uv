@@ -19,9 +19,9 @@ unpublished.
 
 Alongside the skill, modernize the template itself: re-introduce agent instructions
 (`AGENTS.md`, now a stable cross-agent standard), add first-class template options for
-the two customizations agents most need (license and publish-to-PyPI), demote the
-interactive `uvtemplate` path, add CI to this repo so template changes are validated on
-every PR, and refresh tool versions.
+the two customizations agents most need (license and publish-to-PyPI), remove the
+interactive `uvtemplate` tool (the skill’s flows fully subsume it), add CI to this repo
+so template changes are validated on every PR, and refresh tool versions.
 A summary of uv’s evolution since this template was created (March 2025) is in
 [Appendix A](#appendix-a-uv-changes-since-march-2025) with the resulting action items.
 
@@ -85,6 +85,89 @@ A verification note: rendering this template fully non-interactively was tested 
 complete project including the derived `package_module`. The agent path needs no new
 tooling.
 
+## User Flows
+
+First principles: every flow collects the **same answer set** — the questions in
+`copier.yml` (name, module, description, author, email, GitHub org, plus the new D2
+license and publish options).
+That question set is the single shared schema ("the interview"). The three flows differ
+only in **where the answers come from**, and every flow follows the same shape: **infer
+→ confirm once → execute → verify → next steps**.
+
+The interview contract (specified in `SKILL.md`, binding on all flows):
+
+- **Infer before asking.** Author name/email from `git config`; GitHub org from the repo
+  remote or `gh` auth; package name from the user’s request or the directory; for
+  existing projects, nearly everything from the repo itself (see Flow 2).
+- **Ask once, batched.** Whatever can’t be inferred is asked in a single round alongside
+  a confirmation summary of everything inferred — never a question-per-answer
+  interrogation (that’s the interactive-prompt experience the agent replaces).
+  Decision points the user must own (license, publish-or-not) are always surfaced in
+  that round, with the defaults named (MIT, publish).
+- **Execute non-interactively** via pinned `uvx copier … --defaults --data k=v`.
+- **Verify before declaring done**: `uv sync --all-extras`, `make lint`, `make test`
+  (and `uv build` when publishing) must pass.
+- **End with next steps**, not a dead stop: README fill-in, repo creation/push, Trusted
+  Publishing setup (if publishing), how to update later.
+
+### Flow 1: New project ("set me up from scratch")
+
+The user pastes one thing into any agent (both variants in the README):
+
+```
+npx skills add jlevy/simple-modern-uv
+```
+
+> Use the simple-modern-uv skill to start a new Python project called acme-widgets.
+
+(or, zero-install: *“Fetch
+https://raw.githubusercontent.com/jlevy/simple-modern-uv/main/skills/simple-modern-uv/SKILL.md
+and follow it to start a new Python project called acme-widgets.”*)
+
+The agent then: infers author/email/org from the environment, asks the single batched
+round (description; license — default MIT; publish to PyPI? — default yes; org if not
+inferred), renders with `--data`, runs `git init` + `uv sync --all-extras` + first
+commit, verifies lint/tests pass, and offers the optional finish (create the GitHub repo
+and push; if publishing, point at `docs/publishing.md` for the one-time Trusted
+Publisher setup).
+
+### Flow 2: Upgrade an existing project ("modernize this repo")
+
+The user pastes the install line plus: *“Upgrade this repo to follow simple-modern-uv
+best practices.”*
+
+Same interview, different answer source — the repo: name/description/authors from
+`pyproject.toml` (or `setup.py`/`setup.cfg`), license from `LICENSE`/classifiers, org
+from the git remote, publish intent from PyPI presence or a `Private ::` classifier.
+The confirmation round presents the inferred answers plus the **migration decision
+points** that have no safe default:
+
+- `requires-python` floor: the template targets 3.11+; raise the project’s floor or flag
+  the conflict and stop.
+- Layout: move to `src/` layout (recommended) or adapt the template config to the
+  existing flat layout.
+- Versioning: dynamic versioning needs a git tag; for an already-published package, the
+  first tag must exceed the version on PyPI.
+
+Then execute per `references/adopt-existing.md`: render the template into a temp dir
+with the confirmed answers; merge deliberately (template’s `pyproject.toml` structure
+with the project’s dependencies/metadata preserved; bring over `devtools/`, workflows,
+`Makefile`, docs stubs, `AGENTS.md`; write `.copier-answers.yml` with `_commit` so the
+project lands on the update path); translate tool configs (Poetry/PDM/setuptools → uv,
+mypy → basedpyright); remove superseded files (`poetry.lock`, old CI) — consulting
+`references/faq.md` for the common failure modes; verify; and land everything as one
+reviewable branch/commit.
+
+### Flow 3: Update an already-templated project ("pull the latest template")
+
+The user pastes: *“Update this project to the latest simple-modern-uv.”* No interview —
+the answers are already recorded in `.copier-answers.yml`. The agent confirms a clean
+working tree, runs `uvx copier@<ver> update --defaults` (optionally `--vcs-ref=<tag>`),
+resolves any conflict markers, re-runs lint/tests, and summarizes what changed against
+the template’s release notes.
+Flows 1 and 2 both end in a state where Flow 3 works, which is the point: **adopt once,
+update forever**.
+
 ## Design
 
 ### D1. One agent skill at `skills/simple-modern-uv/SKILL.md`
@@ -94,11 +177,24 @@ A single skill folder, committed at the repo root in the universal discovery loc
 ```
 skills/
 └── simple-modern-uv/
-    ├── SKILL.md              # routing layer: workflows, commands, when to use
+    ├── SKILL.md              # routing layer: the interview contract + the three flows
     └── references/
         ├── adopt-existing.md # checklist: convert an existing package to the template
-        └── customize.md      # license, private/unpublished, other post-render tweaks
+        ├── customize.md      # license, private/unpublished, other post-render tweaks
+        └── faq.md            # common problems across flows, mostly migrations
 ```
+
+`SKILL.md` carries the interview contract and routes the three User Flows; the
+references carry the bulk.
+`references/faq.md` is the troubleshooting layer the upgrade flow leans on; at minimum
+it covers: dynamic version resolving to `0.0.0` (no git tag yet; first tag must exceed
+any published PyPI version), flat→`src/` layout moves (and how to stay flat if
+insisted), `requires-python` floor conflicts, basedpyright erupting on legacy code
+(start from the template’s relaxed toggles, ratchet later; existing `# type: ignore`
+comments still work), Poetry caret-spec conversion and `poetry.lock`/old-CI cleanup,
+codespell flagging legacy prose (`ignore-words-list`), and `uv sync` Python-version
+failures (`uv python install`, `.python-version`). The list grows from real migration
+reports.
 
 Design rules (per `tbd guidelines cli-agent-skill-patterns`):
 
@@ -123,31 +219,14 @@ Design rules (per `tbd guidelines cli-agent-skill-patterns`):
   bootstrap by pasting a prompt that points at the raw `SKILL.md` with no installer at
   all.
 
-The three workflows the skill routes:
-
-1. **New project**:
-   `uvx copier@<ver> copy --defaults --data package_name=… --data … gh:jlevy/simple-modern-uv <dir>`,
-   then the git init/commit/push steps the template already prints, then customization
-   (D2 options or `references/customize.md`). The agent gathers the answers from the
-   user’s request (or asks once), instead of an interactive prompt session.
-2. **Adopt an existing package** (the biggest win): guided by
-   `references/adopt-existing.md`. The approach is agent-native: render the template
-   into a sibling temp directory with answers matching the existing project, then merge
-   deliberately — adopt the template’s `pyproject.toml` structure (preserving the
-   project’s dependencies and metadata), bring over `devtools/lint.py`, workflows,
-   `Makefile`, docs stubs, and `.copier-answers.yml` (recording `_commit` so future
-   `copier update` works), translate Poetry/setuptools/PDM config to uv equivalents,
-   then run `uv sync`, lint, and tests to verify.
-   The checklist enumerates the per-source translations (Poetry dep specs → PEP 621,
-   `tool.poetry.scripts` → `project.scripts`, dev deps → `dependency-groups`, etc.)
-   and the verification gate.
-3. **Update a templated project**: `uvx copier@<ver> update --defaults --vcs-ref=<tag>`
-   in a clean working tree, resolve any conflict markers, re-run lint/tests.
-   Works for projects created by any of the historical paths, since all record
-   `.copier-answers.yml`.
-
-Customization (license change, private/no-publish, app-vs-library) is reachable from all
-three workflows via `references/customize.md` plus the D2 template options.
+The skill body routes the three User Flows above — new project (Flow 1, pinned
+`copier copy` plus the git/verify steps), upgrade an existing package (Flow 2, the
+render-and-merge procedure in `references/adopt-existing.md`, whose checklist enumerates
+the per-source translations: Poetry dep specs → PEP 621, `tool.poetry.scripts` →
+`project.scripts`, dev deps → `dependency-groups`, etc.), and update a templated project
+(Flow 3, `copier update`). Customization (license change, private/no-publish,
+app-vs-library) is reachable from all three flows via `references/customize.md` plus the
+D2 template options.
 
 ### D2. Template options for license and publishing
 
@@ -181,21 +260,30 @@ Unconditional (deletable), like the other starter docs.
 This reverses the early-2025 removal of agent rules, justified by the format’s
 standardization (see Background).
 
-### D4. Demote and deprecate `uvtemplate`
+### D4. Remove `uvtemplate` entirely
 
-The README’s “How to Use This Template” becomes agent-first:
+The three flows fully subsume what `uvtemplate` did (its value was the guided interview,
+and the interview contract moves that into the agent), so it is removed rather than
+demoted — all tooling consolidates in this repo, and no second wrapper CLI remains to
+maintain.
 
-- **Option 1 (new): use your agent.** A copy-paste block:
-  `npx skills add jlevy/simple-modern-uv` followed by a one-line prompt, plus a
-  no-installer variant (paste a prompt pointing at the raw `SKILL.md` URL).
-- **Option 2: copier by hand** (unchanged, for humans who want the terminal).
+In this repo, every `uvtemplate` reference goes away: the PyPI badge in the README
+header, the “In a Hurry?”
+section, the old “Option 1: Run `uvx uvtemplate`”, and the cross-references in
+`template/docs/publishing.md`. The README’s “How to Use This Template” becomes:
+
+- **Option 1: use your agent.** Copy-paste blocks per flow (see User Flows): the
+  `npx skills add jlevy/simple-modern-uv` install line plus a one-line prompt for new /
+  upgrade / update, and the zero-install raw-`SKILL.md` prompt variant.
+- **Option 2: copier by hand** (unchanged, for humans who want the terminal — this was
+  always what `uvtemplate` wrapped).
 - **Option 3: GitHub template repo** (unchanged).
-- `uvx uvtemplate` moves to a short “legacy interactive option” mention.
-  The uvtemplate package itself gets a deprecation note in its own repo (separate,
-  out-of-scope task tracked as a follow-up) — it keeps working, but this repo stops
-  featuring it, and all tooling consolidates here.
-  No non-interactive revamp of uvtemplate: copier already is the non-interactive engine,
-  and a second wrapper would be permanent duplicate surface area.
+
+In the `jlevy/uvtemplate` repo (follow-up, after the skill is released and verified
+end-to-end): deprecation note in the README pointing here, a final PyPI release whose
+CLI prints the same pointer, then archive the repo.
+Existing installs keep working; `.copier-answers.yml` files it wrote remain valid for
+Flow 3 updates, so no user is stranded.
 
 ### D5. CI for this repo (render smoke test + skill validation)
 
@@ -241,16 +329,21 @@ defaults. No checker switch.
 
 ### Phase 1: The skill and its docs
 
-- [ ] Write `skills/simple-modern-uv/SKILL.md` (frontmatter per D1; three workflows;
-  route-don’t-restate)
+- [ ] Write `skills/simple-modern-uv/SKILL.md` (frontmatter per D1; the interview
+  contract; routes the three User Flows; route-don’t-restate)
 - [ ] Write `references/adopt-existing.md` (render-and-merge checklist with per-source
-  translations: setuptools/pip, Poetry, PDM/hatch; verification gate)
+  translations: setuptools/pip, Poetry, PDM/hatch; the Flow 2 migration decision points;
+  verification gate)
 - [ ] Write `references/customize.md` (license, private/unpublished, entry points,
   app-vs-library notes)
+- [ ] Write `references/faq.md` (common problems, seeded with the list in D1; grows from
+  real migration reports)
 - [ ] Test activation per the guideline: positive/negative prompts, explicit invocation,
-  and a real end-to-end run of each workflow in a scratch repo
-- [ ] README: new agent-first “Option 1” with the paste-able install block and prompt;
-  demote uvtemplate to a legacy mention (D4)
+  and a real end-to-end run of each flow in a scratch repo
+- [ ] README: agent-first “Option 1” with per-flow paste blocks (install line + one-line
+  prompt for new/upgrade/update, plus the zero-install raw-URL variant); remove all
+  uvtemplate references including the PyPI badge and “In a Hurry?”
+  section (D4); remove uvtemplate cross-references from `template/docs/publishing.md`
 
 ### Phase 2: Template changes
 
@@ -269,7 +362,8 @@ defaults. No checker switch.
   release gate; add the skill to the release checklist
 - [ ] Add the uv-changes research doc (`docs/project/research/research-uv-changes.md`)
   as a living doc seeded from Appendix A
-- [ ] Follow-up (outside this repo): deprecation note on jlevy/uvtemplate
+- [ ] Follow-up (outside this repo): retire jlevy/uvtemplate — deprecation note in its
+  README, final PyPI release printing a pointer here, archive the repo (D4)
 
 ## Testing Strategy
 
@@ -279,9 +373,11 @@ defaults. No checker switch.
   Step 5).
 - **Skill validation**: `npx skills-ref validate` in CI; link/reference resolution
   check.
-- **Skill behavior**: manual end-to-end runs of all three workflows with a real agent
+- **Skill behavior**: manual end-to-end runs of all three User Flows with a real agent
   (new project; adopt a small Poetry project; `copier update` on the downstream repo),
-  plus activation testing (should-trigger and should-not-trigger prompts).
+  checking the interview contract holds (inference correct, one batched question round,
+  decision points surfaced, verification gate run), plus activation testing
+  (should-trigger and should-not-trigger prompts).
 - **Release gate unchanged**: downstream `simple-modern-uv-template` CI must pass before
   any release tag, per `updating.md`.
 
@@ -292,7 +388,8 @@ defaults. No checker switch.
 2. Run the `updating.md` release flow: export to the downstream repo, wait for CI, then
    tag a release.
 3. After the release: verify `npx skills add jlevy/simple-modern-uv` end-to-end from a
-   clean environment, then add the deprecation note to uvtemplate.
+   clean environment, then retire uvtemplate (deprecation note, final pointer release,
+   archive — D4).
 4. Optional later: submit to the Anthropic community plugin marketplace
    (`clau.de/plugin-directory-submission`) for reviewed, security-screened
    discoverability inside Claude Code.
@@ -301,10 +398,6 @@ defaults. No checker switch.
 
 ## Open Questions
 
-- **uvtemplate end state**: this plan demotes it to a legacy mention and adds a
-  deprecation note upstream, keeping the package functional.
-  Full archival of the uvtemplate repo is the author’s call once the skill has proven
-  itself.
 - **Claude plugin marketplace**: ship `.claude-plugin/marketplace.json` now, or wait?
   Recommendation: wait — repo-local installs and `npx skills add` need no manifest, and
   the community-marketplace submission (rollout step 4) is the higher-trust channel if
