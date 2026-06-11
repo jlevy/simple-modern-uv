@@ -115,8 +115,8 @@ projects keep updating cleanly:
    overrides are honored.
 5. **Call it out in release notes**, naming the new keys and their defaults.
 
-Then auto-format all docs so formatting stays consistent (this repo has no CI to enforce
-it):
+Then auto-format all docs so formatting stays consistent (CI’s `format-check` job
+enforces this):
 
 ```shell
 make format        # auto-format all Markdown docs, including *.md.jinja templates

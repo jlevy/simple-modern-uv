@@ -1,10 +1,11 @@
 # Feature: Agent Skill and Template Modernization
 
-**Date:** 2026-06-11 (last updated 2026-06-11)
+**Date:** 2026-06-11 (last updated 2026-06-11, post-implementation)
 
 **Author:** Joshua Levy (with agent assistance)
 
-**Status:** Draft
+**Status:** Implemented (in-repo work; activation testing and the external uvtemplate
+retirement remain — see Implementation Plan)
 
 ## Overview
 
@@ -379,42 +380,42 @@ defaults. No checker switch.
 
 ### Phase 1: The skill and its docs
 
-- [ ] Write `skills/simple-modern-uv/SKILL.md` (frontmatter per D1; the interview
+- [x] Write `skills/simple-modern-uv/SKILL.md` (frontmatter per D1; the interview
   contract; routes the three User Flows; route-don’t-restate)
-- [ ] Write `references/adopt-existing.md` (render-and-merge checklist with per-source
+- [x] Write `references/adopt-existing.md` (render-and-merge checklist with per-source
   translations: setuptools/pip, Poetry, PDM/hatch; the Flow 2 migration decision points;
   verification gate)
-- [ ] Write `references/customize.md` (license, private/unpublished, entry points,
+- [x] Write `references/customize.md` (license, private/unpublished, entry points,
   app-vs-library notes)
-- [ ] Write `references/faq.md` (common problems, seeded with the list in D1; grows from
+- [x] Write `references/faq.md` (common problems, seeded with the list in D1; grows from
   real migration reports)
 - [ ] Test activation per the guideline: positive/negative prompts, explicit invocation,
   and a real end-to-end run of each flow in a scratch repo
-- [ ] README: agent-first “Option 1” with per-flow paste blocks (install line + one-line
+- [x] README: agent-first “Option 1” with per-flow paste blocks (install line + one-line
   prompt for new/upgrade/update, plus the zero-install raw-URL variant); remove all
   uvtemplate references including the PyPI badge and “In a Hurry?”
   section (D4); remove uvtemplate cross-references from `template/docs/publishing.md`
 
 ### Phase 2: Template changes
 
-- [ ] Add `package_license` and `publish_to_pypi` copier questions; conditional
+- [x] Add `package_license` and `publish_to_pypi` copier questions; conditional
   `LICENSE`, `publish.yml`, `docs/publishing.md`, classifier and README content;
   defaults must be behavior-preserving per the D2 answer-schema evolution rules
-- [ ] Sharpen `copier.yml` `package_name` guidance to recommend kebab-case (the PyPI
+- [x] Sharpen `copier.yml` `package_name` guidance to recommend kebab-case (the PyPI
   convention; other casings still accepted, module name stays validated snake_case)
-- [ ] Add `AGENTS.md` to the template output (D3)
-- [ ] Bump uv pin, dependency floors, and `setup-uv` tag per cool-off (D6)
-- [ ] Refresh basedpyright config comments and the type-checker research doc (D7)
+- [x] Add `AGENTS.md` to the template output (D3)
+- [x] Bump uv pin, dependency floors, and `setup-uv` tag per cool-off (D6)
+- [x] Refresh basedpyright config comments and the type-checker research doc (D7)
 - [ ] Validate via the downstream repo flow in `updating.md`
 
 ### Phase 3: Repo CI and maintenance docs
 
-- [ ] Add `.github/workflows/ci.yml` to this repo: default + non-default renders,
+- [x] Add `.github/workflows/ci.yml` to this repo: default + non-default renders,
   lint/test/build on the render, skill validation, `make format-check` (D5)
-- [ ] Update `updating.md`: PR validation now automatic; downstream repo remains the
+- [x] Update `updating.md`: PR validation now automatic; downstream repo remains the
   release gate; add the skill to the release checklist; add the D2 answer-schema
   evolution rules as a standing policy for future question changes
-- [ ] Add the uv-changes research doc (`docs/project/research/research-uv-changes.md`)
+- [x] Add the uv-changes research doc (`docs/project/research/research-uv-changes.md`)
   as a living doc seeded from Appendix A
 - [ ] Follow-up (outside this repo): retire jlevy/uvtemplate — deprecation note in its
   README, final PyPI release printing a pointer here, archive the repo (D4)
