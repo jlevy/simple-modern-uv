@@ -15,8 +15,6 @@ permissions:
   contents: read
 
 env:
-  # Supply-chain cool-off, matching the template's own CI (see updating.md).
-  UV_EXCLUDE_NEWER: "14 days"
   # Pinned tool versions used to exercise the template. Keep the uv version in
   # sync with template/.github/workflows/ci.yml when updating.
   UV_VERSION: "0.11.17"
@@ -49,6 +47,12 @@ jobs:
           - variant: no-publish-proprietary
             extra_args: "--data package_license=Proprietary --data publish_to_pypi=false"
     runs-on: ubuntu-latest
+    env:
+      # Supply-chain cool-off for template dependency resolution, matching the
+      # template's own CI (see updating.md). Scoped to the render/update jobs:
+      # the format-check job runs only the Makefile's explicitly pinned formatter,
+      # which may legitimately be newer than the cool-off window.
+      UV_EXCLUDE_NEWER: "14 days"
     steps:
       - uses: actions/checkout@v6
         with:
@@ -106,6 +110,8 @@ jobs:
     # converge to a fresh render (no conflicts, no surprise file changes), and
     # explicit --data overrides for newer questions must be honored.
     runs-on: ubuntu-latest
+    env:
+      UV_EXCLUDE_NEWER: "14 days"
     steps:
       - uses: actions/checkout@v6
         with:
