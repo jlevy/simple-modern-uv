@@ -54,10 +54,10 @@ dependencies = [
 dev = [
     "pytest>=9.0.3",
     "pytest-sugar>=1.1.1",
-    "ruff>=0.15.12",
+    "ruff>=0.15.15",
     "codespell>=2.4.2",
     "rich>=15.0.0",
-    "basedpyright>=1.39.3",
+    "basedpyright>=1.39.6",
     "funlog>=0.2.1",
 ]
 
@@ -92,6 +92,12 @@ packages = ["src/{{ package_module }}"]
 
 
 # ---- Settings ----
+
+[tool.uv]
+# Fail fast on old uv versions rather than misbehave. 0.9 is the floor where
+# UV_EXCLUDE_NEWER accepts a relative duration like "14 days" (used in CI for the
+# supply-chain cool-off; see docs/development.md).
+required-version = ">=0.9"
 
 [tool.ruff]
 # Set as desired, typically 88 (black standard) or 100 (wide).
