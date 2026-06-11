@@ -38,7 +38,9 @@ jobs:
       # https://docs.astral.sh/uv/guides/integration/github/
 
       - name: Checkout (official GitHub action)
-        uses: actions/checkout@v6
+        # Pinned to a full, immutable version tag (see supply-chain notes in
+        # docs/development.md); bump deliberately when updating.
+        uses: actions/checkout@v6.0.2
         with:
           # Important for versioning plugins:
           fetch-depth: 0
@@ -50,7 +52,7 @@ jobs:
         uses: astral-sh/setup-uv@v8.1.0
         with:
           # Update this as needed:
-          version: "0.11.12"
+          version: "0.11.17"
           enable-cache: true
           python-version: ${{ matrix.python-version }}
 

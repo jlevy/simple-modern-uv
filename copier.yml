@@ -8,26 +8,30 @@ _subdirectory: template
 _message_after_copy: |
     Your package template has been copied!
 
-    Remember to look for any unfilled `changeme` strings and confirm the license!
-    By default this template uses MIT license.
-    See `license` in pyproject.toml and update the LICENSE file.
+    Remember to look for any unfilled `changeme` strings!
+    The license and publishing setup follow your package_license and
+    publish_to_pypi answers; change them later with, e.g.:
+    copier update --data package_license=Apache-2.0
 
     Next steps:
-    
+
     cd PROJECT
     git init --initial-branch=main
-    # Make license or other initial adjustments if needed.
-    # Create and commit uv.lock now so CI installs reproducibly with --frozen.
-    uv sync --all-extras
     git add .
     git commit -m "Initial commit from simple-modern-uv."
-    # Create repo on GitHub.
+    # Sync after the first commit so dynamic versioning gives the editable
+    # install a real version (not 0.0.0). This creates uv.lock; commit it so
+    # CI installs reproducibly with --frozen.
+    uv sync --all-extras
+    git add uv.lock
+    git commit -m "Add uv.lock."
+    # Create an empty repo on GitHub, then:
     git remote add origin git@github.com:OWNER/PROJECT.git  # or https://...
     git push -u origin main
 
 package_name:
     type: str
-    help: What is the package name? (This will be the GitHub repo and PyPI package name, so use CamelCase, dash-case, or snake_case. This is the only required field.)
+    help: What is the package name? (This will be the GitHub repo and PyPI package name. Recommended convention is kebab-case, like "my-package"; CamelCase and snake_case also work. This is the only required field.)
     default: changeme
 
 package_module:
@@ -65,3 +69,26 @@ package_github_org:
     type: str
     help: Package GitHub org or username? (Press enter to fill in later.)
     default: changeme
+
+package_license:
+    type: str
+    help: Which license? (Default MIT. Choose Proprietary if this is not open source, or None to decide later.)
+    default: MIT
+    # Values are SPDX identifiers (except Proprietary and None). None renders no
+    # LICENSE file and no license field, for choosing later. Defaults here must stay
+    # behavior-preserving so `copier update --defaults` is a no-op for existing
+    # projects; see "Changing Template Questions" in updating.md.
+    choices:
+        "MIT": MIT
+        "Apache-2.0": Apache-2.0
+        "BSD-3-Clause": BSD-3-Clause
+        "AGPL-3.0-or-later": AGPL-3.0-or-later
+        "Proprietary (not open source)": Proprietary
+        "None (choose later)": "None"
+
+publish_to_pypi:
+    type: bool
+    help: >-
+        Publish this package to PyPI? (Yes adds the release workflow and publishing
+        docs. Choose No for a private package or an app you won't publish.)
+    default: yes

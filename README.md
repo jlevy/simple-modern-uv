@@ -6,7 +6,7 @@ Appropriately enough, the comic is out of date.)
 # simple-modern-uv
 
 [![Follow @ojoshe on X](https://img.shields.io/badge/follow_%40ojoshe-black?logo=x&logoColor=white)](https://x.com/ojoshe)
-[![image](https://img.shields.io/pypi/pyversions/uvtemplate.svg)](https://pypi.python.org/pypi/uvtemplate)
+[![python](https://img.shields.io/badge/python-3.11%20%7C%203.12%20%7C%203.13%20%7C%203.14-blue?logo=python&logoColor=white)](https://www.python.org/downloads/)
 [![uv](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json)](https://github.com/astral-sh/uv)
 [![Copier](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/copier-org/copier/master/img/badge/badge-grayscale-border.json)](https://github.com/copier-org/copier)
 
@@ -16,20 +16,40 @@ Appropriately enough, the comic is out of date.)
 (Python 3.11–3.14) based on [**uv**](https://docs.astral.sh/uv/). This template aims to
 be a good base for serious work but also simple so it’s an easy option for any small
 project, like an open source library or tool.
+It can also upgrade an existing project to a modern setup: uv, ruff, BasedPyright, and
+GitHub Actions. The [agent skill](#agent-quick-start) walks you through either workflow.
 
-## In a Hurry?
+## Agent Quick Start
 
-You can try out this template right from your terminal.
-Try running:
+The fastest way to use this template is through your AI coding agent.
+Install the [skill](skills/simple-modern-uv/SKILL.md) (the
+[Agent Skills](https://agentskills.io) open standard, so it works with Claude Code,
+Codex, Cursor, Gemini CLI, and 50+ other agents):
 
 ```shell
-uvx uvtemplate
+npx skills add jlevy/simple-modern-uv
 ```
 
-The [uvtemplate](https://git.new/uvtemplate) tool now walks you through using this
-template.
+Then tell your agent what you want, for example:
 
-For more installation options, scroll down to
+- “Start a new Python project called my-package using simple-modern-uv.”
+- “Upgrade this repo to follow simple-modern-uv best practices.”
+- “Update this project to the latest simple-modern-uv template.”
+
+No installer handy? Paste this into any agent instead:
+
+> Fetch
+> https://raw.githubusercontent.com/jlevy/simple-modern-uv/main/skills/simple-modern-uv/SKILL.md
+> and follow it to
+> [start a new Python project / upgrade this repo / update this project].
+
+Generated projects are agent-ready too: each includes an
+[`AGENTS.md`](template/AGENTS.md.jinja) following the [agents.md](https://agents.md)
+standard (read natively by Codex, Cursor, Copilot, Gemini CLI, and others) with the
+project’s build/test commands and conventions, plus a [`CLAUDE.md`](template/CLAUDE.md)
+that imports it for Claude Code.
+
+For non-agent options, scroll down to
 [How to Use This Template](#how-to-use-this-template).
 
 ## Why a New Python Project Template?
@@ -182,13 +202,6 @@ You can edit or delete these, but typically it’s sufficient to just edit the R
 It helps to have the others in separate files so they get updated whenever you update
 the template.
 
-## Agent Rules
-
-Previously, this template included a few agent rules for use with Claude Code, Codex,
-Cursor, etc. But agent rules are changing so fast I have since removed them from this
-template and instead suggest adding your own or copying my recent rules from the
-[Speculate](https://github.com/jlevy/speculate) repo.
-
 ## What’s the Best Python Type Checker?
 
 The choice of what tool to use for type checking deserves some explanation.
@@ -204,7 +217,7 @@ And it has a newer extension and fork called
 [BasedPyright](https://github.com/DetachHead/basedpyright).
 
 All of these work in build systems.
-But this is a choice not just of build tooling—it is far preferable to have your type
+But this is a choice not just of build tooling: it is far preferable to have your type
 checker warnings align with your IDE warnings.
 With the rises of AI-powered IDEs like Cursor and Windsurf that are VSCode extensions,
 it seems like type checking support as a VSCode-compatible extension is essential.
@@ -228,8 +241,8 @@ So I have now switched this template to use BasedPyright.
 
 One newer option worth watching is [**ty**](https://github.com/astral-sh/ty), Astral’s
 own type checker (from the makers of uv and ruff), written in Rust.
-It’s extremely fast—often 10–60x faster than Mypy or Pyright—and ships a language server
-with extensions for VSCode, PyCharm, Neovim, and other editors.
+It’s extremely fast, often 10–60x faster than Mypy or Pyright, and ships a language
+server with extensions for VSCode, PyCharm, Neovim, and other editors.
 As of mid-2026 it’s still in [beta](https://astral.sh/blog/ty) and on `0.0.x`
 versioning, so its API and diagnostics can change between releases.
 It also doesn’t yet match BasedPyright on
@@ -251,7 +264,7 @@ This template **does not** handle:
 
 - Using Docker
 
-- Private or enterprise package repositories (but you can add this—see
+- Private or enterprise package repositories (but you can add this; see
   [uv’s docs on alternative indexes](https://docs.astral.sh/uv/guides/integration/alternative-indexes/))
 
 - Building websites or docs, e.g. with [mkdocs](https://github.com/mkdocs/mkdocs)
@@ -274,28 +287,30 @@ references.
 
 ## How to Use This Template
 
-By default this template uses MIT license.
-If you want a different license or are not publishing your project as open source,
-update `license` in pyproject.toml and the LICENSE file.
-If desired, you may delete the `.github/workflows/publish.yml` file if you are not
-publishing to PyPI.
+License and publishing are template questions, not hand edits: `package_license`
+(default MIT; also Apache-2.0, BSD-3-Clause, AGPL-3.0-or-later, Proprietary, or None to
+decide later) and `publish_to_pypi` (answer no for a private package; the publish
+workflow and docs are then omitted).
+Answer them at render time or change them later with
+`copier update --data package_license=…`; see the skill’s
+[customize guide](skills/simple-modern-uv/references/customize.md) for details.
+Prefer re-answering over hand-deleting generated files like `publish.yml`, so future
+`copier update` runs stay consistent.
 
 The template can be used in three ways.
-Option 1 is the quickest option with full flexibility.
-Option 2 is the normal way to use a Copier template by hand.
+Option 1 is the quickest: your AI coding agent gathers the project details and does the
+setup. Option 2 is the normal way to use a Copier template by hand.
 Option 3 is handy if you prefer a GitHub template.
 
-### Option 1: Run `uvx uvtemplate`
+### Option 1: Use Your Agent (Recommended)
 
-I’ve now created a little tool, [uvtemplate](https://www.github.com/jlevy/uvtemplate)
-that copies this template for you and walks you through everything:
-
-```shell
-uvx uvtemplate
-```
-
-It’s the same as running `copier` and a few `git` commands yourself, with a little more
-guidance and less typing.
+Install the [agent skill](skills/simple-modern-uv/SKILL.md) and ask your agent; see
+[Agent Quick Start](#agent-quick-start) above for the exact commands and prompts.
+The skill covers three workflows: creating a **new project**, **upgrading an existing
+Python package** to this template’s structure and tooling (including migrations from
+Poetry, setuptools/pip, or PDM), and **updating** a project already built from this
+template. Your agent collects the essentials (name, description, license, whether you
+publish to PyPI) and handles the rest non-interactively.
 
 ### Option 2: Use `copier` and `git` Yourself
 
@@ -326,18 +341,21 @@ look for `changeme` in the code.
 
 Once you have the template set up, you will need to check the code into Git for uv to
 work.
-[Create a new GitHub repo](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-new-repository)
-— make sure to create it as an **empty repo** (don’t add a README, .gitignore, or
-license, since the template already provides these) — and add your initial code:
+[Create a new GitHub repo](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-new-repository),
+making sure to create it as an **empty repo** (don’t add a README, .gitignore, or
+license, since the template already provides these), and add your initial code:
 
 ```shell
 cd PROJECT
 git init --initial-branch=main
-# Make license or other initial adjustments if needed.
-# Create and commit uv.lock now so CI installs reproducibly with --frozen.
-uv sync --all-extras
 git add .
 git commit -m "Initial commit from simple-modern-uv."
+# Sync after the first commit so dynamic versioning gives the editable install
+# a real version (not 0.0.0). This creates uv.lock; commit it so CI installs
+# reproducibly with --frozen.
+uv sync --all-extras
+git add uv.lock
+git commit -m "Add uv.lock."
 # Create repo on GitHub.
 git remote add origin git@github.com:OWNER/PROJECT.git  # or https://github.com/...
 git push -u origin main

@@ -20,7 +20,9 @@ jobs:
       contents: read
     steps:
       - name: Checkout (official GitHub action)
-        uses: actions/checkout@v6
+        # Pinned to a full, immutable version tag (see supply-chain notes in
+        # docs/development.md); bump deliberately when updating.
+        uses: actions/checkout@v6.0.2
         with:
           # Important for versioning plugins:
           fetch-depth: 0
@@ -29,7 +31,7 @@ jobs:
         # Pinned to a full, immutable version tag (see note in ci.yml).
         uses: astral-sh/setup-uv@v8.1.0
         with:
-          version: "0.11.12"
+          version: "0.11.17"
           enable-cache: true
           python-version: "3.12"
 

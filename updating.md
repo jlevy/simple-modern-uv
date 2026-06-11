@@ -8,11 +8,16 @@ There are two repos involved:
 
 - **Template repo** (`jlevy/simple-modern-uv`): The Copier template source.
   All version changes start here.
-  This repo does not have CI, so testing is done via a downstream project.
+  This repo’s own CI (`.github/workflows/ci.yml`) makes PRs self-validating: it renders
+  the template (default and non-default options), runs the full lint/test/build cycle on
+  the render, runs the update-path test from the previous release tag, and validates the
+  agent skill (`skills/simple-modern-uv/`).
 - **Downstream project(s)**: Projects created from the template (e.g.
   [`jlevy/simple-modern-uv-template`](https://github.com/jlevy/simple-modern-uv-template)).
   These pull updates via `copier update` and have CI configured to run linting and tests
   across the Python version matrix.
+  The downstream repo remains the **release gate** (full matrix, real `copier update`
+  against a long-lived project).
 
 Release rule: the downstream repo is the release gate.
 Push the template candidate, export it into `jlevy/simple-modern-uv-template`, and wait
@@ -35,11 +40,11 @@ curl -s https://pypi.org/pypi/uv/json | python3 -c "import sys,json; print('uv:'
 ```
 
 Also check for new major versions of GitHub Actions:
-- `actions/checkout` — <https://github.com/actions/checkout/releases>
-- `astral-sh/setup-uv` — <https://github.com/astral-sh/setup-uv/releases>
+- `actions/checkout`: <https://github.com/actions/checkout/releases>
+- `astral-sh/setup-uv`: <https://github.com/astral-sh/setup-uv/releases>
 
-Note `astral-sh/setup-uv` is pinned to a full, immutable version tag (e.g. `@v8.1.0`)
-rather than a floating major tag.
+Note the actions are pinned to full, immutable version tags (e.g.
+`actions/checkout@v6.0.2`, `astral-sh/setup-uv@v8.1.0`) rather than floating major tags.
 As of v8, Astral stopped publishing floating `@v8`/`@v8.1` tags in favor of immutable
 releases, which is a supply-chain improvement (a pinned tag can’t be silently
 re-pointed). The cost is that patch updates no longer arrive automatically, so bump the
@@ -52,7 +57,7 @@ And check if new Python versions should be added to the test matrix.
 
 These practices follow
 [supply-chain-hardening](https://github.com/jlevy/supply-chain-hardening), the
-recommended guide for this template — see it for the full rationale and per-ecosystem
+recommended guide for this template; see it for the full rationale and per-ecosystem
 recipes.
 
 Follow a **cooling-off period**: do not adopt any release published within the last 14
@@ -81,13 +86,38 @@ In the template repo, update these files as needed:
 - **Dev dependency lower bounds** in `template/pyproject.toml.jinja` (these are `>=`
   floors, not exact pins; CI enforces the cool-off via `UV_EXCLUDE_NEWER`)
 - **uv version** in `template/.github/workflows/ci.yml` and `publish.yml` (the
-  `version:` field under `astral-sh/setup-uv`)
-- **GitHub Actions versions** (e.g. `actions/checkout@v6`) in the same workflow files
+  `version:` field under `astral-sh/setup-uv`), and the matching `UV_VERSION` in this
+  repo’s own `.github/workflows/ci.yml`
+- **GitHub Actions versions** (e.g. `actions/checkout@v6.0.2`) in the same workflow
+  files, and in this repo’s own `.github/workflows/ci.yml`
 - **Python version matrix** in `template/.github/workflows/ci.yml` and the corresponding
   classifiers in `template/pyproject.toml.jinja`
+- **The agent skill** (`skills/simple-modern-uv/`): keep the pinned `uvx copier@X.Y.Z`
+  invocations current (subject to the same cool-off), and update the FAQ/checklists if
+  this cycle changed behavior they describe
+- Review `docs/project/research/research-uv-changes.md` for new uv features the template
+  should adopt or explicitly decline
 
-Then auto-format all docs so formatting stays consistent (this repo has no CI to enforce
-it):
+### Changing Template Questions (Answer-Schema Evolution)
+
+Standing policy whenever a question is added to or changed in `copier.yml`, so existing
+projects keep updating cleanly:
+
+1. **Behavior-preserving defaults**: a new question’s default must reproduce exactly
+   what the template generated before the question existed, so a vanilla
+   `copier update --defaults` is a no-op.
+2. **Old answer files stay valid**: never require manual edits to `.copier-answers.yml`;
+   `--defaults --skip-answered` fills new keys.
+3. **Hand customizations are reconciled by the skill**, not by defaults: the skill’s
+   update workflow inspects project state and passes explicit `--data` (see
+   `skills/simple-modern-uv/references/customize.md`).
+4. **CI guards the update path**: the `update-path` job renders the previous release and
+   updates to the candidate, asserting convergence with a fresh render and that `--data`
+   overrides are honored.
+5. **Call it out in release notes**, naming the new keys and their defaults.
+
+Then auto-format all docs so formatting stays consistent (CI’s `format-check` job
+enforces this):
 
 ```shell
 make format        # auto-format all Markdown docs, including *.md.jinja templates
@@ -166,17 +196,35 @@ RUN_ID=$(gh run list \
 gh run watch --repo jlevy/simple-modern-uv-template "$RUN_ID" --exit-status
 ```
 
-Then check that **CI passes on GitHub** — this runs the full lint and test suite across
+Then check that **CI passes on GitHub**: this runs the full lint and test suite across
 all Python versions in the matrix (e.g. 3.11, 3.12, 3.13, 3.14) on the stub test file
 and template code. This is the real end-to-end validation that the template works.
 
 If CI fails, fix issues in the template repo and repeat from Step 2.
 
+### Skill Activation Checks
+
+Before releasing changes that touch `skills/simple-modern-uv/`, smoke-test activation in
+at least one target agent (CI validates structure and links, not activation):
+
+- A new-project prompt ("start a new Python project called X") activates the skill
+- A migration prompt ("convert this Poetry project to uv") activates the skill
+- An unrelated Python prompt ("debug this stack trace") does *not* activate it
+- Explicit invocation (`/simple-modern-uv` or the agent’s equivalent) loads cleanly
+
 ## Step 7: Create a Release on the Template Repo
 
-Once CI passes downstream, create a GitHub release on the template repo.
-The template repo doesn’t have its own CI, so the downstream CI run serves as the
-verification.
+Once CI passes downstream (and this repo’s own CI is green on the candidate commit),
+create a GitHub release on the template repo.
+
+Pick the version by what changed:
+
+- **Minor** (`v0.3.0`): new or changed template questions, new files in the render, or
+  other feature-level changes.
+  Per the answer-schema policy above, the release notes must name any new question keys
+  and their defaults.
+- **Patch** (`v0.2.28`): routine dependency and tool-version bumps, doc fixes, and
+  changes that leave the render’s shape alone.
 
 ```shell
 # From the template repo:
@@ -197,6 +245,8 @@ gh release create "$NEW_TAG" \
 
 - **Updated dev dependencies**: ruff X.Y.Z, basedpyright X.Y.Z, etc.
 - **Updated uv** to X.Y.Z in CI workflows
+- **New/changed template questions** (if any): name each key, its choices, and its
+  default
 - Any other changes
 
 **Downstream validation**: jlevy/simple-modern-uv-template CI passed for ${TEMPLATE_COMMIT:0:7}

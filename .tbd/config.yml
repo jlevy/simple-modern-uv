@@ -72,7 +72,7 @@ docs_cache:
     guidelines/error-handling-rules.md: internal:guidelines/error-handling-rules.md
     guidelines/general-coding-rules.md: internal:guidelines/general-coding-rules.md
     guidelines/general-comment-rules.md: internal:guidelines/general-comment-rules.md
-    guidelines/general-eng-assistant-rules.md: internal:guidelines/general-eng-assistant-rules.md
+    guidelines/general-eng-agent-principles.md: internal:guidelines/general-eng-agent-principles.md
     guidelines/general-tdd-guidelines.md: internal:guidelines/general-tdd-guidelines.md
     guidelines/general-testing-rules.md: internal:guidelines/general-testing-rules.md
     guidelines/golden-testing-guidelines.md: internal:guidelines/golden-testing-guidelines.md
