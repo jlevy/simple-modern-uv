@@ -40,8 +40,8 @@ curl -s https://pypi.org/pypi/uv/json | python3 -c "import sys,json; print('uv:'
 ```
 
 Also check for new major versions of GitHub Actions:
-- `actions/checkout` — <https://github.com/actions/checkout/releases>
-- `astral-sh/setup-uv` — <https://github.com/astral-sh/setup-uv/releases>
+- `actions/checkout`: <https://github.com/actions/checkout/releases>
+- `astral-sh/setup-uv`: <https://github.com/astral-sh/setup-uv/releases>
 
 Note `astral-sh/setup-uv` is pinned to a full, immutable version tag (e.g. `@v8.1.0`)
 rather than a floating major tag.
@@ -57,7 +57,7 @@ And check if new Python versions should be added to the test matrix.
 
 These practices follow
 [supply-chain-hardening](https://github.com/jlevy/supply-chain-hardening), the
-recommended guide for this template — see it for the full rationale and per-ecosystem
+recommended guide for this template; see it for the full rationale and per-ecosystem
 recipes.
 
 Follow a **cooling-off period**: do not adopt any release published within the last 14
@@ -195,7 +195,7 @@ RUN_ID=$(gh run list \
 gh run watch --repo jlevy/simple-modern-uv-template "$RUN_ID" --exit-status
 ```
 
-Then check that **CI passes on GitHub** — this runs the full lint and test suite across
+Then check that **CI passes on GitHub**: this runs the full lint and test suite across
 all Python versions in the matrix (e.g. 3.11, 3.12, 3.13, 3.14) on the stub test file
 and template code. This is the real end-to-end validation that the template works.
 

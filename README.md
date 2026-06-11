@@ -219,7 +219,7 @@ And it has a newer extension and fork called
 [BasedPyright](https://github.com/DetachHead/basedpyright).
 
 All of these work in build systems.
-But this is a choice not just of build tooling—it is far preferable to have your type
+But this is a choice not just of build tooling: it is far preferable to have your type
 checker warnings align with your IDE warnings.
 With the rises of AI-powered IDEs like Cursor and Windsurf that are VSCode extensions,
 it seems like type checking support as a VSCode-compatible extension is essential.
@@ -243,8 +243,8 @@ So I have now switched this template to use BasedPyright.
 
 One newer option worth watching is [**ty**](https://github.com/astral-sh/ty), Astral’s
 own type checker (from the makers of uv and ruff), written in Rust.
-It’s extremely fast—often 10–60x faster than Mypy or Pyright—and ships a language server
-with extensions for VSCode, PyCharm, Neovim, and other editors.
+It’s extremely fast, often 10–60x faster than Mypy or Pyright, and ships a language
+server with extensions for VSCode, PyCharm, Neovim, and other editors.
 As of mid-2026 it’s still in [beta](https://astral.sh/blog/ty) and on `0.0.x`
 versioning, so its API and diagnostics can change between releases.
 It also doesn’t yet match BasedPyright on
@@ -266,7 +266,7 @@ This template **does not** handle:
 
 - Using Docker
 
-- Private or enterprise package repositories (but you can add this—see
+- Private or enterprise package repositories (but you can add this; see
   [uv’s docs on alternative indexes](https://docs.astral.sh/uv/guides/integration/alternative-indexes/))
 
 - Building websites or docs, e.g. with [mkdocs](https://github.com/mkdocs/mkdocs)
@@ -339,9 +339,9 @@ look for `changeme` in the code.
 
 Once you have the template set up, you will need to check the code into Git for uv to
 work.
-[Create a new GitHub repo](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-new-repository)
-— make sure to create it as an **empty repo** (don’t add a README, .gitignore, or
-license, since the template already provides these) — and add your initial code:
+[Create a new GitHub repo](https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-new-repository),
+making sure to create it as an **empty repo** (don’t add a README, .gitignore, or
+license, since the template already provides these), and add your initial code:
 
 ```shell
 cd PROJECT
