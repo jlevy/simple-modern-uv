@@ -1,0 +1,176 @@
+# CI for the template repo itself: renders the template and exercises the renders,
+# checks the update path from the previous release, and validates the agent skill.
+# (Released template versions are additionally gated on the downstream
+# jlevy/simple-modern-uv-template repo's CI; see updating.md.)
+
+name: CI
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+permissions:
+  contents: read
+
+env:
+  # Supply-chain cool-off, matching the template's own CI (see updating.md).
+  UV_EXCLUDE_NEWER: "14 days"
+  # Pinned tool versions used to exercise the template. Keep the uv version in
+  # sync with template/.github/workflows/ci.yml when updating.
+  UV_VERSION: "0.11.17"
+  COPIER_SPEC: "copier@9.15.1"
+  # Default answers for test renders.
+  RENDER_ARGS: >-
+    --data package_name=smoke-test
+    --data "package_description=Render smoke test"
+    --data "package_author_name=Test Author"
+    --data package_author_email=test@example.com
+    --data package_github_org=testorg
+
+jobs:
+  format-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: astral-sh/setup-uv@v8.1.0
+        with:
+          version: "0.11.17"
+      - name: Check doc formatting
+        run: make format-check
+
+  render-test:
+    strategy:
+      matrix:
+        include:
+          - variant: default
+            extra_args: ""
+          - variant: no-publish-proprietary
+            extra_args: "--data package_license=Proprietary --data publish_to_pypi=false"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: astral-sh/setup-uv@v8.1.0
+        with:
+          version: "0.11.17"
+          enable-cache: true
+          python-version: "3.12"
+
+      - name: Render template (${{ matrix.variant }})
+        run: |
+          eval uvx "$COPIER_SPEC" copy --defaults --vcs-ref=$GITHUB_SHA \
+            $RENDER_ARGS ${{ matrix.extra_args }} "$GITHUB_WORKSPACE" /tmp/render
+
+      - name: Inspect variant-specific output
+        run: |
+          cd /tmp/render
+          if [ "${{ matrix.variant }}" = "default" ]; then
+            test -f .github/workflows/publish.yml
+            test -f docs/publishing.md
+            grep -q 'license = "MIT"' pyproject.toml
+            head -1 LICENSE | grep -q "MIT License"
+            # Only the commented-out form may appear in the default render:
+            ! grep -qE '^\s*"Private :: Do Not Upload",' pyproject.toml
+          else
+            test ! -e .github/workflows/publish.yml
+            test ! -e docs/publishing.md
+            grep -q 'license = "LicenseRef-Proprietary"' pyproject.toml
+            grep -qE '^\s*"Private :: Do Not Upload",' pyproject.toml
+          fi
+          test -f AGENTS.md
+          test -f .copier-answers.yml
+
+      - name: Init git in render (dynamic versioning requires it)
+        run: |
+          cd /tmp/render
+          git init -q --initial-branch=main
+          git add -A
+          git -c user.email=ci@example.com -c user.name=CI commit -qm "Initial commit"
+          git tag v0.1.0
+
+      - name: Install, lint, test, build
+        run: |
+          cd /tmp/render
+          uv sync --all-extras
+          uv run python devtools/lint.py --check
+          uv run pytest
+          uv build
+          ls dist/ | grep -q "smoke_test-0.1.0-py3-none-any.whl"
+
+  update-path:
+    # D2 "answer-schema evolution" rule 4: a project rendered from the previous
+    # release must update cleanly to this commit. With --defaults the result must
+    # converge to a fresh render (no conflicts, no surprise file changes), and
+    # explicit --data overrides for newer questions must be honored.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: astral-sh/setup-uv@v8.1.0
+        with:
+          version: "0.11.17"
+
+      - name: Render from previous release tag
+        run: |
+          PREV_TAG=$(git describe --tags --abbrev=0 "$GITHUB_SHA")
+          echo "Updating from $PREV_TAG to $GITHUB_SHA"
+          eval uvx "$COPIER_SPEC" copy --defaults --vcs-ref="$PREV_TAG" \
+            $RENDER_ARGS "$GITHUB_WORKSPACE" /tmp/old
+          cd /tmp/old
+          git init -q --initial-branch=main
+          git add -A
+          git -c user.email=ci@example.com -c user.name=CI commit -qm "From $PREV_TAG"
+
+      - name: Update to candidate commit with defaults
+        run: |
+          cd /tmp/old
+          eval uvx "$COPIER_SPEC" update --defaults --skip-answered \
+            --vcs-ref=$GITHUB_SHA
+          # No conflicts:
+          REJ=$(find . -name '*.rej' | wc -l); test "$REJ" -eq 0
+          # Converges to a fresh render of the candidate (the answers file differs
+          # only by _commit/_src_path bookkeeping, so exclude it):
+          eval uvx "$COPIER_SPEC" copy --defaults --vcs-ref=$GITHUB_SHA \
+            $RENDER_ARGS "$GITHUB_WORKSPACE" /tmp/fresh
+          diff -r --exclude=.git --exclude=.copier-answers.yml /tmp/old /tmp/fresh
+
+      - name: Update honors --data overrides for newer questions
+        run: |
+          eval uvx "$COPIER_SPEC" copy --defaults \
+            --vcs-ref="$(git describe --tags --abbrev=0 "$GITHUB_SHA")" \
+            $RENDER_ARGS "$GITHUB_WORKSPACE" /tmp/old2
+          cd /tmp/old2
+          git init -q --initial-branch=main
+          git add -A
+          git -c user.email=ci@example.com -c user.name=CI commit -qm "old"
+          eval uvx "$COPIER_SPEC" update --defaults --skip-answered \
+            --vcs-ref=$GITHUB_SHA --data publish_to_pypi=false
+          test ! -e .github/workflows/publish.yml
+          grep -qE '^\s*"Private :: Do Not Upload",' pyproject.toml
+
+  skill-validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Validate skill structure and frontmatter
+        run: npx --yes skills-ref@latest validate skills/simple-modern-uv
+      - name: Check that relative links in skill docs resolve
+        run: |
+          cd skills/simple-modern-uv
+          FAIL=0
+          for f in SKILL.md references/*.md; do
+            dir=$(dirname "$f")
+            for link in $(grep -oE '\]\(([^)#]+)\)' "$f" | sed 's/](\(.*\))/\1/'); do
+              case "$link" in
+                http*|mailto:*) continue ;;
+              esac
+              if [ ! -e "$dir/$link" ]; then
+                echo "BROKEN: $f -> $link"; FAIL=1
+              fi
+            done
+          done
+          exit $FAIL
