@@ -202,6 +202,16 @@ and template code. This is the real end-to-end validation that the template work
 
 If CI fails, fix issues in the template repo and repeat from Step 2.
 
+### Skill Activation Checks
+
+Before releasing changes that touch `skills/simple-modern-uv/`, smoke-test activation in
+at least one target agent (CI validates structure and links, not activation):
+
+- A new-project prompt ("start a new Python project called X") activates the skill
+- A migration prompt ("convert this Poetry project to uv") activates the skill
+- An unrelated Python prompt ("debug this stack trace") does *not* activate it
+- Explicit invocation (`/simple-modern-uv` or the agent’s equivalent) loads cleanly
+
 ## Step 7: Create a Release on the Template Repo
 
 Once CI passes downstream (and this repo’s own CI is green on the candidate commit),

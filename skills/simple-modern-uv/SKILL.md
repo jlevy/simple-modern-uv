@@ -12,7 +12,7 @@ compatibility: Requires git and uv (https://docs.astral.sh/uv/); network access 
 metadata:
   author: jlevy (github.com/jlevy)
   source: https://github.com/jlevy/simple-modern-uv
-allowed-tools: Bash(uvx:*), Bash(uv:*), Bash(git:*), Read, Write, Edit
+allowed-tools: Bash(uvx:*), Bash(uv:*), Bash(git:*), Bash(make:*), Bash(gh:*), Read, Write, Edit
 ---
 # simple-modern-uv: Modern Python Project Setup
 
@@ -37,9 +37,9 @@ For all workflows: when something fails, check [references/faq.md](references/fa
 before improvising. For post-setup customization (license change, private/unpublished
 package, entry points), see [references/customize.md](references/customize.md).
 
-If this file was fetched from a URL rather than installed as a folder, the reference
-files are at
-`https://raw.githubusercontent.com/jlevy/simple-modern-uv/main/skills/simple-modern-uv/references/<name>.md`.
+If this file was fetched from a URL rather than installed as a folder, fetch the
+reference files from the **same ref**: replace `SKILL.md` in the URL you used with
+`references/<name>.md` (don’t mix a pinned `SKILL.md` with references from `main`).
 
 ## The Interview: What to Ask the User (and What Not to Ask)
 
