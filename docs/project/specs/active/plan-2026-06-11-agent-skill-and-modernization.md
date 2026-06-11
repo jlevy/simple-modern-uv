@@ -94,16 +94,37 @@ That question set is the single shared schema ("the interview"). The three flows
 only in **where the answers come from**, and every flow follows the same shape: **infer
 → confirm once → execute → verify → next steps**.
 
-The interview contract (specified in `SKILL.md`, binding on all flows):
+The interview contract (specified in `SKILL.md`, binding on all flows) — the questions
+have two tiers:
+
+**Essentials** — the confirmation round centers on these, and they are the only things
+the user is expected to decide:
+
+- **Package name** (which is also the PyPI name and, by default, the repo name) in
+  **kebab-case**, and the **module name** in **snake_case** — the agent normalizes
+  whatever the user said ("Acme Widgets" → package `acme-widgets`, module
+  `acme_widgets`) and shows the mapping; `copier.yml` already validates the module name,
+  and the skill enforces the kebab/snake conventions rather than asking the user to know
+  them.
+- **Description** (one line).
+- **License** (default MIT) and **publish to PyPI?** (default yes) — always surfaced
+  with their defaults named, since these are the decisions with real consequences.
+
+**Conventions** — everything else is a minor variation the agent applies silently and
+mentions in the post-run summary, deviating only when the user states an explicit need:
+`src/` layout (always), initial version `v0.1.0` tag for a new project (for an upgrade,
+the next sensible version above what’s on PyPI), Python 3.11+ floor, line length, tool
+choices. These are never questions.
+
+Mechanics of the contract:
 
 - **Infer before asking.** Author name/email from `git config`; GitHub org from the repo
   remote or `gh` auth; package name from the user’s request or the directory; for
-  existing projects, nearly everything from the repo itself (see Flow 2).
+  existing projects, nearly everything from the repo itself (see Flow 2). Inferred
+  values appear in the confirmation summary, not as questions.
 - **Ask once, batched.** Whatever can’t be inferred is asked in a single round alongside
-  a confirmation summary of everything inferred — never a question-per-answer
-  interrogation (that’s the interactive-prompt experience the agent replaces).
-  Decision points the user must own (license, publish-or-not) are always surfaced in
-  that round, with the defaults named (MIT, publish).
+  the confirmation summary — never a question-per-answer interrogation (that’s the
+  interactive-prompt experience the agent replaces).
 - **Execute non-interactively** via pinned `uvx copier … --defaults --data k=v`.
 - **Verify before declaring done**: `uv sync --all-extras`, `make lint`, `make test`
   (and `uv build` when publishing) must pass.
@@ -125,11 +146,12 @@ https://raw.githubusercontent.com/jlevy/simple-modern-uv/main/skills/simple-mode
 and follow it to start a new Python project called acme-widgets.”*)
 
 The agent then: infers author/email/org from the environment, asks the single batched
-round (description; license — default MIT; publish to PyPI? — default yes; org if not
-inferred), renders with `--data`, runs `git init` + `uv sync --all-extras` + first
-commit, verifies lint/tests pass, and offers the optional finish (create the GitHub repo
-and push; if publishing, point at `docs/publishing.md` for the one-time Trusted
-Publisher setup).
+round covering the essentials only (name normalization shown; description; license —
+default MIT; publish to PyPI? — default yes; org if not inferred), renders with
+`--data`, runs `git init` + `uv sync --all-extras` + first commit, verifies lint/tests
+pass, and offers the optional finish (create the GitHub repo and push; tag `v0.1.0` when
+ready to release; if publishing, point at `docs/publishing.md` for the one-time Trusted
+Publisher setup). Layout and initial version are conventions, not questions.
 
 ### Flow 2: Upgrade an existing project ("modernize this repo")
 
@@ -139,15 +161,15 @@ best practices.”*
 Same interview, different answer source — the repo: name/description/authors from
 `pyproject.toml` (or `setup.py`/`setup.cfg`), license from `LICENSE`/classifiers, org
 from the git remote, publish intent from PyPI presence or a `Private ::` classifier.
-The confirmation round presents the inferred answers plus the **migration decision
-points** that have no safe default:
-
-- `requires-python` floor: the template targets 3.11+; raise the project’s floor or flag
-  the conflict and stop.
-- Layout: move to `src/` layout (recommended) or adapt the template config to the
-  existing flat layout.
-- Versioning: dynamic versioning needs a git tag; for an already-published package, the
-  first tag must exceed the version on PyPI.
+The confirmation round presents the inferred essentials (name, description, license,
+publish intent) for sign-off.
+Migration mechanics follow the conventions tier — applied by default, reported in the
+summary, never asked: migrate to `src/` layout; first tag set to the next sensible
+version above what’s published on PyPI (dynamic versioning needs a tag); raise
+`requires-python` to 3.11+. The one exception that *is* surfaced in the confirmation
+round: when raising the floor would drop Python versions a **published** package
+currently supports — shrinking a public support matrix is an essentials-tier decision,
+not a convention.
 
 Then execute per `references/adopt-existing.md`: render the template into a temp dir
 with the confirmed answers; merge deliberately (template’s `pyproject.toml` structure
@@ -162,9 +184,13 @@ reviewable branch/commit.
 
 The user pastes: *“Update this project to the latest simple-modern-uv.”* No interview —
 the answers are already recorded in `.copier-answers.yml`. The agent confirms a clean
-working tree, runs `uvx copier@<ver> update --defaults` (optionally `--vcs-ref=<tag>`),
-resolves any conflict markers, re-runs lint/tests, and summarizes what changed against
-the template’s release notes.
+working tree, **reconciles any questions the template added since the project’s recorded
+version** (see D2’s answer-schema evolution rules: read the project’s actual state —
+LICENSE content, presence of `publish.yml`, `Private ::` classifier — and pass matching
+`--data` so new questions can’t silently revert hand customizations), runs
+`uvx copier@<ver> update --defaults --data …` (optionally `--vcs-ref=<tag>`), resolves
+any conflict markers, re-runs lint/tests, and summarizes what changed against the
+template’s release notes.
 Flows 1 and 2 both end in a state where Flow 3 works, which is the point: **adopt once,
 update forever**.
 
@@ -244,9 +270,30 @@ Rationale: these must be template options rather than skill-guided post-render e
 because `copier update` re-renders excluded-by-hand files — a deleted `publish.yml`
 would resurface on the next update.
 Conditional rendering keeps updates coherent.
-Both questions have safe defaults so existing projects and `--defaults` renders are
-unaffected; on `copier update`, existing projects keep current behavior without
-re-answering.
+
+**Answer-schema evolution** (the standing rules for adding *any* question, these two
+included, so the upgrade path stays clean for existing projects):
+
+1. **Behavior-preserving defaults.** A new question’s default must reproduce exactly
+   what the template generated before the question existed (`MIT` + publish=true match
+   today’s unconditional output), so a vanilla project updating with `--defaults` gets a
+   no-op.
+2. **Old answer files stay valid.** Projects’ `.copier-answers.yml` files won’t contain
+   the new keys; `copier update --defaults` fills them from defaults and records them.
+   No migration scripts, no manual edits required.
+3. **The skill reconciles hand customizations.** Defaults can’t know about pre-options
+   hand edits (a swapped LICENSE, a deleted `publish.yml`). Flow 3 therefore inspects
+   the project’s actual state and passes explicit `--data` overrides for any new
+   question whose default contradicts observed reality — so an update can never silently
+   re-license a project or resurrect a deleted publish workflow.
+   (Humans updating by hand get the same guidance in `updating.md` and the template
+   release notes.)
+4. **Update-path test in CI** (folds into D5): render the template at the previous
+   release tag, `copier update --defaults` to HEAD, and assert a clean no-op for the
+   vanilla case plus correct handling of explicit `--data` overrides for the new
+   questions.
+5. **Release-notes callout.** Any release that adds or changes questions says so
+   explicitly, naming the new keys and their defaults.
 
 ### D3. `AGENTS.md` in the template output
 
@@ -296,9 +343,12 @@ this repo that on every push/PR:
 2. In the default render: `uv sync --all-extras`,
    `uv run python devtools/lint.py --check`, `uv run pytest`, `uv build` (with
    `UV_EXCLUDE_NEWER` set, matching template CI).
-3. Validates the skill: `npx skills-ref validate skills/simple-modern-uv` plus a check
+3. Runs the update-path test (D2 rule 4): render at the previous release tag, then
+   `copier update --defaults` to the candidate commit; assert the vanilla case is a
+   no-op and `--data` overrides for new questions are honored.
+4. Validates the skill: `npx skills-ref validate skills/simple-modern-uv` plus a check
    that every `references/` file and relative link resolves.
-4. Runs `make format-check` so doc formatting is enforced.
+5. Runs `make format-check` so doc formatting is enforced.
 
 The downstream repo remains the release gate for tagged releases; this CI makes PRs
 self-validating. `updating.md` is updated to reflect the new split.
@@ -348,7 +398,10 @@ defaults. No checker switch.
 ### Phase 2: Template changes
 
 - [ ] Add `package_license` and `publish_to_pypi` copier questions; conditional
-  `LICENSE`, `publish.yml`, `docs/publishing.md`, classifier and README content (D2)
+  `LICENSE`, `publish.yml`, `docs/publishing.md`, classifier and README content;
+  defaults must be behavior-preserving per the D2 answer-schema evolution rules
+- [ ] Sharpen `copier.yml` `package_name` guidance to recommend kebab-case (the PyPI
+  convention; other casings still accepted, module name stays validated snake_case)
 - [ ] Add `AGENTS.md` to the template output (D3)
 - [ ] Bump uv pin, dependency floors, and `setup-uv` tag per cool-off (D6)
 - [ ] Refresh basedpyright config comments and the type-checker research doc (D7)
@@ -359,7 +412,8 @@ defaults. No checker switch.
 - [ ] Add `.github/workflows/ci.yml` to this repo: default + non-default renders,
   lint/test/build on the render, skill validation, `make format-check` (D5)
 - [ ] Update `updating.md`: PR validation now automatic; downstream repo remains the
-  release gate; add the skill to the release checklist
+  release gate; add the skill to the release checklist; add the D2 answer-schema
+  evolution rules as a standing policy for future question changes
 - [ ] Add the uv-changes research doc (`docs/project/research/research-uv-changes.md`)
   as a living doc seeded from Appendix A
 - [ ] Follow-up (outside this repo): retire jlevy/uvtemplate — deprecation note in its
@@ -371,6 +425,9 @@ defaults. No checker switch.
   variants and runs the full `sync → lint --check → pytest → build` cycle on the default
   render (Phase 3 makes this automatic; until then, run manually as in `updating.md`
   Step 5).
+- **Update path**: CI’s update-path test (D2 rule 4) guards every future template
+  change, not just this one — render at the previous tag, update to the candidate,
+  vanilla no-op asserted.
 - **Skill validation**: `npx skills-ref validate` in CI; link/reference resolution
   check.
 - **Skill behavior**: manual end-to-end runs of all three User Flows with a real agent
