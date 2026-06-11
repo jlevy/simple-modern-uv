@@ -13,7 +13,7 @@ version. Fix:
 
 ## Version Is 0.0.0, 0.1.devN, or Otherwise Wrong
 
-No git tag yet — dynamic versioning derives the version from the latest `v*` tag.
+No git tag yet: dynamic versioning derives the version from the latest `v*` tag.
 
 - New project: tag `v0.1.0` when ready to release; dev versions before that are normal
   and harmless for CI.
@@ -50,7 +50,7 @@ or `skip = "path1,path2"`.
 
 Copier writes `*.rej` files (or inline conflict markers) where the template and local
 edits collide. Resolve each by hand, keeping the project’s intent; delete the `.rej`
-files; re-run `make lint` and `make test`. A dirty working tree also blocks updates —
+files; re-run `make lint` and `make test`. A dirty working tree also blocks updates;
 commit or stash first.
 
 ## `publish.yml` Came Back or License Reverted After an Update

@@ -2,8 +2,8 @@
 
 Common customizations after (or during) setup.
 Where a customization maps to a template question, prefer answering the question over
-hand-editing — hand edits to template-managed files can be reverted by a later
-`copier update` (see “Reconciling new questions” below).
+hand-editing: hand edits to template-managed files can be reverted by a later
+`copier update` (see “Reconciling New Questions on Update” below).
 
 ## Changing the License
 
@@ -32,7 +32,7 @@ Trusted Publisher setup in `docs/publishing.md`.
 ## Reconciling New Questions on Update
 
 When the template adds questions over time, a project that predates them has no recorded
-answer, and `copier update --defaults` fills in the default — which can contradict hand
+answer, and `copier update --defaults` fills in the default, which can contradict hand
 edits made before the question existed.
 Before updating an older project, check its actual state and pass explicit `--data`:
 
@@ -46,8 +46,8 @@ visibly deviates from a fresh render, make the answer explicit.
 
 ## Apps and CLIs (vs. Libraries)
 
-- Entry points live in `[project.scripts]`: `mycli = "my_module.cli:main"` — then
-  `uv run mycli` works, and installs expose the command.
+- Entry points live in `[project.scripts]`: `mycli = "my_module.cli:main"`; then
+  `uv run mycli` works and installs expose the command.
 - An app that’s not a library usually wants `publish_to_pypi=false`; it still gets the
   full dev workflow.
 - For a long-lived service, consider pinning the Python version with a `.python-version`
@@ -58,7 +58,7 @@ visibly deviates from a fresh render, make the answer explicit.
 - **Line length**: `[tool.ruff] line-length` in `pyproject.toml` (default 100; black
   uses 88).
 - **Stricter/looser type checking**: toggle the commented `report*` settings in
-  `[tool.basedpyright]` — the template ships a pragmatic middle ground.
+  `[tool.basedpyright]`; the template ships a pragmatic middle ground.
 - **More ruff rules**: uncomment entries in `[tool.ruff.lint] select` (e.g. `"D"` for
   docstring rules, `"SIM"` for simplifications).
 - **OS matrix in CI**: edit `os:` in `.github/workflows/ci.yml`

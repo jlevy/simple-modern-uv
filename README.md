@@ -202,7 +202,7 @@ Claude Code users can symlink it: `ln -s AGENTS.md CLAUDE.md`.
 
 This repo also ships the [simple-modern-uv skill](skills/simple-modern-uv/SKILL.md) (the
 [Agent Skills](https://agentskills.io) open standard) so agents can apply the template
-directly — see [In a Hurry?](#in-a-hurry).
+directly; see [In a Hurry?](#in-a-hurry).
 
 ## What’s the Best Python Type Checker?
 
@@ -302,7 +302,7 @@ Option 3 is handy if you prefer a GitHub template.
 
 ### Option 1: Use Your Agent (Recommended)
 
-Install the [agent skill](skills/simple-modern-uv/SKILL.md) and ask your agent — see
+Install the [agent skill](skills/simple-modern-uv/SKILL.md) and ask your agent; see
 [In a Hurry?](#in-a-hurry) above for the exact commands and prompts.
 The skill covers three workflows: creating a **new project**, **upgrading an existing
 Python package** to this template’s structure and tooling (including migrations from

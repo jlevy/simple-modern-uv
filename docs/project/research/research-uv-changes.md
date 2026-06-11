@@ -36,7 +36,7 @@ newest version clearing the 14-day supply-chain cool-off).
 - **0.10.x (Feb–Mar 2026)**: `uv python upgrade`, `uv add --bounds`, and
   `uv workspace list/dir` stabilized.
   `uv venv` requires `--clear` to overwrite.
-  `uv format` moved to Ruff 0.15 / the 2026 style.
+  `uv format` moved to Ruff 0.15 and the 2026 style.
 - **0.11.x (Mar 2026–now)**: TLS moved to OS-native verification (`--native-tls`
   deprecated in favor of `--system-certs`). **`uv audit`** (preview; announced
   2026-06-08): scans `uv.lock` against the OSV database, with
@@ -50,19 +50,19 @@ doc.)
 
 ## Decisions and Action Items for the Template
 
-1. **Stay on hatchling + uv-dynamic-versioning** (decision).
+1. **Stay on hatchling with uv-dynamic-versioning** (decision).
    `uv_build` is uv’s default backend and production-stable, but it is deliberately
    minimal: no plugin mechanism, so no dynamic versioning from git tags, which is core
    to this template’s release model.
    Revisit if uv grows native dynamic versioning.
 2. **`[tool.uv] required-version = ">=0.9"`** (adopted): fails fast on uv versions that
    predate relative-duration `UV_EXCLUDE_NEWER`.
-3. **Watch `uv audit` and `UV_MALWARE_CHECK`** — both preview and brand-new (audit
+3. **Watch `uv audit` and `UV_MALWARE_CHECK`**: both preview and brand-new (audit
    announced 2026-06-08, inside the cool-off window).
    Adopt in the template’s CI once stable; they fit the template’s supply-chain posture
    well. Until then they are mentioned here, not wired in.
 4. **Keep `devtools/lint.py` over `uv format`/`uv check`** (decision).
-   One command runs codespell + ruff check + ruff format + basedpyright together, which
+   One command runs codespell, ruff check, ruff format, and basedpyright together, which
    neither uv command covers; `uv check` is also ty-based and preview (see the
    [type-checker research doc](research-python-type-checkers.md)).
 5. **Python 3.15**: add to the CI matrix and classifiers when final (~Oct 2026).

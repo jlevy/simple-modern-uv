@@ -26,11 +26,11 @@ template improvements at any time with `copier update`.
 There are three workflows.
 Pick by situation:
 
-1. **New project** — create a project from scratch.
-2. **Upgrade existing project** — convert any existing Python package to this template’s
+1. **New project**: create a project from scratch.
+2. **Upgrade existing project**: convert any existing Python package to this template’s
    structure and tooling.
    See [references/adopt-existing.md](references/adopt-existing.md).
-3. **Update templated project** — the project has a `.copier-answers.yml` from this
+3. **Update templated project**: the project has a `.copier-answers.yml` from this
    template; pull the latest template changes.
 
 For all workflows: when something fails, check [references/faq.md](references/faq.md)
@@ -59,9 +59,9 @@ below.
 | `package_license` | `MIT` (default), `Apache-2.0`, `BSD-3-Clause`, or `Proprietary` | Always surface, naming the default |
 | `publish_to_pypi` | `true` (default) or `false` | Always surface; `false` for private packages and apps |
 
-Plus `package_author_name`, `package_author_email`, `package_github_org` — **infer
-these** from `git config user.name` / `user.email` and the repo’s remote or
-`gh auth status`; include them in the confirmation summary rather than asking.
+For `package_author_name`, `package_author_email`, and `package_github_org`, **infer**
+values from `git config user.name` and `user.email` and the repo’s remote or
+`gh auth status`, and include them in the confirmation summary rather than asking.
 
 **Conventions** (apply silently; mention in your final summary; deviate only if the user
 explicitly asks): `src/` layout; first version is the git tag `v0.1.0` for a new project
@@ -89,7 +89,7 @@ These are never questions.
    (Omit `--data` keys that should take defaults.
    `package_module` derives automatically from `package_name`.)
 
-2. Initialize git and install (required before building — versioning reads git):
+2. Initialize git and install (required before building; versioning reads git):
 
    ```bash
    cd acme-widgets
@@ -101,10 +101,10 @@ These are never questions.
 3. **Verify**: `make lint` and `make test` must pass.
    Fix anything that doesn’t before declaring success.
 
-4. Offer next steps (don’t just stop): create the GitHub repo and push (empty repo, no
-   README/license/.gitignore — the template provides them); fill in `README.md`; if
-   publishing, `docs/publishing.md` covers the one-time PyPI Trusted Publisher setup;
-   tag `v0.1.0` when ready to release.
+4. Offer next steps (don’t just stop): create the GitHub repo and push (an empty repo
+   with no README, license, or .gitignore; the template provides them); fill in
+   `README.md`; if publishing, `docs/publishing.md` covers the one-time PyPI Trusted
+   Publisher setup; tag `v0.1.0` when ready to release.
 
 ## Workflow 2: Upgrade an Existing Project
 
@@ -114,7 +114,7 @@ In brief: run the interview with answers **inferred from the repo itself**
 template into a sibling temp directory with those answers, merge the template’s
 structure into the project (preserving its dependencies, metadata, and code), translate
 old tool configs to uv equivalents, write `.copier-answers.yml` so future updates work,
-and verify with `uv sync` + lint + tests.
+and verify with `uv sync`, lint, and tests.
 Land everything on a branch as one reviewable change.
 
 ## Workflow 3: Update a Templated Project

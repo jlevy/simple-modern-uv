@@ -21,7 +21,7 @@ actions rather than telling them to run commands.
 ## Build & Test
 
 This is a [Copier](https://copier.readthedocs.io) template repo, not a Python project
-itself — there is no `pyproject.toml` to sync at the root.
+itself; there is no `pyproject.toml` to sync at the root.
 Validation means rendering the template and exercising the render:
 
 ```bash
@@ -37,15 +37,15 @@ uvx copier copy --defaults --vcs-ref=HEAD --data package_name=smoke-test \
 
 ## Architecture Overview
 
-- `template/` — the Copier template source that ships to generated projects (`*.jinja`
+- `template/`: the Copier template source that ships to generated projects (`*.jinja`
   files are rendered; everything else copies as-is).
   The `template/Makefile` and `template/devtools/lint.py` are what downstream projects
   use, not this repo.
-- `copier.yml` — template questions and validation; the single source of truth for
+- `copier.yml`: template questions and validation; the single source of truth for
   template variables.
-- `updating.md` — the full maintenance and release flow (downstream
+- `updating.md`: the full maintenance and release flow (downstream
   `jlevy/simple-modern-uv-template` repo is the release gate).
-- `docs/project/` — research docs and plan specs for this repo.
+- `docs/project/`: research docs and plan specs for this repo.
 
 ## Conventions & Patterns
 
