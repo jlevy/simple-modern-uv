@@ -10,7 +10,7 @@ Out of scope (stop and tell the user): C extensions or custom build steps, conda
 environments, monorepos/workspaces with multiple packages.
 These need decisions a checklist shouldn’t make.
 
-## Step 1: Infer the interview answers from the repo
+## Step 1: Infer the Interview Answers from the Repo
 
 | Answer | Where to look |
 | --- | --- |
@@ -28,7 +28,7 @@ Python older than 3.11 **and** is published, adopting the template raises
 `requires-python` to `>=3.11` — dropping versions for existing users is the user’s call,
 not yours.
 
-## Step 2: Render the template beside the project
+## Step 2: Render the Template Beside the Project
 
 ```bash
 cd ..
@@ -40,7 +40,7 @@ uvx copier@9.15.1 copy --defaults \
 Use the render as the source of truth for structure; you will copy from it into the real
 project.
 
-## Step 3: Merge structure into the project
+## Step 3: Merge Structure into the Project
 
 Copy from the render, adapting as you go:
 
@@ -64,7 +64,7 @@ Copy from the render, adapting as you go:
   `tox.ini`/`.flake8`/`mypy.ini`/`.pylintrc`, old CI workflows that the template’s CI
   replaces.
 
-## Per-source translations
+## Per-Source Translations
 
 **Poetry**:
 
@@ -100,7 +100,7 @@ If legacy code produces a wall of errors, see the FAQ — relax first, ratchet l
 **Other linters (flake8, isort, black, pylint)**: delete their configs; ruff covers them
 (`I` rules replace isort, the formatter replaces black).
 
-## Step 4: Lock, verify, iterate
+## Step 4: Lock, Verify, Iterate
 
 ```bash
 uv sync --all-extras       # creates uv.lock — commit it
@@ -114,7 +114,7 @@ Lint/type errors in legacy code are normal on first run: auto-fix what `make lin
 fixes, relax basedpyright rules where the noise is unhelpful (leave a comment), and
 don’t rewrite working code just to satisfy a rule.
 
-## Step 5: Versioning and finish
+## Step 5: Versioning and Finish
 
 - Dynamic versioning needs a tag: if the package is on PyPI at version X.Y.Z, tag the
   merge commit `vX.Y.(Z+1)` (or the next minor) **after** merging; an unpublished
@@ -123,3 +123,7 @@ don’t rewrite working code just to satisfy a rule.
 - Commit everything (including `uv.lock` and `.copier-answers.yml`) on the branch and
   summarize: what moved, what was translated, what was deleted, anything the user should
   review by hand (license, classifiers, CI triggers).
+
+<!-- This document follows common-doc-guidelines.md.
+See github.com/jlevy/practical-prose and review guidelines before editing.
+-->

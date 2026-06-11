@@ -195,7 +195,7 @@ the template.
 
 ## Agent Support
 
-Generated projects now include an [`AGENTS.md`](template/AGENTS.md.jinja) following the
+Generated projects include an [`AGENTS.md`](template/AGENTS.md.jinja) following the
 [agents.md](https://agents.md) standard (read natively by Codex, Cursor, Copilot, Gemini
 CLI, and others), with the project’s build/test commands and conventions.
 Claude Code users can symlink it: `ln -s AGENTS.md CLAUDE.md`.
@@ -203,9 +203,6 @@ Claude Code users can symlink it: `ln -s AGENTS.md CLAUDE.md`.
 This repo also ships the [simple-modern-uv skill](skills/simple-modern-uv/SKILL.md) (the
 [Agent Skills](https://agentskills.io) open standard) so agents can apply the template
 directly — see [In a Hurry?](#in-a-hurry).
-
-(Earlier versions of this template omitted agent rules because the formats were
-churning; both formats are now stable open standards, so they’re back.)
 
 ## What’s the Best Python Type Checker?
 
@@ -299,9 +296,8 @@ If desired, you may delete the `.github/workflows/publish.yml` file if you are n
 publishing to PyPI.
 
 The template can be used in three ways.
-Option 1 is the quickest: your AI coding agent does the setup, including the parts that
-used to be interactive.
-Option 2 is the normal way to use a Copier template by hand.
+Option 1 is the quickest: your AI coding agent gathers the project details and does the
+setup. Option 2 is the normal way to use a Copier template by hand.
 Option 3 is handy if you prefer a GitHub template.
 
 ### Option 1: Use Your Agent (Recommended)
@@ -313,9 +309,6 @@ Python package** to this template’s structure and tooling (including migration
 Poetry, setuptools/pip, or PDM), and **updating** a project already built from this
 template. Your agent collects the essentials (name, description, license, whether you
 publish to PyPI) and handles the rest non-interactively.
-
-(An earlier interactive helper, `uvtemplate`, is retired — agents now do the guided
-part, and `copier` itself is the non-interactive engine.)
 
 ### Option 2: Use `copier` and `git` Yourself
 

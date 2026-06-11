@@ -5,7 +5,7 @@ Where a customization maps to a template question, prefer answering the question
 hand-editing — hand edits to template-managed files can be reverted by a later
 `copier update` (see “Reconciling new questions” below).
 
-## Changing the license
+## Changing the License
 
 Preferred: set the `package_license` answer (`MIT`, `Apache-2.0`, `BSD-3-Clause`, or
 `Proprietary`) when rendering, or re-answer it later with:
@@ -19,7 +19,7 @@ and records the answer in `.copier-answers.yml`. For a license outside the templ
 choices: pick `Proprietary` (so the template stops managing it), then replace `LICENSE`
 and set `license` in `pyproject.toml` to the correct SPDX identifier yourself.
 
-## Private / unpublished packages
+## Private or Unpublished Packages
 
 Set `publish_to_pypi=false` (at render time, or via
 `copier update --data publish_to_pypi=false`). This removes
@@ -29,7 +29,7 @@ Everything else (CI, lint, tests, versioning) keeps working.
 To start publishing later, flip the answer back the same way, then do the one-time
 Trusted Publisher setup in `docs/publishing.md`.
 
-## Reconciling new questions on update
+## Reconciling New Questions on Update
 
 When the template adds questions over time, a project that predates them has no recorded
 answer, and `copier update --defaults` fills in the default — which can contradict hand
@@ -44,7 +44,7 @@ Before updating an older project, check its actual state and pass explicit `--da
 Rule of thumb: defaults describe a fresh project, not yours; anywhere the project
 visibly deviates from a fresh render, make the answer explicit.
 
-## Apps and CLIs (vs. libraries)
+## Apps and CLIs (vs. Libraries)
 
 - Entry points live in `[project.scripts]`: `mycli = "my_module.cli:main"` — then
   `uv run mycli` works, and installs expose the command.
@@ -53,7 +53,7 @@ visibly deviates from a fresh render, make the answer explicit.
 - For a long-lived service, consider pinning the Python version with a `.python-version`
   file (uv reads it automatically).
 
-## Other common tweaks
+## Other Common Tweaks
 
 - **Line length**: `[tool.ruff] line-length` in `pyproject.toml` (default 100; black
   uses 88).
@@ -66,3 +66,7 @@ visibly deviates from a fresh render, make the answer explicit.
 - **Spell-check exceptions**: `[tool.codespell] ignore-words-list`.
 
 After any customization, re-run `make lint` and `make test`.
+
+<!-- This document follows common-doc-guidelines.md.
+See github.com/jlevy/practical-prose and review guidelines before editing.
+-->

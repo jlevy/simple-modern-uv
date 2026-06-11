@@ -121,11 +121,11 @@ Land everything on a branch as one reviewable change.
 
 Requires a clean working tree and the project’s `.copier-answers.yml`.
 
-1. If the latest template added questions the project has never answered, first check
-   the project’s actual state and pass matching `--data` so defaults can’t revert hand
-   customizations (see “Reconciling new questions” in
-   [references/customize.md](references/customize.md)). Currently relevant when updating
-   older projects: `package_license` and `publish_to_pypi`.
+1. If the template has questions the project has never answered (keys present in the
+   template’s `copier.yml` but missing from the project’s `.copier-answers.yml`), first
+   check the project’s actual state and pass matching `--data` so defaults can’t revert
+   hand customizations (see “Reconciling New Questions on Update” in
+   [references/customize.md](references/customize.md)).
 
 2. ```bash
    uvx copier@9.15.1 update --defaults --skip-answered
@@ -141,3 +141,7 @@ Before reporting success: `uv sync --all-extras`, `make lint`, and `make test` a
 and for publishable packages `uv build` produces a wheel with a sensible version
 (requires at least one git commit; see the FAQ if the version looks wrong).
 Report what you ran and the results.
+
+<!-- This document follows common-doc-guidelines.md.
+See github.com/jlevy/practical-prose and review guidelines before editing.
+-->

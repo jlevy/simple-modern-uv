@@ -97,7 +97,7 @@ In the template repo, update these files as needed:
 - Review `docs/project/research/research-uv-changes.md` for new uv features the template
   should adopt or explicitly decline
 
-### Changing template questions (answer-schema evolution)
+### Changing Template Questions (Answer-Schema Evolution)
 
 Standing policy whenever a question is added to or changed in `copier.yml`, so existing
 projects keep updating cleanly:

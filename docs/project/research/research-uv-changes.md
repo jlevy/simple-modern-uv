@@ -44,8 +44,7 @@ newest version clearing the 14-day supply-chain cool-off).
   `UV_MALWARE_CHECK=1` (0.11.16+). **`uv check`** (0.11.18, preview): runs Astral’s ty
   type checker. Python 3.15.0b2 in managed downloads; 3.15 final expected ~Oct 2026.
 
-(Compiled from uv release notes and the Astral blog; docs.astral.sh blocked automated
-fetching during the original research, so re-verify details against the
+(Compiled from uv release notes and the Astral blog; re-verify details against the
 [changelog](https://github.com/astral-sh/uv/blob/main/CHANGELOG.md) when updating this
 doc.)
 
@@ -56,8 +55,8 @@ doc.)
    minimal: no plugin mechanism, so no dynamic versioning from git tags, which is core
    to this template’s release model.
    Revisit if uv grows native dynamic versioning.
-2. **`[tool.uv] required-version = ">=0.9"`** — done (June 2026). Fails fast on uv
-   versions that predate relative-duration `UV_EXCLUDE_NEWER`.
+2. **`[tool.uv] required-version = ">=0.9"`** (adopted): fails fast on uv versions that
+   predate relative-duration `UV_EXCLUDE_NEWER`.
 3. **Watch `uv audit` and `UV_MALWARE_CHECK`** — both preview and brand-new (audit
    announced 2026-06-08, inside the cool-off window).
    Adopt in the template’s CI once stable; they fit the template’s supply-chain posture

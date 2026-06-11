@@ -70,9 +70,9 @@ package_license:
     type: str
     help: Which license? (Default MIT. Choose Proprietary if this is not open source.)
     default: MIT
-    # Values are SPDX identifiers (except Proprietary). The default MIT reproduces the
-    # template's historical output, so an existing project that updates with --defaults
-    # sees no change (see updating.md, "Answer-schema evolution").
+    # Values are SPDX identifiers (except Proprietary). Defaults here must stay
+    # behavior-preserving so `copier update --defaults` is a no-op for existing
+    # projects; see "Changing Template Questions" in updating.md.
     choices:
         "MIT": MIT
         "Apache-2.0": Apache-2.0
@@ -84,6 +84,4 @@ publish_to_pypi:
     help: >-
         Publish this package to PyPI? (Yes adds the release workflow and publishing
         docs. Choose No for a private package or an app you won't publish.)
-    # Default yes reproduces the template's historical output (publish workflow and docs
-    # included), so an existing project that updates with --defaults sees no change.
     default: yes
