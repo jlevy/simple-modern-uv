@@ -101,9 +101,13 @@ Its key defaults:
 - **Pin, lock, and audit:** Commit your `uv.lock`, pin GitHub Actions to a commit SHA or
   immutable tag, and run a vulnerability audit (e.g. `pip-audit`) after changes.
 
+{% if publish_to_pypi -%}
+
 ## Publishing Releases
 
 See [publishing.md](publishing.md) for instructions on publishing to PyPI.
+
+{% endif -%}
 
 ## Documentation
 

@@ -27,7 +27,7 @@ _message_after_copy: |
 
 package_name:
     type: str
-    help: What is the package name? (This will be the GitHub repo and PyPI package name, so use CamelCase, dash-case, or snake_case. This is the only required field.)
+    help: What is the package name? (This will be the GitHub repo and PyPI package name. Recommended convention is kebab-case, like "my-package"; CamelCase and snake_case also work. This is the only required field.)
     default: changeme
 
 package_module:
@@ -65,3 +65,25 @@ package_github_org:
     type: str
     help: Package GitHub org or username? (Press enter to fill in later.)
     default: changeme
+
+package_license:
+    type: str
+    help: Which license? (Default MIT. Choose Proprietary if this is not open source.)
+    default: MIT
+    # Values are SPDX identifiers (except Proprietary). The default MIT reproduces the
+    # template's historical output, so an existing project that updates with --defaults
+    # sees no change (see updating.md, "Answer-schema evolution").
+    choices:
+        "MIT": MIT
+        "Apache-2.0": Apache-2.0
+        "BSD-3-Clause": BSD-3-Clause
+        "Proprietary (not open source)": Proprietary
+
+publish_to_pypi:
+    type: bool
+    help: >-
+        Publish this package to PyPI? (Yes adds the release workflow and publishing
+        docs. Choose No for a private package or an app you won't publish.)
+    # Default yes reproduces the template's historical output (publish workflow and docs
+    # included), so an existing project that updates with --defaults sees no change.
+    default: yes

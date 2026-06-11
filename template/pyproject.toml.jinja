@@ -12,7 +12,7 @@ authors = [
     { name="{{ package_author_name }}", email="{{ package_author_email }}" },
 ]
 readme = "README.md"
-license = "MIT"
+license = "{{ 'LicenseRef-Proprietary' if package_license == 'Proprietary' else package_license }}"
 requires-python = ">=3.11,<4.0"
 dynamic = ["version"]
 
@@ -31,8 +31,14 @@ classifiers = [
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
     "Typing :: Typed",
+{%- if not publish_to_pypi %}
+    # This package is not published to PyPI. This classifier makes PyPI reject an
+    # accidental upload. Remove it (and set publish_to_pypi) if you later publish.
+    "Private :: Do Not Upload",
+{%- else %}
     # Include this to avoid accidentally publishing to PyPI:
     # "Private :: Do Not Upload",
+{%- endif %}
 ]
 
 
