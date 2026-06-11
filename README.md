@@ -6,7 +6,7 @@ Appropriately enough, the comic is out of date.)
 # simple-modern-uv
 
 [![Follow @ojoshe on X](https://img.shields.io/badge/follow_%40ojoshe-black?logo=x&logoColor=white)](https://x.com/ojoshe)
-[![image](https://img.shields.io/pypi/pyversions/uvtemplate.svg)](https://pypi.python.org/pypi/uvtemplate)
+[![python](https://img.shields.io/badge/python-3.11%20%7C%203.12%20%7C%203.13%20%7C%203.14-blue?logo=python&logoColor=white)](https://www.python.org/downloads/)
 [![uv](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json)](https://github.com/astral-sh/uv)
 [![Copier](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/copier-org/copier/master/img/badge/badge-grayscale-border.json)](https://github.com/copier-org/copier)
 
@@ -19,17 +19,28 @@ project, like an open source library or tool.
 
 ## In a Hurry?
 
-You can try out this template right from your terminal.
-Try running:
+The fastest way to use this template is through your AI coding agent.
+Install the [skill](skills/simple-modern-uv/SKILL.md) (works with Claude Code, Codex,
+Cursor, Gemini CLI, and 50+ other agents):
 
 ```shell
-uvx uvtemplate
+npx skills add jlevy/simple-modern-uv
 ```
 
-The [uvtemplate](https://git.new/uvtemplate) tool now walks you through using this
-template.
+Then tell your agent what you want, for example:
 
-For more installation options, scroll down to
+- “Start a new Python project called my-package using simple-modern-uv.”
+- “Upgrade this repo to follow simple-modern-uv best practices.”
+- “Update this project to the latest simple-modern-uv template.”
+
+No installer handy? Paste this into any agent instead:
+
+> Fetch
+> https://raw.githubusercontent.com/jlevy/simple-modern-uv/main/skills/simple-modern-uv/SKILL.md
+> and follow it to
+> [start a new Python project / upgrade this repo / update this project].
+
+For non-agent options, scroll down to
 [How to Use This Template](#how-to-use-this-template).
 
 ## Why a New Python Project Template?
@@ -182,12 +193,19 @@ You can edit or delete these, but typically it’s sufficient to just edit the R
 It helps to have the others in separate files so they get updated whenever you update
 the template.
 
-## Agent Rules
+## Agent Support
 
-Previously, this template included a few agent rules for use with Claude Code, Codex,
-Cursor, etc. But agent rules are changing so fast I have since removed them from this
-template and instead suggest adding your own or copying my recent rules from the
-[Speculate](https://github.com/jlevy/speculate) repo.
+Generated projects now include an [`AGENTS.md`](template/AGENTS.md.jinja) following the
+[agents.md](https://agents.md) standard (read natively by Codex, Cursor, Copilot, Gemini
+CLI, and others), with the project’s build/test commands and conventions.
+Claude Code users can symlink it: `ln -s AGENTS.md CLAUDE.md`.
+
+This repo also ships the [simple-modern-uv skill](skills/simple-modern-uv/SKILL.md) (the
+[Agent Skills](https://agentskills.io) open standard) so agents can apply the template
+directly — see [In a Hurry?](#in-a-hurry).
+
+(Earlier versions of this template omitted agent rules because the formats were
+churning; both formats are now stable open standards, so they’re back.)
 
 ## What’s the Best Python Type Checker?
 
@@ -281,21 +299,23 @@ If desired, you may delete the `.github/workflows/publish.yml` file if you are n
 publishing to PyPI.
 
 The template can be used in three ways.
-Option 1 is the quickest option with full flexibility.
+Option 1 is the quickest: your AI coding agent does the setup, including the parts that
+used to be interactive.
 Option 2 is the normal way to use a Copier template by hand.
 Option 3 is handy if you prefer a GitHub template.
 
-### Option 1: Run `uvx uvtemplate`
+### Option 1: Use Your Agent (Recommended)
 
-I’ve now created a little tool, [uvtemplate](https://www.github.com/jlevy/uvtemplate)
-that copies this template for you and walks you through everything:
+Install the [agent skill](skills/simple-modern-uv/SKILL.md) and ask your agent — see
+[In a Hurry?](#in-a-hurry) above for the exact commands and prompts.
+The skill covers three workflows: creating a **new project**, **upgrading an existing
+Python package** to this template’s structure and tooling (including migrations from
+Poetry, setuptools/pip, or PDM), and **updating** a project already built from this
+template. Your agent collects the essentials (name, description, license, whether you
+publish to PyPI) and handles the rest non-interactively.
 
-```shell
-uvx uvtemplate
-```
-
-It’s the same as running `copier` and a few `git` commands yourself, with a little more
-guidance and less typing.
+(An earlier interactive helper, `uvtemplate`, is retired — agents now do the guided
+part, and `copier` itself is the non-interactive engine.)
 
 ### Option 2: Use `copier` and `git` Yourself
 

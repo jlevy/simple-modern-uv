@@ -232,9 +232,8 @@ toolchain.
 - **Re-evaluate when ty (or Pyrefly) reaches comparable conformance.** Concretely,
   revisit if ty exits beta (stable, non-`0.0.x`) *and* its full-Pass conformance is
   within a few points of Pyright/BasedPyright, or if Pyrefly’s 90%+ holds and its
-  ecosystem matures.
-  One more signal to watch: uv 0.11.18 (June 2026) added a preview `uv check` command
-  that runs ty directly from uv.
+  ecosystem matures. One more signal to watch: uv 0.11.18 (June 2026) added a preview
+  `uv check` command that runs ty directly from uv.
   When that stabilizes, ty becomes the zero-config path for uv projects, which raises
   the convenience bar BasedPyright must beat on coverage to stay the default.
 
