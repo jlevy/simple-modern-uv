@@ -8,16 +8,16 @@ There are two repos involved:
 
 - **Template repo** (`jlevy/simple-modern-uv`): The Copier template source.
   All version changes start here.
-  This repo's own CI (`.github/workflows/ci.yml`) makes PRs self-validating: it
-  renders the template (default and non-default options), runs the full
-  lint/test/build cycle on the render, runs the update-path test from the previous
-  release tag, and validates the agent skill (`skills/simple-modern-uv/`).
+  This repo’s own CI (`.github/workflows/ci.yml`) makes PRs self-validating: it renders
+  the template (default and non-default options), runs the full lint/test/build cycle on
+  the render, runs the update-path test from the previous release tag, and validates the
+  agent skill (`skills/simple-modern-uv/`).
 - **Downstream project(s)**: Projects created from the template (e.g.
   [`jlevy/simple-modern-uv-template`](https://github.com/jlevy/simple-modern-uv-template)).
   These pull updates via `copier update` and have CI configured to run linting and tests
   across the Python version matrix.
-  The downstream repo remains the **release gate** (full matrix, real
-  `copier update` against a long-lived project).
+  The downstream repo remains the **release gate** (full matrix, real `copier update`
+  against a long-lived project).
 
 Release rule: the downstream repo is the release gate.
 Push the template candidate, export it into `jlevy/simple-modern-uv-template`, and wait
@@ -87,32 +87,32 @@ In the template repo, update these files as needed:
   floors, not exact pins; CI enforces the cool-off via `UV_EXCLUDE_NEWER`)
 - **uv version** in `template/.github/workflows/ci.yml` and `publish.yml` (the
   `version:` field under `astral-sh/setup-uv`), and the matching `UV_VERSION` in this
-  repo's own `.github/workflows/ci.yml`
+  repo’s own `.github/workflows/ci.yml`
 - **GitHub Actions versions** (e.g. `actions/checkout@v6`) in the same workflow files
 - **Python version matrix** in `template/.github/workflows/ci.yml` and the corresponding
   classifiers in `template/pyproject.toml.jinja`
-- **The agent skill** (`skills/simple-modern-uv/`): keep the pinned
-  `uvx copier@X.Y.Z` invocations current (subject to the same cool-off), and update
-  the FAQ/checklists if this cycle changed behavior they describe
-- Review `docs/project/research/research-uv-changes.md` for new uv features the
-  template should adopt or explicitly decline
+- **The agent skill** (`skills/simple-modern-uv/`): keep the pinned `uvx copier@X.Y.Z`
+  invocations current (subject to the same cool-off), and update the FAQ/checklists if
+  this cycle changed behavior they describe
+- Review `docs/project/research/research-uv-changes.md` for new uv features the template
+  should adopt or explicitly decline
 
 ### Changing template questions (answer-schema evolution)
 
-Standing policy whenever a question is added to or changed in `copier.yml`, so
-existing projects keep updating cleanly:
+Standing policy whenever a question is added to or changed in `copier.yml`, so existing
+projects keep updating cleanly:
 
-1. **Behavior-preserving defaults**: a new question's default must reproduce exactly
+1. **Behavior-preserving defaults**: a new question’s default must reproduce exactly
    what the template generated before the question existed, so a vanilla
    `copier update --defaults` is a no-op.
-2. **Old answer files stay valid**: never require manual edits to
-   `.copier-answers.yml`; `--defaults --skip-answered` fills new keys.
-3. **Hand customizations are reconciled by the skill**, not by defaults: the skill's
+2. **Old answer files stay valid**: never require manual edits to `.copier-answers.yml`;
+   `--defaults --skip-answered` fills new keys.
+3. **Hand customizations are reconciled by the skill**, not by defaults: the skill’s
    update workflow inspects project state and passes explicit `--data` (see
    `skills/simple-modern-uv/references/customize.md`).
-4. **CI guards the update path**: the `update-path` job renders the previous release
-   and updates to the candidate, asserting convergence with a fresh render and that
-   `--data` overrides are honored.
+4. **CI guards the update path**: the `update-path` job renders the previous release and
+   updates to the candidate, asserting convergence with a fresh render and that `--data`
+   overrides are honored.
 5. **Call it out in release notes**, naming the new keys and their defaults.
 
 Then auto-format all docs so formatting stays consistent (this repo has no CI to enforce
