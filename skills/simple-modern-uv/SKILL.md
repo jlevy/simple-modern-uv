@@ -89,13 +89,16 @@ These are never questions.
    (Omit `--data` keys that should take defaults.
    `package_module` derives automatically from `package_name`.)
 
-2. Initialize git and install (required before building; versioning reads git):
+2. Initialize git, commit, then install.
+   Sync only after the first commit: dynamic versioning reads git, and syncing first
+   leaves the editable install’s version at `0.0.0`.
 
    ```bash
    cd acme-widgets
    git init --initial-branch=main
-   uv sync --all-extras
    git add . && git commit -m "Initial commit from simple-modern-uv."
+   uv sync --all-extras
+   git add uv.lock && git commit -m "Add uv.lock."
    ```
 
 3. **Verify**: `make lint` and `make test` must pass.

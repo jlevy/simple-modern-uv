@@ -43,8 +43,8 @@ Also check for new major versions of GitHub Actions:
 - `actions/checkout`: <https://github.com/actions/checkout/releases>
 - `astral-sh/setup-uv`: <https://github.com/astral-sh/setup-uv/releases>
 
-Note `astral-sh/setup-uv` is pinned to a full, immutable version tag (e.g. `@v8.1.0`)
-rather than a floating major tag.
+Note the actions are pinned to full, immutable version tags (e.g.
+`actions/checkout@v6.0.2`, `astral-sh/setup-uv@v8.1.0`) rather than floating major tags.
 As of v8, Astral stopped publishing floating `@v8`/`@v8.1` tags in favor of immutable
 releases, which is a supply-chain improvement (a pinned tag can’t be silently
 re-pointed). The cost is that patch updates no longer arrive automatically, so bump the
@@ -88,7 +88,8 @@ In the template repo, update these files as needed:
 - **uv version** in `template/.github/workflows/ci.yml` and `publish.yml` (the
   `version:` field under `astral-sh/setup-uv`), and the matching `UV_VERSION` in this
   repo’s own `.github/workflows/ci.yml`
-- **GitHub Actions versions** (e.g. `actions/checkout@v6`) in the same workflow files
+- **GitHub Actions versions** (e.g. `actions/checkout@v6.0.2`) in the same workflow
+  files, and in this repo’s own `.github/workflows/ci.yml`
 - **Python version matrix** in `template/.github/workflows/ci.yml` and the corresponding
   classifiers in `template/pyproject.toml.jinja`
 - **The agent skill** (`skills/simple-modern-uv/`): keep the pinned `uvx copier@X.Y.Z`

@@ -287,11 +287,15 @@ references.
 
 ## How to Use This Template
 
-By default this template uses MIT license.
-If you want a different license or are not publishing your project as open source,
-update `license` in pyproject.toml and the LICENSE file.
-If desired, you may delete the `.github/workflows/publish.yml` file if you are not
-publishing to PyPI.
+License and publishing are template questions, not hand edits: `package_license`
+(default MIT; also Apache-2.0, BSD-3-Clause, AGPL-3.0-or-later, Proprietary, or None to
+decide later) and `publish_to_pypi` (answer no for a private package; the publish
+workflow and docs are then omitted).
+Answer them at render time or change them later with
+`copier update --data package_license=…`; see the skill’s
+[customize guide](skills/simple-modern-uv/references/customize.md) for details.
+Prefer re-answering over hand-deleting generated files like `publish.yml`, so future
+`copier update` runs stay consistent.
 
 The template can be used in three ways.
 Option 1 is the quickest: your AI coding agent gathers the project details and does the
@@ -344,11 +348,14 @@ license, since the template already provides these), and add your initial code:
 ```shell
 cd PROJECT
 git init --initial-branch=main
-# Make license or other initial adjustments if needed.
-# Create and commit uv.lock now so CI installs reproducibly with --frozen.
-uv sync --all-extras
 git add .
 git commit -m "Initial commit from simple-modern-uv."
+# Sync after the first commit so dynamic versioning gives the editable install
+# a real version (not 0.0.0). This creates uv.lock; commit it so CI installs
+# reproducibly with --frozen.
+uv sync --all-extras
+git add uv.lock
+git commit -m "Add uv.lock."
 # Create repo on GitHub.
 git remote add origin git@github.com:OWNER/PROJECT.git  # or https://github.com/...
 git push -u origin main

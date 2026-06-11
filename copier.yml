@@ -8,20 +8,24 @@ _subdirectory: template
 _message_after_copy: |
     Your package template has been copied!
 
-    Remember to look for any unfilled `changeme` strings and confirm the license!
-    By default this template uses MIT license.
-    See `license` in pyproject.toml and update the LICENSE file.
+    Remember to look for any unfilled `changeme` strings!
+    The license and publishing setup follow your package_license and
+    publish_to_pypi answers; change them later with, e.g.:
+    copier update --data package_license=Apache-2.0
 
     Next steps:
-    
+
     cd PROJECT
     git init --initial-branch=main
-    # Make license or other initial adjustments if needed.
-    # Create and commit uv.lock now so CI installs reproducibly with --frozen.
-    uv sync --all-extras
     git add .
     git commit -m "Initial commit from simple-modern-uv."
-    # Create repo on GitHub.
+    # Sync after the first commit so dynamic versioning gives the editable
+    # install a real version (not 0.0.0). This creates uv.lock; commit it so
+    # CI installs reproducibly with --frozen.
+    uv sync --all-extras
+    git add uv.lock
+    git commit -m "Add uv.lock."
+    # Create an empty repo on GitHub, then:
     git remote add origin git@github.com:OWNER/PROJECT.git  # or https://...
     git push -u origin main
 

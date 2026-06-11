@@ -106,18 +106,17 @@ if ! command -v gh &> /dev/null; then
     exit 1
 fi
 
-# Check authentication status
-if [ -n "${GH_TOKEN:-}" ]; then
-    # GH_TOKEN is set, verify it works
-    if gh auth status &> /dev/null; then
-        echo "[gh] Authenticated successfully"
-    else
-        echo "[gh] WARNING: GH_TOKEN is set but authentication check failed"
-        echo "[gh] Token may be invalid or expired"
-    fi
+# Check authentication status. gh supports several auth mechanisms (GH_TOKEN,
+# keyring via `gh auth login`, etc.), so trust `gh auth status` rather than any
+# single environment variable.
+if gh auth status &> /dev/null; then
+    echo "[gh] Authenticated successfully"
+elif [ -n "${GH_TOKEN:-}" ]; then
+    echo "[gh] WARNING: GH_TOKEN is set but authentication check failed"
+    echo "[gh] Token may be invalid or expired"
 else
-    echo "[gh] NOTE: GH_TOKEN not set - some operations may require authentication"
-    echo "[gh] See: docs/general/agent-setup/github-cli-setup.md"
+    echo "[gh] NOTE: not authenticated - some operations may require authentication"
+    echo "[gh] Run: gh auth login (or set GH_TOKEN)"
 fi
 
 exit 0

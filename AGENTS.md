@@ -30,7 +30,7 @@ make format
 make format-check
 
 # Render the template non-interactively (smoke test):
-uvx copier copy --defaults --vcs-ref=HEAD --data package_name=smoke-test \
+uvx copier@9.15.1 copy --defaults --vcs-ref=HEAD --data package_name=smoke-test \
   --data package_github_org=testorg . /tmp/smoke-test
 # Then inside the render: uv sync --all-extras && uv run python devtools/lint.py --check && uv run pytest
 ```

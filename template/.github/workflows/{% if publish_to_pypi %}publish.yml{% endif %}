@@ -20,7 +20,9 @@ jobs:
       contents: read
     steps:
       - name: Checkout (official GitHub action)
-        uses: actions/checkout@v6
+        # Pinned to a full, immutable version tag (see supply-chain notes in
+        # docs/development.md); bump deliberately when updating.
+        uses: actions/checkout@v6.0.2
         with:
           # Important for versioning plugins:
           fetch-depth: 0

@@ -21,6 +21,10 @@ No git tag yet: dynamic versioning derives the version from the latest `v*` tag.
   X.Y.Z (e.g. `vX.Y.(Z+1)`), or the publish will be rejected as a duplicate/downgrade.
 - Tag exists but ignored: tags must look like `v1.2.3`; also check CI uses
   `fetch-depth: 0` (the template’s workflows do) so tags are available.
+- `importlib.metadata` still reports an old version after committing or tagging: the
+  editable install’s metadata is captured at sync time and uv won’t refresh it on its
+  own. Run `uv sync --reinstall-package <module>` (and sync only after the first commit
+  on new projects).
 
 ## `uv sync` Fails on Python Version
 
