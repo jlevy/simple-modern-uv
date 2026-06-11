@@ -56,7 +56,7 @@ below.
 | `package_name` | PyPI package and GitHub repo name | Normalize to **kebab-case** (`acme-widgets`); show the user the name you derived |
 | `package_module` | Python module name | Derived automatically as **snake_case** (`acme_widgets`); show it, don’t ask |
 | `package_description` | One-line description |  |
-| `package_license` | `MIT` (default), `Apache-2.0`, `BSD-3-Clause`, or `Proprietary` | Always surface, naming the default |
+| `package_license` | `MIT` (default), `Apache-2.0`, `BSD-3-Clause`, `AGPL-3.0-or-later`, `Proprietary`, or `None` (decide later) | Always surface, naming the default |
 | `publish_to_pypi` | `true` (default) or `false` | Always surface; `false` for private packages and apps |
 
 For `package_author_name`, `package_author_email`, and `package_github_org`, **infer**

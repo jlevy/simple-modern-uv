@@ -46,6 +46,8 @@ jobs:
             extra_args: ""
           - variant: no-publish-proprietary
             extra_args: "--data package_license=Proprietary --data publish_to_pypi=false"
+          - variant: no-license
+            extra_args: "--data package_license=None"
     runs-on: ubuntu-latest
     env:
       # Supply-chain cool-off for template dependency resolution, matching the
@@ -71,19 +73,28 @@ jobs:
       - name: Inspect variant-specific output
         run: |
           cd /tmp/render
-          if [ "${{ matrix.variant }}" = "default" ]; then
-            test -f .github/workflows/publish.yml
-            test -f docs/publishing.md
-            grep -q 'license = "MIT"' pyproject.toml
-            head -1 LICENSE | grep -q "MIT License"
-            # Only the commented-out form may appear in the default render:
-            ! grep -qE '^\s*"Private :: Do Not Upload",' pyproject.toml
-          else
-            test ! -e .github/workflows/publish.yml
-            test ! -e docs/publishing.md
-            grep -q 'license = "LicenseRef-Proprietary"' pyproject.toml
-            grep -qE '^\s*"Private :: Do Not Upload",' pyproject.toml
-          fi
+          case "${{ matrix.variant }}" in
+            default)
+              test -f .github/workflows/publish.yml
+              test -f docs/publishing.md
+              grep -q 'license = "MIT"' pyproject.toml
+              head -1 LICENSE | grep -q "MIT License"
+              # Only the commented-out form may appear in the default render:
+              ! grep -qE '^\s*"Private :: Do Not Upload",' pyproject.toml
+              ;;
+            no-publish-proprietary)
+              test ! -e .github/workflows/publish.yml
+              test ! -e docs/publishing.md
+              grep -q 'license = "LicenseRef-Proprietary"' pyproject.toml
+              grep -qE '^\s*"Private :: Do Not Upload",' pyproject.toml
+              ;;
+            no-license)
+              test ! -e LICENSE
+              ! grep -qE '^license = ' pyproject.toml
+              grep -q "No license chosen yet" pyproject.toml
+              test -f .github/workflows/publish.yml
+              ;;
+          esac
           test -f AGENTS.md
           test -f .copier-answers.yml
 

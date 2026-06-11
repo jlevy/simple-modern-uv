@@ -12,7 +12,13 @@ authors = [
     { name="{{ package_author_name }}", email="{{ package_author_email }}" },
 ]
 readme = "README.md"
+{%- if package_license == 'None' %}
+# No license chosen yet. When you pick one, set an SPDX expression here and add a
+# LICENSE file, or re-answer the template question:
+# uvx copier update --data package_license=MIT
+{%- else %}
 license = "{{ 'LicenseRef-Proprietary' if package_license == 'Proprietary' else package_license }}"
+{%- endif %}
 requires-python = ">=3.11,<4.0"
 dynamic = ["version"]
 

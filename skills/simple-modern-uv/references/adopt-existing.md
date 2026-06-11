@@ -18,7 +18,7 @@ These need decisions a checklist shouldn’t make.
 | `package_description` | `[project] description` or `setup.py description=` |
 | `package_author_name` / `email` | `[project] authors`, `[tool.poetry] authors`, or git log |
 | `package_github_org` | `git remote get-url origin` |
-| `package_license` | `LICENSE` file contents and `license` field/classifiers; map to MIT, Apache-2.0, or BSD-3-Clause, else Proprietary |
+| `package_license` | `LICENSE` file contents and `license` field/classifiers; map to MIT, Apache-2.0, BSD-3-Clause, or AGPL-3.0-or-later; no license found maps to None; else Proprietary |
 | `publish_to_pypi` | `true` if the package is on PyPI (`uv pip index` or check pypi.org) or clearly intended for it; `false` for apps/private code (a `Private :: Do Not Upload` classifier is a definitive no) |
 
 Confirm the essentials with the user in one batched message (per the interview contract

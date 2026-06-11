@@ -259,9 +259,10 @@ D2 template options.
 
 Two new copier questions (and only these two, preserving minimalism):
 
-- `package_license`: choice — `MIT` (default), `Apache-2.0`, `BSD-3-Clause`,
-  `Proprietary (not open source)`. Drives the `LICENSE` file content and the `license`
-  field/classifiers in `pyproject.toml`.
+- `package_license`: choice of `MIT` (default), `Apache-2.0`, `BSD-3-Clause`,
+  `AGPL-3.0-or-later`, `Proprietary (not open source)`, or `None (choose later)`. Drives
+  the `LICENSE` file content and the `license` field in `pyproject.toml`; `None` renders
+  neither, for deciding later.
 - `publish_to_pypi`: bool, default true.
   When false: `.github/workflows/publish.yml` and `docs/publishing.md` are excluded from
   the render, `pyproject.toml` gets the `Private :: Do Not Upload` classifier

@@ -7,17 +7,20 @@ hand-editing: hand edits to template-managed files can be reverted by a later
 
 ## Changing the License
 
-Preferred: set the `package_license` answer (`MIT`, `Apache-2.0`, `BSD-3-Clause`, or
-`Proprietary`) when rendering, or re-answer it later with:
+Preferred: set the `package_license` answer (`MIT`, `Apache-2.0`, `BSD-3-Clause`,
+`AGPL-3.0-or-later`, `Proprietary`, or `None` to decide later) when rendering, or
+re-answer it later with:
 
 ```bash
 uvx copier@9.15.1 update --data package_license=Apache-2.0
 ```
 
 This updates the `LICENSE` file and the `license` field in `pyproject.toml` together,
-and records the answer in `.copier-answers.yml`. For a license outside the template’s
-choices: pick `Proprietary` (so the template stops managing it), then replace `LICENSE`
-and set `license` in `pyproject.toml` to the correct SPDX identifier yourself.
+and records the answer in `.copier-answers.yml`. `None` renders no `LICENSE` file and no
+`license` field; re-answer the question when the project picks one.
+For a license outside the template’s choices: pick `Proprietary` (so the template stops
+managing it), then replace `LICENSE` and set `license` in `pyproject.toml` to the
+correct SPDX identifier yourself.
 
 ## Private or Unpublished Packages
 
