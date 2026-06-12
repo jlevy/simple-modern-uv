@@ -19,11 +19,18 @@ There are two repos involved:
   The downstream repo remains the **release gate** (full matrix, real `copier update`
   against a long-lived project).
 
-Release rule: the downstream repo is the release gate.
+Release rule: the downstream repo is the release gate when it is reachable.
 Push the template candidate, export it into `jlevy/simple-modern-uv-template`, and wait
 for downstream CI to pass before creating a GitHub release for this template.
 The commands below assume the downstream repo is cloned next to this repo as
 `../simple-modern-uv-template`.
+
+**Releasing without downstream access** (for example, an agent session scoped to this
+repo only): this repo’s CI on the candidate commit is the gate — all jobs must be green
+— plus a local render verification (Step 5 run against a fresh render).
+Create the release on that basis, then complete the downstream export and tag recording
+(Steps 4–6 and 8) as post-release verification from an environment with access.
+If downstream then fails, fix forward with a patch release.
 
 ## Step 1: Check Latest Versions
 
@@ -226,6 +233,10 @@ Pick the version by what changed:
 - **Patch** (`v0.2.28`): routine dependency and tool-version bumps, doc fixes, and
   changes that leave the render’s shape alone.
 
+Review the changes and author the release notes as a file first (the gitignored `tmp/`
+directory is the convention; a file keeps the shell out of the way, since notes
+routinely contain backticks and `$`):
+
 ```shell
 # From the template repo:
 cd ../simple-modern-uv
@@ -236,28 +247,25 @@ NEW_TAG="v0.X.Y"
 git log "${LAST_TAG}..HEAD" --oneline
 git diff --stat "${LAST_TAG}..HEAD"
 
+# Write tmp/release-notes-${NEW_TAG}.md, then:
 gh release create "$NEW_TAG" \
   --repo jlevy/simple-modern-uv \
   --target "$TEMPLATE_COMMIT" \
   --title "$NEW_TAG" \
-  --notes "$(cat <<EOF
-## What's Changed
-
-- **Updated dev dependencies**: ruff X.Y.Z, basedpyright X.Y.Z, etc.
-- **Updated uv** to X.Y.Z in CI workflows
-- **New/changed template questions** (if any): name each key, its choices, and its
-  default
-- Any other changes
-
-**Downstream validation**: jlevy/simple-modern-uv-template CI passed for ${TEMPLATE_COMMIT:0:7}
-
-**Full Changelog**: https://github.com/jlevy/simple-modern-uv/compare/${LAST_TAG}...${NEW_TAG}
-EOF
-)"
+  --notes-file "tmp/release-notes-${NEW_TAG}.md"
 ```
 
-This makes the release visible to users and provides clear release notes on what was
-updated.
+Structure the notes per `tbd guidelines release-notes-guidelines` (or the same format
+the template’s own `docs/publishing.md` describes): a one-paragraph summary of the
+release’s theme, `### New Features` / `### Improvements` sections, an upgrading note for
+existing projects, new question keys with their defaults (per the answer-schema policy),
+a statement of what validation backed the release, and the
+`compare/${LAST_TAG}...${NEW_TAG}` link.
+
+Afterwards, verify the release: the tag points at `$TEMPLATE_COMMIT`
+(`gh release view "$NEW_TAG" --json tagName,targetCommitish,isDraft`) and a fresh
+`copier copy gh:jlevy/simple-modern-uv` records the new tag as `_commit` in
+`.copier-answers.yml`.
 
 ## Step 8: Record the Release Tag Downstream
 
