@@ -5,7 +5,7 @@ title: "Spec: agent skill and template modernization"
 kind: epic
 status: in_progress
 priority: 1
-version: 18
+version: 19
 spec_path: docs/project/specs/active/plan-2026-06-11-agent-skill-and-modernization.md
 labels: []
 dependencies: []
@@ -26,10 +26,10 @@ child_order_hints:
   - is-01ktwdgnj0a4fc2bwwb1szxwkw
   - is-01ktwdnahytshfemt9eff75ddg
 created_at: 2026-06-11T20:23:00.715Z
-updated_at: 2026-06-11T23:08:37.731Z
+updated_at: 2026-06-12T00:56:29.340Z
 ---
 Umbrella for making simple-modern-uv directly usable by AI coding agents: an installable skill with three flows (new/upgrade/update), license+publish template options, AGENTS.md output, uvtemplate removal, repo CI, and version currency. See spec for full design, the two-tier interview contract, and the D2 answer-schema evolution rules.
 
 ## Notes
 
-In-repo work merged via PR #25 (2026-06-11). Remaining children are post-release follow-ups: retire uvtemplate after v0.3.0 ships and the skill is verified end-to-end; port the ensure-gh-cli.sh auth fix upstream into get-tbd. Release runbook: updating.md Steps 3-8 with NEW_TAG=v0.3.0; draft release notes are in the PR #25 body; run the skill activation smoke checks (updating.md) before tagging.
+v0.3.0 RELEASED 2026-06-12 (tag on be2f938, https://github.com/jlevy/simple-modern-uv/releases/tag/v0.3.0). Gate: this repo's CI green on the release commit + local render verification + full-matrix validation on jlevy/test-smu-1 during review (downstream repo not reachable from this session). Remaining post-release: (1) downstream export + tag recording in simple-modern-uv-template (updating.md Steps 4-6, 8) from an environment with access; (2) skill activation smoke checks in target agents; (3) verify npx skills add end-to-end; (4) retire uvtemplate (smu-h0yd); (5) upstream gh-hook fix in get-tbd (smu-r17y). PR #26 documents the agent release path.
