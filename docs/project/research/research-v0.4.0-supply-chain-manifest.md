@@ -50,7 +50,11 @@ and is not added to classifiers or CI.
 
 Full commit pins are used for both actions so workflow review has one consistent rule.
 The generated publish workflow retains only `contents: read` and `id-token: write`; CI
-workflows retain `contents: read`.
+workflows retain `contents: read`. setup-uv v8.2.0 does not use the default version
+manifest checksum unless it is also in the action’s built-in checksum table.
+uv 0.11.25 postdates that table, so Linux workflows provide the official
+`uv-x86_64-unknown-linux-gnu` SHA-256 directly:
+`1db18b5e76fa645a7f3865773139bdec8e2d46adbdbb35e7410b34fa8015ccd2`.
 
 `uv build` does not consume `uv.lock` for its isolated build environment.
 The template therefore declares exact reviewed build-system versions, mirrors them in a

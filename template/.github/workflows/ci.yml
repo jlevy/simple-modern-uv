@@ -38,21 +38,23 @@ jobs:
       # https://docs.astral.sh/uv/guides/integration/github/
 
       - name: Checkout (official GitHub action)
-        # Pinned to a full, immutable version tag (see supply-chain notes in
+        # Pinned to a full commit SHA (see supply-chain notes in
         # docs/development.md); bump deliberately when updating.
-        uses: actions/checkout@v6.0.2
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           # Important for versioning plugins:
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Install uv (official Astral action)
-        # Pinned to a full, immutable version tag. As of v8, setup-uv no longer
-        # publishes floating major/minor tags (e.g. `@v8`), so bump this exact
-        # version when updating.
-        uses: astral-sh/setup-uv@v8.1.0
+        # Pinned to a full commit SHA. Bump the action, uv version, and Linux
+        # checksum together when updating.
+        uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
         with:
           # Update this as needed:
           version: "0.11.25"
+          # uv-x86_64-unknown-linux-gnu; update for another matrix OS/arch.
+          checksum: "1db18b5e76fa645a7f3865773139bdec8e2d46adbdbb35e7410b34fa8015ccd2"
           enable-cache: true
           python-version: ${{ matrix.python-version }}
 
@@ -60,8 +62,9 @@ jobs:
         run: uv python install
 
       # Alternately can use the official Python action:
+      # Pin a reviewed full commit SHA before enabling it.
       # - name: Set up Python (using actions/setup-python)
-      #   uses: actions/setup-python@v5
+      #   uses: actions/setup-python@FULL_COMMIT_SHA # reviewed version
       #   with:
       #     python-version: ${{ matrix.python-version }}
 
