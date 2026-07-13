@@ -18,6 +18,8 @@ The audit covers the template inputs, generated-project development and build
 dependencies, repository-only tools, and active GitHub Actions.
 It does not approve transitive packages by implication; the rendered `uv.lock` diff is
 reviewed separately.
+The generated project anchors `exclude-newer = "14 days"` in `[tool.uv]`; Makefile and
+CI environment settings repeat the policy for commands outside project discovery.
 
 ## Frozen Python and Tool Candidates
 

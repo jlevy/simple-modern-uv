@@ -63,7 +63,9 @@ doc.)
    The build backends are exact-pinned and mirrored in a locked `build` dependency
    group; release builds use `--no-build-isolation` so `uv.lock` covers the build graph.
 2. **`[tool.uv] required-version = ">=0.9"`** (adopted): fails fast on uv versions that
-   predate relative-duration `UV_EXCLUDE_NEWER`.
+   predate relative-duration `UV_EXCLUDE_NEWER`. The same `[tool.uv]` table sets
+   `exclude-newer = "14 days"` so direct uv commands, not only Makefile and CI paths,
+   inherit the policy.
 3. **Watch `uv audit` and `UV_MALWARE_CHECK`**: `uv audit` is old enough to use as an
    additional release-time check, but remains preview functionality in 0.11.25. Do not
    make a preview command part of generated-project CI until it stabilizes.

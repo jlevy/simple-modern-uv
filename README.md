@@ -430,7 +430,8 @@ follows:
 - **Cooling-off period:** Don’t install or upgrade to a release less than 14 days old
   (most malicious publishes are caught within days).
   For uv, set `UV_EXCLUDE_NEWER` to a cool-off window (recent uv accepts a relative
-  duration like `"14 days"`); this template’s CI and Makefile set it automatically.
+  duration like `"14 days"`); this template sets it in generated `pyproject.toml`, CI,
+  and the Makefile.
 
 - **Vet what you add:** Only add dependencies you can verify upstream, and prefer a
   little first-party code over pulling in a new dependency.

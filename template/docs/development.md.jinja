@@ -94,8 +94,8 @@ Its key defaults:
 - **Cool-off period:** Don’t install or upgrade to a release less than 14 days old
   (absent a documented exception); most malicious publishes are caught within days.
   For uv, set `UV_EXCLUDE_NEWER` to a cool-off window (recent uv accepts a relative
-  duration like `"14 days"`); this project’s CI workflows set it automatically.
-  The Makefile also defaults to 14 days.
+  duration like `"14 days"`); this project sets it in `pyproject.toml`, CI, and the
+  Makefile so direct commands and standard workflows default to the same policy.
   Override it explicitly for a stricter window, such as
   `UV_EXCLUDE_NEWER="30 days" make upgrade`. A reviewed emergency exception must be
   equally explicit, using `UV_EXCLUDE_NEWER="0 days"` only for that invocation and

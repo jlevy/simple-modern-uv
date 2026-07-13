@@ -140,9 +140,11 @@ days. Fresh releases are the most likely to be yanked, to carry regressions, or 
 to be a compromised/typosquatted artifact that hasn’t yet been caught.
 Prefer the latest version that is both at least 14 days old and has had subsequent patch
 releases without being yanked.
-The CI, generated Makefile, and repository Makefile enforce this by setting
-`UV_EXCLUDE_NEWER` to a 14-day cool-off window (the pinned uv accepts the relative
-duration `"14 days"` directly).
+Generated `pyproject.toml`, CI, the generated Makefile, and the repository Makefile
+enforce a 14-day cool-off window (the pinned uv accepts the relative duration
+`"14 days"` directly).
+Keep the project setting as the primary safe default for direct uv commands; environment
+variables remain explicit per-invocation overrides.
 
 For every changed item, verify the canonical repository and maintainer, inspect all
 intervening release notes and source changes, record registry hashes or attestations,
@@ -179,6 +181,8 @@ In the template repo, update these files as needed:
   `before` cutoff, disable lifecycle scripts, and record registry integrity/provenance
 - **Safe-default Makefile paths**: keep the 14-day default on install, upgrade, format,
   and build commands, while preserving an explicit per-invocation override
+- **The project-level uv policy**: keep `tool.uv.exclude-newer = "14 days"` so direct uv
+  commands cannot silently omit the cool-off
 - Review `docs/project/research/research-uv-changes.md` for new uv features the template
   should adopt or explicitly decline
 - Record the complete frozen decision in a release-specific supply-chain manifest under

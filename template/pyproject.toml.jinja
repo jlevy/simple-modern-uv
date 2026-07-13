@@ -105,9 +105,11 @@ packages = ["src/{{ package_module }}"]
 
 [tool.uv]
 # Fail fast on old uv versions rather than misbehave. 0.9 is the floor where
-# UV_EXCLUDE_NEWER accepts a relative duration like "14 days" (used in CI for the
-# supply-chain cool-off; see docs/development.md).
+# exclude-newer accepts a relative duration like "14 days".
 required-version = ">=0.9"
+# Safe project-level default for every uv command. CI and the Makefile repeat it so
+# copied commands and tool execution outside project discovery retain the same policy.
+exclude-newer = "14 days"
 
 [tool.ruff]
 # Set as desired, typically 88 (black standard) or 100 (wide).
