@@ -27,9 +27,13 @@ Install the [skill](skills/simple-modern-uv/SKILL.md) (the
 Codex, Cursor, Gemini CLI, and 50+ other agents):
 
 ```shell
-NPM_CONFIG_IGNORE_SCRIPTS=true NPM_CONFIG_BEFORE=2026-06-29T03:27:33Z \
-  npx --yes skills@1.5.13 add jlevy/simple-modern-uv
+npx skills add jlevy/simple-modern-uv
 ```
+
+(If you enforce npm supply-chain policies, such as a minimum release age for
+dependencies, configure them once in your
+[npm config](https://docs.npmjs.com/cli/v11/using-npm/config) rather than per
+command.)
 
 Then tell your agent what you want, for example:
 
