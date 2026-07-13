@@ -293,7 +293,7 @@ License and publishing are template questions, not hand edits: `package_license`
 decide later) and `publish_to_pypi` (answer no for a private package; the publish
 workflow and docs are then omitted).
 Answer them at render time or change them later with
-`UV_EXCLUDE_NEWER="14 days" uvx copier@9.16.0 update --data package_license=…`; see the
+`uvx --exclude-newer "14 days" copier@9.16.0 update --data package_license=…`; see the
 skill’s [customize guide](skills/simple-modern-uv/references/customize.md) for details.
 Prefer re-answering over hand-deleting generated files like `publish.yml`, so future
 `copier update` runs stay consistent.
@@ -330,7 +330,7 @@ cd ~/projects/github   # Wherever you do your project work.
 # Clone this template under the supply-chain cool-off. This does everything!
 # It will fetch from this GitHub repo and create a new directory
 # with whatever name you put below:
-UV_EXCLUDE_NEWER="14 days" uvx copier@9.16.0 copy \
+uvx --exclude-newer "14 days" copier@9.16.0 copy \
   gh:jlevy/simple-modern-uv YOURNEWREPO
 # Then follow the instructions.
 ```

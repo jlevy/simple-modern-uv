@@ -11,7 +11,7 @@ _message_after_copy: |
     Remember to look for any unfilled `changeme` strings!
     The license and publishing setup follow your package_license and
     publish_to_pypi answers; change them later with, e.g.:
-    UV_EXCLUDE_NEWER="14 days" uvx copier@9.16.0 update --data package_license=Apache-2.0
+    uvx --exclude-newer "14 days" copier@9.16.0 update --data package_license=Apache-2.0
 
     Next steps:
 

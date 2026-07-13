@@ -32,7 +32,7 @@ not yours.
 
 ```bash
 cd ..
-UV_EXCLUDE_NEWER="14 days" uvx copier@9.16.0 copy --defaults \
+uvx --exclude-newer "14 days" copier@9.16.0 copy --defaults \
   --data package_name=<name> ... \
   gh:jlevy/simple-modern-uv <project>-template-render
 ```

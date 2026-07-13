@@ -242,7 +242,7 @@ git status --short
 
 # Export the exact template candidate. This uses the _src_path already recorded in
 # .copier-answers.yml, currently gh:jlevy/simple-modern-uv.
-UV_EXCLUDE_NEWER="14 days" uvx copier@9.16.0 update --defaults \
+uvx --exclude-newer "14 days" copier@9.16.0 update --defaults \
   --vcs-ref "$TEMPLATE_COMMIT"
 git diff --stat
 ```
@@ -251,7 +251,7 @@ If the downstream repo ever needs a fresh render instead of an update, instantia
 the standard defaults:
 
 ```shell
-UV_EXCLUDE_NEWER="14 days" uvx copier@9.16.0 copy --defaults \
+uvx --exclude-newer "14 days" copier@9.16.0 copy --defaults \
   --vcs-ref "$TEMPLATE_COMMIT" gh:jlevy/simple-modern-uv .
 ```
 
@@ -265,7 +265,7 @@ make install
 make lint-check
 make test
 make build
-UV_EXCLUDE_NEWER="14 days" uvx uv@0.11.25 audit --locked \
+uvx --exclude-newer "14 days" uv@0.11.25 audit --locked \
   --preview-features audit-command
 ```
 
@@ -350,8 +350,8 @@ a statement of what validation backed the release, and the
 
 Afterwards, verify the release: the tag points at `$TEMPLATE_COMMIT`
 (`gh release view "$NEW_TAG" --json tagName,targetCommitish,isDraft`) and a fresh
-`UV_EXCLUDE_NEWER="14 days" uvx copier@9.16.0 copy gh:jlevy/simple-modern-uv` records
-the new tag as `_commit` in `.copier-answers.yml`.
+`uvx --exclude-newer "14 days" copier@9.16.0 copy gh:jlevy/simple-modern-uv` records the
+new tag as `_commit` in `.copier-answers.yml`.
 
 ## Step 8: Record the Release Tag Downstream
 
@@ -362,7 +362,7 @@ This should either be a no-op or only change `_commit`.
 
 ```shell
 cd ../simple-modern-uv-template
-UV_EXCLUDE_NEWER="14 days" uvx copier@9.16.0 update --defaults \
+uvx --exclude-newer "14 days" copier@9.16.0 update --defaults \
   --vcs-ref "$NEW_TAG"
 git diff -- .copier-answers.yml
 

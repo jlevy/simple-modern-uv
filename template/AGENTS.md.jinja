@@ -19,7 +19,7 @@ make build       # locked, non-isolated uv build (wheel + sdist)
 ```
 
 Or call uv directly: `uv run pytest tests/test_foo.py`,
-`UV_EXCLUDE_NEWER="14 days" uv add some-package`, or
+`uv add --exclude-newer "14 days" some-package`, or
 `uv run python -m {{ package_module }}`.
 
 ## Conventions
@@ -32,8 +32,8 @@ Or call uv directly: `uv run pytest tests/test_foo.py`,
   [basedpyright](https://docs.basedpyright.com/). Settings live in `pyproject.toml`. Run
   `make lint` before committing.
 
-- **Dependencies**: add with `UV_EXCLUDE_NEWER="14 days" uv add` (runtime) or
-  `UV_EXCLUDE_NEWER="14 days" uv add --dev` (dev).
+- **Dependencies**: add with `uv add --exclude-newer "14 days"` (runtime) or
+  `uv add --dev --exclude-newer "14 days"` (dev).
   Commit `uv.lock`. Don’t use pip, poetry, or requirements.txt.
 
 - **Versioning**: the version comes from git tags via dynamic versioning; never edit a

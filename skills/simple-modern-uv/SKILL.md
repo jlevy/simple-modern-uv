@@ -75,7 +75,7 @@ These are never questions.
    Then render, replacing the answer values:
 
    ```bash
-   UV_EXCLUDE_NEWER="14 days" uvx copier@9.16.0 copy --defaults \
+   uvx --exclude-newer "14 days" copier@9.16.0 copy --defaults \
      --data package_name=acme-widgets \
      --data "package_description=One-line description" \
      --data "package_author_name=Jane Doe" \
@@ -131,7 +131,7 @@ Requires a clean working tree and the project’s `.copier-answers.yml`.
    [references/customize.md](references/customize.md)).
 
 2. ```bash
-   UV_EXCLUDE_NEWER="14 days" uvx copier@9.16.0 update --defaults --skip-answered
+   uvx --exclude-newer "14 days" copier@9.16.0 update --defaults --skip-answered
    ```
 
 3. Resolve any `*.rej` files or inline conflict markers, re-run `make lint` and

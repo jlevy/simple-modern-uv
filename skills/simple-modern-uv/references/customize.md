@@ -12,7 +12,7 @@ Preferred: set the `package_license` answer (`MIT`, `Apache-2.0`, `BSD-3-Clause`
 re-answer it later with:
 
 ```bash
-UV_EXCLUDE_NEWER="14 days" uvx copier@9.16.0 update --data package_license=Apache-2.0
+uvx --exclude-newer "14 days" copier@9.16.0 update --data package_license=Apache-2.0
 ```
 
 This updates the `LICENSE` file and the `license` field in `pyproject.toml` together,
