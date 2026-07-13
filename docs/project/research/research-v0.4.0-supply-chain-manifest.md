@@ -37,7 +37,7 @@ reviewed separately.
 | uv-dynamic-versioning | unbounded build requirement | **Pin 0.14.0** | 2026-03-22 | Canonical ninoseki project; already latest |
 | skills installer | unpinned `npx skills` | **Pin skills 1.5.13** | 2026-06-23 | Canonical Vercel Labs CLI; npm provenance, registry signature, and integrity present |
 | skills-ref | 0.1.5 | Keep 0.1.5 | 2025-12-27 | Exact npm package and integrity are pinned; already latest |
-| get-tbd | 0.2.3 | Evaluate 0.3.0 separately | 2026-06-15 | Repository-only bootstrap; npm integrity verified before execution |
+| get-tbd | 0.2.3 | Defer eligible 0.3.0 | 2026-06-15 | Repository-only bootstrap; the reviewed 142-file source delta is not focused template-release work |
 
 The Python compatibility matrix remains 3.11 through 3.14. Python 3.15 is pre-release
 and is not added to classifiers or CI.
@@ -91,6 +91,11 @@ The following releases were younger than the cutoff and are excluded without exc
 - setup-uv v8.3.1 and v8.3.2
 - Hatchling 1.31.0
 - get-tbd 0.4.0
+
+get-tbd 0.3.0 is eligible, but its source delta introduces the f05/f06 config and
+forkable-docs models and would broadly regenerate repository-only agent artifacts.
+That migration is deferred to `smu-i8xh` after v0.4.0 so it can be reviewed
+independently and coordinated with the existing ensure-gh-cli fix in `smu-r17y`.
 
 `uv audit` remains preview functionality in this uv series.
 It may be used as an additional release-time check, but this release does not make a
