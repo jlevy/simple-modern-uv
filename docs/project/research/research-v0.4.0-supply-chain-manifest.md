@@ -35,6 +35,7 @@ reviewed separately.
 | funlog | >=0.2.1 | Keep >=0.2.1 | 2025-03-28 | Canonical `jlevy/funlog`; already latest |
 | Hatchling | unbounded build requirement | **Pin 1.30.1** | 2026-06-02 | Official PyPA backend; 1.31.0 is too fresh |
 | uv-dynamic-versioning | unbounded build requirement | **Pin 0.14.0** | 2026-03-22 | Canonical ninoseki project; already latest |
+| skills installer | unpinned `npx skills` | **Pin skills 1.5.13** | 2026-06-23 | Canonical Vercel Labs CLI; npm provenance, registry signature, and integrity present |
 | skills-ref | 0.1.5 | Keep 0.1.5 | 2025-12-27 | Exact npm package and integrity are pinned; already latest |
 | get-tbd | 0.2.3 | Evaluate 0.3.0 separately | 2026-06-15 | Repository-only bootstrap; npm integrity verified before execution |
 
@@ -65,13 +66,15 @@ run, authoritative for release artifacts.
 ## Provenance and Advisory Results
 
 - OSV batch queries returned no advisories for the frozen direct versions of uv, Copier,
-  pytest, Ruff, basedpyright, skills-ref, or get-tbd.
+  pytest, Ruff, basedpyright, skills, skills-ref, or get-tbd.
 - PyPI provenance was present for the Copier 9.16.0 and pytest 9.1.1 source
   distributions. PyPI did not expose provenance for the audited uv, Ruff, or basedpyright
   source distributions.
   uv and Ruff publish GitHub artifact attestations; basedpyright provides an immutable
   GitHub release and PyPI SHA-256 digests.
-- The npm registry integrity values were recorded before any execution:
+- The npm registry integrity values were recorded before any execution: `skills@1.5.13`
+  is
+  `sha512-eKYnMYCV4zlmXSikluxctEsn46i9ci18vb2d8b45yb4zTIvj3nFqMV3IrzF7VxqoXPF2AQnEZqVDu9tbPB2Atw==`;
   `skills-ref@0.1.5` is
   `sha512-C2vyZbUQqt3PXA9vcdUmJ0lwbH9jK19C9fwQjl/ICPy2e5bzV3CaropViakJCv+HLt/9zsgjZ/NLJ5xEri0jSA==`;
   `get-tbd@0.3.0` is

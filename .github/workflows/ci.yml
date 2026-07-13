@@ -55,9 +55,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       # Supply-chain cool-off for template dependency resolution, matching the
-      # template's own CI (see updating.md). Scoped to the render/update jobs:
-      # the format-check job runs only the Makefile's explicitly pinned formatter,
-      # which may legitimately be newer than the cool-off window.
+      # template's own CI and the Makefile default (see updating.md).
       UV_EXCLUDE_NEWER: "14 days"
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
@@ -191,6 +189,9 @@ jobs:
         with:
           persist-credentials: false
       - name: Validate skill structure and frontmatter
+        env:
+          NPM_CONFIG_IGNORE_SCRIPTS: "true"
+          NPM_CONFIG_BEFORE: "2026-06-29T03:27:33Z"
         run: npx --yes skills-ref@0.1.5 validate skills/simple-modern-uv
       - name: Check that relative links in skill docs resolve
         run: |

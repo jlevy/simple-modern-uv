@@ -71,7 +71,7 @@ jobs:
       - name: Install all dependencies
         # --frozen: install exactly from the committed uv.lock, never re-resolving
         # (UV_EXCLUDE_NEWER, set above, governs any resolution that does happen).
-        run: uv sync --all-extras --frozen
+        run: uv sync --all-extras --all-groups --frozen
 
       - name: Run linting
         # Check-only mode so CI fails on unformatted code instead of fixing it.

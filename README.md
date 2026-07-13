@@ -27,7 +27,8 @@ Install the [skill](skills/simple-modern-uv/SKILL.md) (the
 Codex, Cursor, Gemini CLI, and 50+ other agents):
 
 ```shell
-npx skills add jlevy/simple-modern-uv
+NPM_CONFIG_IGNORE_SCRIPTS=true NPM_CONFIG_BEFORE=2026-06-29T03:27:33Z \
+  npx --yes skills@1.5.13 add jlevy/simple-modern-uv
 ```
 
 Then tell your agent what you want, for example:
@@ -292,8 +293,8 @@ License and publishing are template questions, not hand edits: `package_license`
 decide later) and `publish_to_pypi` (answer no for a private package; the publish
 workflow and docs are then omitted).
 Answer them at render time or change them later with
-`copier update --data package_license=…`; see the skill’s
-[customize guide](skills/simple-modern-uv/references/customize.md) for details.
+`UV_EXCLUDE_NEWER="14 days" uvx copier@9.16.0 update --data package_license=…`; see the
+skill’s [customize guide](skills/simple-modern-uv/references/customize.md) for details.
 Prefer re-answering over hand-deleting generated files like `publish.yml`, so future
 `copier update` runs stay consistent.
 
@@ -320,19 +321,17 @@ Using Copier is the recommended approach since it then lets you instantiate the 
 variables and makes future updates possible.
 But it requires a few more commands.
 
-To create a new project repo with `copier`:
+To create a new project repo with the reviewed Copier version:
 
 ```shell
-# Install Copier:
-uv tool install copier
-
 # Change dirs to the place you want the new GitHub repo to be.
 cd ~/projects/github   # Wherever you do your project work.
 
-# Clone this template. This does everything!
+# Clone this template under the supply-chain cool-off. This does everything!
 # It will fetch from this GitHub repo and create a new directory
 # with whatever name you put below:
-copier copy gh:jlevy/simple-modern-uv YOURNEWREPO
+UV_EXCLUDE_NEWER="14 days" uvx copier@9.16.0 copy \
+  gh:jlevy/simple-modern-uv YOURNEWREPO
 # Then follow the instructions.
 ```
 
@@ -353,7 +352,7 @@ git commit -m "Initial commit from simple-modern-uv."
 # Sync after the first commit so dynamic versioning gives the editable install
 # a real version (not 0.0.0). This creates uv.lock; commit it so CI installs
 # reproducibly with --frozen.
-uv sync --all-extras
+make install
 git add uv.lock
 git commit -m "Add uv.lock."
 # Create repo on GitHub.

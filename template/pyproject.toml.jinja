@@ -15,7 +15,7 @@ readme = "README.md"
 {%- if package_license == 'None' %}
 # No license chosen yet. When you pick one, set an SPDX expression here and add a
 # LICENSE file, or re-answer the template question:
-# uvx copier update --data package_license=MIT
+# UV_EXCLUDE_NEWER="14 days" uvx copier@9.16.0 update --data package_license=MIT
 {%- else %}
 license = "{{ 'LicenseRef-Proprietary' if package_license == 'Proprietary' else package_license }}"
 {%- endif %}

@@ -75,7 +75,7 @@ These are never questions.
    Then render, replacing the answer values:
 
    ```bash
-   uvx copier@9.16.0 copy --defaults \
+   UV_EXCLUDE_NEWER="14 days" uvx copier@9.16.0 copy --defaults \
      --data package_name=acme-widgets \
      --data "package_description=One-line description" \
      --data "package_author_name=Jane Doe" \
@@ -97,7 +97,7 @@ These are never questions.
    cd acme-widgets
    git init --initial-branch=main
    git add . && git commit -m "Initial commit from simple-modern-uv."
-   uv sync --all-extras
+   make install
    git add uv.lock && git commit -m "Add uv.lock."
    ```
 
@@ -117,7 +117,7 @@ In brief: run the interview with answers **inferred from the repo itself**
 template into a sibling temp directory with those answers, merge the template’s
 structure into the project (preserving its dependencies, metadata, and code), translate
 old tool configs to uv equivalents, write `.copier-answers.yml` so future updates work,
-and verify with `uv sync`, lint, and tests.
+and verify with `make install`, lint, and tests.
 Land everything on a branch as one reviewable change.
 
 ## Workflow 3: Update a Templated Project
@@ -131,7 +131,7 @@ Requires a clean working tree and the project’s `.copier-answers.yml`.
    [references/customize.md](references/customize.md)).
 
 2. ```bash
-   uvx copier@9.16.0 update --defaults --skip-answered
+   UV_EXCLUDE_NEWER="14 days" uvx copier@9.16.0 update --defaults --skip-answered
    ```
 
 3. Resolve any `*.rej` files or inline conflict markers, re-run `make lint` and
@@ -140,9 +140,9 @@ Requires a clean working tree and the project’s `.copier-answers.yml`.
 
 ## Verification Gate (All Workflows)
 
-Before reporting success: `uv sync --all-extras`, `make lint`, and `make test` all pass,
-and for publishable packages `uv build` produces a wheel with a sensible version
-(requires at least one git commit; see the FAQ if the version looks wrong).
+Before reporting success: `make install`, `make lint`, and `make test` all pass, and for
+publishable packages `make build` produces a wheel with a sensible version (requires at
+least one git commit; see the FAQ if the version looks wrong).
 Report what you ran and the results.
 
 <!-- This document follows common-doc-guidelines.md.

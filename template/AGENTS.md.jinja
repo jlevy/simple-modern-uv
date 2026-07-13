@@ -11,14 +11,15 @@ This project uses [uv](https://docs.astral.sh/uv/) for Python and dependency man
 The `Makefile` wraps the common commands:
 
 ```bash
-make install     # uv sync --all-extras (install all deps into .venv)
+make install     # uv sync --all-extras --all-groups (install all deps into .venv)
 make lint        # auto-format and lint: codespell, ruff check --fix, ruff format, basedpyright
 make lint-check  # check-only variant, matching CI (fails instead of fixing)
 make test        # uv run pytest
-make build       # uv build (wheel + sdist)
+make build       # locked, non-isolated uv build (wheel + sdist)
 ```
 
-Or call uv directly: `uv run pytest tests/test_foo.py`, `uv add some-package`,
+Or call uv directly: `uv run pytest tests/test_foo.py`,
+`UV_EXCLUDE_NEWER="14 days" uv add some-package`, or
 `uv run python -m {{ package_module }}`.
 
 ## Conventions
@@ -31,7 +32,8 @@ Or call uv directly: `uv run pytest tests/test_foo.py`, `uv add some-package`,
   [basedpyright](https://docs.basedpyright.com/). Settings live in `pyproject.toml`. Run
   `make lint` before committing.
 
-- **Dependencies**: add with `uv add` (runtime) or `uv add --dev` (dev).
+- **Dependencies**: add with `UV_EXCLUDE_NEWER="14 days" uv add` (runtime) or
+  `UV_EXCLUDE_NEWER="14 days" uv add --dev` (dev).
   Commit `uv.lock`. Don’t use pip, poetry, or requirements.txt.
 
 - **Versioning**: the version comes from git tags via dynamic versioning; never edit a
