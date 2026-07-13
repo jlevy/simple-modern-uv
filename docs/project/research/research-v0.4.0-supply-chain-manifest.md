@@ -33,8 +33,8 @@ reviewed separately.
 | Rich | >=15.0.0 | Keep >=15.0.0 | 2026-04-12 | Already latest |
 | basedpyright | >=1.39.6 | **Raise to [>=1.39.9](https://github.com/DetachHead/basedpyright/releases/tag/v1.39.9)** | 2026-06-27 | Canonical DetachHead release; immutable GitHub release |
 | funlog | >=0.2.1 | Keep >=0.2.1 | 2025-03-28 | Canonical `jlevy/funlog`; already latest |
-| Hatchling | unbounded build requirement | **Add >=1.30.1 floor** | 2026-06-02 | Official PyPA backend; 1.31.0 is too fresh |
-| uv-dynamic-versioning | unbounded build requirement | **Add >=0.14.0 floor** | 2026-03-22 | Canonical ninoseki project; already latest |
+| Hatchling | unbounded build requirement | **Pin 1.30.1** | 2026-06-02 | Official PyPA backend; 1.31.0 is too fresh |
+| uv-dynamic-versioning | unbounded build requirement | **Pin 0.14.0** | 2026-03-22 | Canonical ninoseki project; already latest |
 | skills-ref | 0.1.5 | Keep 0.1.5 | 2025-12-27 | Exact npm package and integrity are pinned; already latest |
 | get-tbd | 0.2.3 | Evaluate 0.3.0 separately | 2026-06-15 | Repository-only bootstrap; npm integrity verified before execution |
 
@@ -51,6 +51,12 @@ and is not added to classifiers or CI.
 Full commit pins are used for both actions so workflow review has one consistent rule.
 The generated publish workflow retains only `contents: read` and `id-token: write`; CI
 workflows retain `contents: read`.
+
+`uv build` does not consume `uv.lock` for its isolated build environment.
+The template therefore declares exact reviewed build-system versions, mirrors them in a
+`build` dependency group, syncs that group from `uv.lock`, and builds with
+`--no-build-isolation`. This makes the locked environment, rather than a second resolver
+run, authoritative for release artifacts.
 
 ## Provenance and Advisory Results
 

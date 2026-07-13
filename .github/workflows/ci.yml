@@ -108,7 +108,7 @@ jobs:
           git init -q --initial-branch=main
           git add -A
           git -c user.email=ci@example.com -c user.name=CI commit -qm "Initial commit"
-          uv sync --all-extras
+          uv sync --all-extras --all-groups
           V=$(uv run python -c "from importlib.metadata import version; print(version('smoke-test'))")
           echo "installed version: $V"
           test "$V" != "0.0.0"
@@ -119,7 +119,7 @@ jobs:
           uv run python devtools/lint.py --check
           uv run pytest
           git tag v0.1.0
-          uv build
+          uv build --no-build-isolation
           ls dist/ | grep -q "smoke_test-0.1.0-py3-none-any.whl"
 
   update-path:

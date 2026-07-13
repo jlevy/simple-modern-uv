@@ -9,7 +9,7 @@
 default: install lint test
 
 install:
-	uv sync --all-extras
+	uv sync --all-extras --all-groups
 
 lint:
 	uv run python devtools/lint.py
@@ -24,8 +24,8 @@ test:
 upgrade:
 	uv sync --upgrade --all-extras --dev
 
-build:
-	uv build
+build: install
+	uv build --no-build-isolation
 
 clean:
 	-rm -rf dist/
