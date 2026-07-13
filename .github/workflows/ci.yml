@@ -17,8 +17,9 @@ permissions:
 env:
   # Pinned tool versions used to exercise the template. Keep the uv version in
   # sync with template/.github/workflows/ci.yml when updating.
-  UV_VERSION: "0.11.17"
-  COPIER_SPEC: "copier@9.15.1"
+  UV_VERSION: "0.11.25"
+  UV_CHECKSUM: "1db18b5e76fa645a7f3865773139bdec8e2d46adbdbb35e7410b34fa8015ccd2"
+  COPIER_SPEC: "copier@9.16.0"
   # Default answers for test renders.
   RENDER_ARGS: >-
     --data package_name=smoke-test
@@ -31,10 +32,13 @@ jobs:
   format-check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6.0.2
-      - uses: astral-sh/setup-uv@v8.1.0
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
-          version: "0.11.17"
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
+        with:
+          version: ${{ env.UV_VERSION }}
+          checksum: ${{ env.UV_CHECKSUM }}
       - name: Check doc formatting
         run: make format-check
 
@@ -51,17 +55,17 @@ jobs:
     runs-on: ubuntu-latest
     env:
       # Supply-chain cool-off for template dependency resolution, matching the
-      # template's own CI (see updating.md). Scoped to the render/update jobs:
-      # the format-check job runs only the Makefile's explicitly pinned formatter,
-      # which may legitimately be newer than the cool-off window.
+      # template's own CI and the Makefile default (see updating.md).
       UV_EXCLUDE_NEWER: "14 days"
     steps:
-      - uses: actions/checkout@v6.0.2
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           fetch-depth: 0
-      - uses: astral-sh/setup-uv@v8.1.0
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
         with:
-          version: "0.11.17"
+          version: ${{ env.UV_VERSION }}
+          checksum: ${{ env.UV_CHECKSUM }}
           enable-cache: true
           python-version: "3.12"
 
@@ -108,7 +112,7 @@ jobs:
           git init -q --initial-branch=main
           git add -A
           git -c user.email=ci@example.com -c user.name=CI commit -qm "Initial commit"
-          uv sync --all-extras
+          uv sync --all-extras --all-groups
           V=$(uv run python -c "from importlib.metadata import version; print(version('smoke-test'))")
           echo "installed version: $V"
           test "$V" != "0.0.0"
@@ -119,7 +123,7 @@ jobs:
           uv run python devtools/lint.py --check
           uv run pytest
           git tag v0.1.0
-          uv build
+          uv build --no-build-isolation
           ls dist/ | grep -q "smoke_test-0.1.0-py3-none-any.whl"
 
   update-path:
@@ -131,12 +135,14 @@ jobs:
     env:
       UV_EXCLUDE_NEWER: "14 days"
     steps:
-      - uses: actions/checkout@v6.0.2
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           fetch-depth: 0
-      - uses: astral-sh/setup-uv@v8.1.0
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
         with:
-          version: "0.11.17"
+          version: ${{ env.UV_VERSION }}
+          checksum: ${{ env.UV_CHECKSUM }}
 
       - name: Render from previous release tag
         run: |
@@ -179,8 +185,13 @@ jobs:
   skill-validate:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6.0.2
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
       - name: Validate skill structure and frontmatter
+        env:
+          NPM_CONFIG_IGNORE_SCRIPTS: "true"
+          NPM_CONFIG_BEFORE: "2026-06-29T03:27:33Z"
         run: npx --yes skills-ref@0.1.5 validate skills/simple-modern-uv
       - name: Check that relative links in skill docs resolve
         run: |

@@ -15,7 +15,7 @@ readme = "README.md"
 {%- if package_license == 'None' %}
 # No license chosen yet. When you pick one, set an SPDX expression here and add a
 # LICENSE file, or re-answer the template question:
-# uvx copier update --data package_license=MIT
+# uvx --exclude-newer "14 days" copier@9.16.0 update --data package_license=MIT
 {%- else %}
 license = "{{ 'LicenseRef-Proprietary' if package_license == 'Proprietary' else package_license }}"
 {%- endif %}
@@ -57,13 +57,17 @@ dependencies = [
 # ---- Dev dependencies ----
 
 [dependency-groups]
+build = [
+    "hatchling==1.30.1",
+    "uv-dynamic-versioning==0.14.0",
+]
 dev = [
-    "pytest>=9.0.3",
+    "pytest>=9.1.1",
     "pytest-sugar>=1.1.1",
-    "ruff>=0.15.15",
+    "ruff>=0.15.20",
     "codespell>=2.4.2",
     "rich>=15.0.0",
-    "basedpyright>=1.39.6",
+    "basedpyright>=1.39.9",
     "funlog>=0.2.1",
 ]
 
@@ -78,7 +82,7 @@ dev = [
 # https://github.com/ninoseki/uv-dynamic-versioning/
 
 [build-system]
-requires = ["hatchling", "uv-dynamic-versioning"]
+requires = ["hatchling==1.30.1", "uv-dynamic-versioning==0.14.0"]
 build-backend = "hatchling.build"
 
 [tool.hatch.version]
@@ -101,9 +105,11 @@ packages = ["src/{{ package_module }}"]
 
 [tool.uv]
 # Fail fast on old uv versions rather than misbehave. 0.9 is the floor where
-# UV_EXCLUDE_NEWER accepts a relative duration like "14 days" (used in CI for the
-# supply-chain cool-off; see docs/development.md).
+# exclude-newer accepts a relative duration like "14 days".
 required-version = ">=0.9"
+# Safe project-level default for every uv command. CI and the Makefile repeat it so
+# copied commands and tool execution outside project discovery retain the same policy.
+exclude-newer = "14 days"
 
 [tool.ruff]
 # Set as desired, typically 88 (black standard) or 100 (wide).

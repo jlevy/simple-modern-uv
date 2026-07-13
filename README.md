@@ -27,7 +27,8 @@ Install the [skill](skills/simple-modern-uv/SKILL.md) (the
 Codex, Cursor, Gemini CLI, and 50+ other agents):
 
 ```shell
-npx skills add jlevy/simple-modern-uv
+NPM_CONFIG_IGNORE_SCRIPTS=true NPM_CONFIG_BEFORE=2026-06-29T03:27:33Z \
+  npx --yes skills@1.5.13 add jlevy/simple-modern-uv
 ```
 
 Then tell your agent what you want, for example:
@@ -292,8 +293,8 @@ License and publishing are template questions, not hand edits: `package_license`
 decide later) and `publish_to_pypi` (answer no for a private package; the publish
 workflow and docs are then omitted).
 Answer them at render time or change them later with
-`copier update --data package_license=…`; see the skill’s
-[customize guide](skills/simple-modern-uv/references/customize.md) for details.
+`uvx --exclude-newer "14 days" copier@9.16.0 update --data package_license=…`; see the
+skill’s [customize guide](skills/simple-modern-uv/references/customize.md) for details.
 Prefer re-answering over hand-deleting generated files like `publish.yml`, so future
 `copier update` runs stay consistent.
 
@@ -320,19 +321,17 @@ Using Copier is the recommended approach since it then lets you instantiate the 
 variables and makes future updates possible.
 But it requires a few more commands.
 
-To create a new project repo with `copier`:
+To create a new project repo with the reviewed Copier version:
 
 ```shell
-# Install Copier:
-uv tool install copier
-
 # Change dirs to the place you want the new GitHub repo to be.
 cd ~/projects/github   # Wherever you do your project work.
 
-# Clone this template. This does everything!
+# Clone this template under the supply-chain cool-off. This does everything!
 # It will fetch from this GitHub repo and create a new directory
 # with whatever name you put below:
-copier copy gh:jlevy/simple-modern-uv YOURNEWREPO
+uvx --exclude-newer "14 days" copier@9.16.0 copy \
+  gh:jlevy/simple-modern-uv YOURNEWREPO
 # Then follow the instructions.
 ```
 
@@ -353,7 +352,7 @@ git commit -m "Initial commit from simple-modern-uv."
 # Sync after the first commit so dynamic versioning gives the editable install
 # a real version (not 0.0.0). This creates uv.lock; commit it so CI installs
 # reproducibly with --frozen.
-uv sync --all-extras
+make install
 git add uv.lock
 git commit -m "Add uv.lock."
 # Create repo on GitHub.
@@ -431,13 +430,15 @@ follows:
 - **Cooling-off period:** Don’t install or upgrade to a release less than 14 days old
   (most malicious publishes are caught within days).
   For uv, set `UV_EXCLUDE_NEWER` to a cool-off window (recent uv accepts a relative
-  duration like `"14 days"`); this template’s CI sets it automatically.
+  duration like `"14 days"`); this template sets it in generated `pyproject.toml`, CI,
+  and the Makefile.
 
 - **Vet what you add:** Only add dependencies you can verify upstream, and prefer a
   little first-party code over pulling in a new dependency.
 
-- **Pin and lock:** Commit your `uv.lock` and pin GitHub Actions to a commit SHA (or at
-  least a full, immutable version tag) so a tag can’t be silently re-pointed.
+- **Pin and lock:** Commit your `uv.lock` and pin GitHub Actions to full commit SHAs.
+  Treat a version tag as immutable only after verifying that release state through the
+  GitHub API.
 
 See [updating.md](updating.md#supply-chain-hygiene) for how this template applies these.
 

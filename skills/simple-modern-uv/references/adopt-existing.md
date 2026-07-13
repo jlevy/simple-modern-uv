@@ -32,7 +32,7 @@ not yours.
 
 ```bash
 cd ..
-uvx copier@9.15.1 copy --defaults \
+uvx --exclude-newer "14 days" copier@9.16.0 copy --defaults \
   --data package_name=<name> ... \
   gh:jlevy/simple-modern-uv <project>-template-render
 ```
@@ -109,10 +109,10 @@ If legacy code produces a wall of errors, see the FAQ: relax first, ratchet late
 ## Step 4: Lock, Verify, Iterate
 
 ```bash
-uv sync --all-extras       # creates uv.lock; commit it
+make install               # creates uv.lock; commit it
 make lint                  # codespell + ruff + basedpyright
 make test
-uv build                   # only if publishing
+make build                 # only if publishing
 ```
 
 Fix failures using [faq.md](faq.md).

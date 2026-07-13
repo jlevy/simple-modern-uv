@@ -17,9 +17,13 @@ The `Makefile` simply offers shortcuts to `uv` commands for developer convenienc
 (For clarity, GitHub Actions don’t use the Makefile and just call `uv` directly.)
 
 ```shell
+# Apply the supply-chain cool-off to direct uv commands below. The Makefile sets
+# the same default for its recipes; override the variable explicitly if needed.
+export UV_EXCLUDE_NEWER="14 days"
+
 # First, install all dependencies and set up your virtual environment.
-# This simply runs `uv sync --all-extras` to install all packages,
-# including dev dependencies and optional dependencies.
+# This runs `uv sync --all-extras --all-groups` to install runtime, development,
+# optional, and locked build dependencies.
 make install
 
 # Run uv sync, lint, and test:
@@ -60,8 +64,6 @@ uv add --dev package_name
 uv sync --upgrade
 # Update a specific package:
 uv lock --upgrade-package package_name
-# Update dependencies on a package:
-uv add package_name@latest
 
 # Run a shell within the Python environment:
 uv venv
@@ -92,7 +94,12 @@ Its key defaults:
 - **Cool-off period:** Don’t install or upgrade to a release less than 14 days old
   (absent a documented exception); most malicious publishes are caught within days.
   For uv, set `UV_EXCLUDE_NEWER` to a cool-off window (recent uv accepts a relative
-  duration like `"14 days"`); this project’s CI workflows set it automatically.
+  duration like `"14 days"`); this project sets it in `pyproject.toml`, CI, and the
+  Makefile so direct commands and standard workflows default to the same policy.
+  Override it explicitly for a stricter window, such as
+  `UV_EXCLUDE_NEWER="30 days" make upgrade`. A reviewed emergency exception must be
+  equally explicit, using `UV_EXCLUDE_NEWER="0 days"` only for that invocation and
+  recording why the normal gate was bypassed.
 
 - **Vet before adding:** Confirm the package is actually needed and its name is spelled
   correctly (typosquats are common), and prefer a little first-party code over a new

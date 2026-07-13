@@ -6,6 +6,10 @@
 
 .DEFAULT_GOAL := format
 
+# Safe default for every uv/uvx resolution invoked through this Makefile.
+UV_EXCLUDE_NEWER ?= 14 days
+export UV_EXCLUDE_NEWER
+
 # Pinned for reproducibility and supply-chain hygiene (see updating.md).
 FLOWMARK := uvx flowmark-rs@0.3.1
 

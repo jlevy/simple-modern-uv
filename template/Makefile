@@ -4,12 +4,16 @@
 
 .DEFAULT_GOAL := default
 
+# Safe default for every dependency resolution invoked through this Makefile.
+UV_EXCLUDE_NEWER ?= 14 days
+export UV_EXCLUDE_NEWER
+
 .PHONY: default install lint lint-check test upgrade build clean
 
 default: install lint test
 
 install:
-	uv sync --all-extras
+	uv sync --all-extras --all-groups
 
 lint:
 	uv run python devtools/lint.py
@@ -22,10 +26,10 @@ test:
 	uv run pytest
 
 upgrade:
-	uv sync --upgrade --all-extras --dev
+	uv sync --upgrade --all-extras --all-groups
 
-build:
-	uv build
+build: install
+	uv build --no-build-isolation
 
 clean:
 	-rm -rf dist/
