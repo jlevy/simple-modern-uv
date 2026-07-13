@@ -62,7 +62,7 @@ commit or stash first.
 The project predates the `publish_to_pypi` and `package_license` questions and the
 update filled them with defaults.
 Re-run the update passing the project’s reality, e.g.
-`uvx copier@9.15.1 update --data publish_to_pypi=false`, and see “Reconciling New
+`uvx copier@9.16.0 update --data publish_to_pypi=false`, and see “Reconciling New
 Questions on Update” in [customize.md](customize.md).
 
 ## Publish Workflow Fails with OIDC or Permission Errors

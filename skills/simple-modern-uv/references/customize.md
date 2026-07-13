@@ -12,7 +12,7 @@ Preferred: set the `package_license` answer (`MIT`, `Apache-2.0`, `BSD-3-Clause`
 re-answer it later with:
 
 ```bash
-uvx copier@9.15.1 update --data package_license=Apache-2.0
+uvx copier@9.16.0 update --data package_license=Apache-2.0
 ```
 
 This updates the `LICENSE` file and the `license` field in `pyproject.toml` together,

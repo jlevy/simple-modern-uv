@@ -75,7 +75,7 @@ These are never questions.
    Then render, replacing the answer values:
 
    ```bash
-   uvx copier@9.15.1 copy --defaults \
+   uvx copier@9.16.0 copy --defaults \
      --data package_name=acme-widgets \
      --data "package_description=One-line description" \
      --data "package_author_name=Jane Doe" \
@@ -131,7 +131,7 @@ Requires a clean working tree and the project’s `.copier-answers.yml`.
    [references/customize.md](references/customize.md)).
 
 2. ```bash
-   uvx copier@9.15.1 update --defaults --skip-answered
+   uvx copier@9.16.0 update --defaults --skip-answered
    ```
 
 3. Resolve any `*.rej` files or inline conflict markers, re-run `make lint` and

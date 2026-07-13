@@ -32,7 +32,7 @@ not yours.
 
 ```bash
 cd ..
-uvx copier@9.15.1 copy --defaults \
+uvx copier@9.16.0 copy --defaults \
   --data package_name=<name> ... \
   gh:jlevy/simple-modern-uv <project>-template-render
 ```
