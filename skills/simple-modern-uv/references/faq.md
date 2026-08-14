@@ -31,7 +31,8 @@ No git tag yet: dynamic versioning derives the version from the latest `v*` tag.
 The template requires Python 3.11+. `UV_CONFIG_FILE=uv.toml uv python install` downloads
 a managed interpreter; pin one for the project with
 `UV_CONFIG_FILE=uv.toml uv python pin 3.12` (writes `.python-version`). If uv itself
-errors with “required-version”, upgrade uv: the template requires uv >= 0.9.
+errors with “required-version”, upgrade uv: the template supports the reviewed uv 0.12
+line (`>=0.12.0,<0.13`), matching its pinned CI toolchain.
 
 ## BasedPyright Erupts with Hundreds of Errors on Legacy Code
 

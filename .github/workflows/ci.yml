@@ -115,7 +115,7 @@ jobs:
           test -f uv.toml
           grep -q '## Working with a Coding Agent' README.md
           grep -q 'simple-modern-uv/tree/main/skills/simple-modern-uv' AGENTS.md
-          grep -q 'required-version = ">=0.9"' uv.toml
+          grep -q 'required-version = ">=0.12.0,<0.13"' uv.toml
           grep -q 'exclude-newer = "14 days"' uv.toml
           ! grep -q '^\[tool\.uv\]' pyproject.toml
           grep -q 'UV_CONFIG_FILE := .*uv.toml' Makefile

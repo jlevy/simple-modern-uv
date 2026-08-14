@@ -394,7 +394,8 @@ The initial 2026-06-11 currency plan was:
 
 **2026-08-14 follow-up:** the next focused currency cycle advances the eligible uv pin
 to 0.12.0, reviews the 0.12 compatibility changes, updates the supporting tool and
-action pins, strengthens portable CI lockfile validation, and makes selective adoption a
+action pins, aligns the generated `required-version` guard with the reviewed 0.12 minor
+line, strengthens portable CI lockfile validation, and makes selective adoption a
 first-class fourth agent workflow.
 Generated `AGENTS.md` now routes template maintenance back to the portable skill while
 keeping routine project work self-contained.

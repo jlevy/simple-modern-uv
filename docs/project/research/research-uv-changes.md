@@ -35,8 +35,8 @@ dates and provenance.
   default. **`uv format` introduced** (preview; delegates to a pinned Ruff).
 - **0.9.x (Oct 2025–Feb 2026)**: default Python bumped to **3.14** (3.14.0 final, Oct
   2025); free-threaded 3.14+ usable without opt-in.
-  `UV_EXCLUDE_NEWER` accepts relative durations like `"14 days"` (the template’s CI
-  relies on this; hence `required-version = ">=0.9"`).
+  As of 0.9.17, `UV_EXCLUDE_NEWER` accepts relative durations like `"14 days"` (the
+  template’s CI relies on this).
 - **0.10.x (Feb–Mar 2026)**: `uv python upgrade`, `uv add --bounds`, and
   `uv workspace list/dir` stabilized.
   `uv venv` requires `--clear` to overwrite.
@@ -77,8 +77,11 @@ document.)
    The build backends are exact-pinned and mirrored in a locked `build` dependency
    group; release builds use `--no-build-isolation` so `uv.lock` covers the build graph.
 2. **Keep resolution policy in a checked-in `uv.toml`** (adopted):
-   `required-version = ">=0.9"` fails fast on versions that predate relative-duration
-   cutoffs, and `exclude-newer = "14 days"` supplies the safe default.
+   `required-version = ">=0.12.0,<0.13"` keeps local lockfile writes on the same
+   reviewed uv minor line as pinned CI, and `exclude-newer = "14 days"` supplies the
+   safe default. The lower bound includes relative-duration cutoff support (introduced in
+   0.9.17) and the security hardening reviewed for this release; the upper bound keeps a
+   later uv minor out until the template has assessed it.
    The Makefile and CI set `UV_CONFIG_FILE=uv.toml` so uv uses this file exclusively
    instead of merging user- or system-level settings into `uv.lock`, matching uv’s
    documented
