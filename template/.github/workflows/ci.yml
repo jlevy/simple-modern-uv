@@ -19,9 +19,9 @@ env:
   # make uv.lock appear stale or alter dependency selection.
   UV_CONFIG_FILE: uv.toml
   # Supply-chain cool-off: only consider releases older than this, so CI never
-  # resolves packages too new to have been vetted. uv (>= 0.9, and the version
-  # pinned below) accepts a relative duration directly. See the Supply Chain
-  # Hardening section in docs/development.md.
+  # resolves packages too new to have been vetted. The uv 0.12 line required by
+  # uv.toml and pinned below accepts a relative duration directly. See the Supply
+  # Chain Hardening section in docs/development.md.
   UV_EXCLUDE_NEWER: "14 days"
 
 jobs:
