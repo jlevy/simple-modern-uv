@@ -40,15 +40,27 @@ Or call uv directly with the checked-in configuration:
 
 - **Versioning**: the version comes from git tags via dynamic versioning; never edit a
   version number in `pyproject.toml`.
-  {%- if publish_to_pypi %} Releases are published to PyPI by tagging `vX.Y.Z` (see
+  {%- if publish_to_pypi %}
+
+- **Publishing**: releases are published to PyPI by tagging `vX.Y.Z` (see
   `docs/publishing.md`).
   {%- endif %}
 
-- This project was built from the
-  [simple-modern-uv](https://github.com/jlevy/simple-modern-uv) template; pull future
-  template improvements with `copier update`.
-
 See [docs/development.md](docs/development.md) for full developer workflows.
+
+## Template Maintenance
+
+This project was built from
+[simple-modern-uv](https://github.com/jlevy/simple-modern-uv).
+Routine project work uses the instructions above; do not fetch the upstream template for
+every task.
+
+For toolchain changes, selective adoption of another template feature, or a Copier
+update, use the portable
+[simple-modern-uv skill](https://github.com/jlevy/simple-modern-uv/tree/main/skills/simple-modern-uv).
+It preserves project-specific choices and distinguishes selective changes from full
+template management.
+`.copier-answers.yml` records this project’s update lineage.
 
 <!-- This document follows common-doc-guidelines.md.
 See github.com/jlevy/practical-prose and review guidelines before editing.

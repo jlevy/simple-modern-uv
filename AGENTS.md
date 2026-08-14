@@ -44,6 +44,10 @@ uvx --exclude-newer "14 days" copier@9.17.0 copy --defaults --vcs-ref=HEAD \
   use, not this repo.
 - `copier.yml`: template questions and validation; the single source of truth for
   template variables.
+- `skills/simple-modern-uv/`: the portable agent workflow bundle.
+  `SKILL.md` is the concise router; its one-level `references/` files own the procedures
+  for new, selective, migration, and update workflows.
+  Keep README discovery and generated agent guidance aligned with these routes.
 - `updating.md`: the full maintenance and release flow (downstream
   `jlevy/simple-modern-uv-template` repo is the release gate).
 - `docs/project/`: research docs and plan specs for this repo.

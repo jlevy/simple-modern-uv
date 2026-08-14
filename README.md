@@ -17,32 +17,55 @@ Appropriately enough, the comic is out of date.)
 be a good base for serious work but also simple so it’s an easy option for any small
 project, like an open source library or tool.
 It can also upgrade an existing project to a modern setup: uv, ruff, BasedPyright, and
-GitHub Actions. The [agent skill](#agent-quick-start) walks you through either workflow.
+GitHub Actions, or add only the practices that fit without forcing a full migration.
+The [agent skill](#use-with-any-coding-agent) handles each adoption path.
 
-## Agent Quick Start
+## Use With Any Coding Agent
 
-The fastest way to use this template is through your AI coding agent.
-Install the [skill](skills/simple-modern-uv/SKILL.md) (the
-[Agent Skills](https://agentskills.io) open standard, so it works with Claude Code,
-Codex, Cursor, Gemini CLI, and 50+ other agents):
+Install the [simple-modern-uv skill bundle](skills/simple-modern-uv/SKILL.md) and
+appoint your coding agent to do the work.
+It follows the [Agent Skills](https://agentskills.io) open standard, so it works with
+Claude Code, Codex, Cursor, Gemini CLI, and other compatible agents:
 
 ```shell
 NPM_CONFIG_IGNORE_SCRIPTS=true NPM_CONFIG_BEFORE=2026-07-31T18:59:05Z \
-  npx --yes skills@1.5.18 add jlevy/simple-modern-uv
+  npx --yes skills@1.5.18 add jlevy/simple-modern-uv \
+    --skill simple-modern-uv --yes
 ```
 
-Then tell your agent what you want, for example:
+Then describe the outcome rather than translating it into template commands:
 
-- “Start a new Python project called my-package using simple-modern-uv.”
-- “Upgrade this repo to follow simple-modern-uv best practices.”
-- “Update this project to the latest simple-modern-uv template.”
+| Goal | Example prompt | Result |
+| --- | --- | --- |
+| Start fresh | “Start a new Python project called `my-package` using simple-modern-uv.” | A complete, template-managed project |
+| Add features ad hoc | “Add simple-modern-uv’s uv lock policy and CI to this repo, but keep its build backend.” | Only the selected, compatible feature bundles |
+| Upgrade a project | “Migrate this package from Poetry to simple-modern-uv and preserve its public behavior.” | A full migration with future Copier updates |
+| Update later | “Update this project to the latest simple-modern-uv template.” | Upstream changes reconciled with local adaptations |
 
-No installer handy? Paste this into any agent instead:
+No installer handy? Tell the agent to fetch the
+[`SKILL.md`](skills/simple-modern-uv/SKILL.md) and the directly linked reference for the
+selected workflow from the same Git revision, then follow them.
 
-> Fetch
-> https://raw.githubusercontent.com/jlevy/simple-modern-uv/main/skills/simple-modern-uv/SKILL.md
-> and follow it to
-> [start a new Python project / upgrade this repo / update this project].
+### Adopt Only What Fits
+
+The skill treats conformance as a design choice, not a pass/fail label:
+
+- **Selective adoption** adds named capabilities without changing unrelated project
+  choices or claiming Copier ownership.
+- **Core toolchain adoption** adds uv, reproducible locking, linting, typing, tests, CI,
+  and agent guidance while preserving packaging or layout where appropriate.
+- **Full template-managed adoption** uses the rendered structure and
+  `.copier-answers.yml` so future `copier update` runs work.
+
+The agent first audits the repository, then reports what it will adopt unchanged, adapt
+to local constraints, preserve, or defer.
+Changes to supported Python versions, package layout, build backend, versioning,
+licensing, publishing, or CI remain explicit user decisions.
+See the procedures for
+[selective adoption](skills/simple-modern-uv/references/adopt-selectively.md),
+[full migration](skills/simple-modern-uv/references/adopt-existing.md),
+[new projects](skills/simple-modern-uv/references/start-new-project.md), and
+[template updates](skills/simple-modern-uv/references/update-templated-project.md).
 
 Generated projects are agent-ready too: each includes an
 [`AGENTS.md`](template/AGENTS.md.jinja) following the [agents.md](https://agents.md)
@@ -306,12 +329,14 @@ Option 3 is handy if you prefer a GitHub template.
 ### Option 1: Use Your Agent (Recommended)
 
 Install the [agent skill](skills/simple-modern-uv/SKILL.md) and ask your agent; see
-[Agent Quick Start](#agent-quick-start) above for the exact commands and prompts.
-The skill covers three workflows: creating a **new project**, **upgrading an existing
-Python package** to this template’s structure and tooling (including migrations from
-Poetry, setuptools/pip, or PDM), and **updating** a project already built from this
-template. Your agent collects the essentials (name, description, license, whether you
-publish to PyPI) and handles the rest non-interactively.
+[Use With Any Coding Agent](#use-with-any-coding-agent) above for the exact installation
+command and prompts.
+The skill covers four workflows: creating a **new project**, **selectively adopting**
+coherent feature bundles, **fully upgrading** an existing Python package (including
+migrations from Poetry, setuptools/pip, or PDM), and **updating** a project already
+managed by this template.
+The agent inspects the repo, confirms only material choices, performs the work
+non-interactively, and reports the resulting adoption level and validation.
 
 ### Option 2: Use `copier` and `git` Yourself
 

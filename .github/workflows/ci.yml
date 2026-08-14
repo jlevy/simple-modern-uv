@@ -113,6 +113,8 @@ jobs:
           test -f AGENTS.md
           test -f CLAUDE.md
           test -f uv.toml
+          grep -q '## Working With a Coding Agent' README.md
+          grep -q 'simple-modern-uv/tree/main/skills/simple-modern-uv' AGENTS.md
           grep -q 'required-version = ">=0.9"' uv.toml
           grep -q 'exclude-newer = "14 days"' uv.toml
           ! grep -q '^\[tool\.uv\]' pyproject.toml
@@ -213,6 +215,8 @@ jobs:
           NPM_CONFIG_IGNORE_SCRIPTS: "true"
           NPM_CONFIG_BEFORE: "2026-06-29T03:27:33Z"
         run: npx --yes skills-ref@0.1.5 validate skills/simple-modern-uv
+      - name: Check agent installation selects this repository's public skill
+        run: grep -q -- '--skill simple-modern-uv --yes' README.md
       - name: Check that relative links in skill docs resolve
         run: |
           cd skills/simple-modern-uv

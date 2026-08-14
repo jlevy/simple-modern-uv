@@ -4,6 +4,8 @@ Common customizations after (or during) setup.
 Where a customization maps to a template question, prefer answering the question over
 hand-editing: hand edits to template-managed files can be reverted by a later
 `copier update` (see “Reconciling New Questions on Update” below).
+For selective adoption without `.copier-answers.yml`, edit the project normally and
+record the choice as an adaptation; Copier does not own those files.
 
 ## Changing the License
 

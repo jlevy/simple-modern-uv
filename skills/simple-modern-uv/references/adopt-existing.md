@@ -6,6 +6,11 @@ The approach: render the template next to the project, then merge it in delibera
 never blindly overwrite.
 Work on a branch and land the whole migration as one reviewable change.
 
+This is the **full template-managed** workflow: it deliberately creates honest Copier
+lineage for future updates.
+If the user only wants selected features or wants to keep the current project structure,
+use `adopt-selectively.md` instead.
+
 Out of scope (stop and tell the user): C extensions or custom build steps, conda
 environments, monorepos/workspaces with multiple packages.
 These need decisions a checklist shouldn’t make.
@@ -27,6 +32,11 @@ One decision that must be surfaced if it applies: if the project currently suppo
 Python older than 3.11 **and** is published, adopting the template raises
 `requires-python` to `>=3.11`. Dropping versions for existing users is the user’s call,
 not yours.
+
+Also surface changes to package layout, build backend, version source, CI provider, and
+publishing. Full adoption normally uses the rendered choices, but preserve a deliberate
+project-specific exception and record it as an adaptation when replacement has no agreed
+benefit.
 
 ## Step 2: Render the Template Beside the Project
 
@@ -98,6 +108,27 @@ Copy from the render, adapting as you go:
   `[dependency-groups] dev`. Drop exact `==` pins unless genuinely required; `uv.lock`
   provides reproducibility.
 
+**PDM**:
+
+- Preserve an existing PEP 621 `[project]` table; move `[tool.pdm.dev-dependencies]`
+  into `[dependency-groups]` and replace `pdm.lock` with `uv.lock`.
+- Review `[tool.pdm.scripts]` individually.
+  Package entry points belong in `[project.scripts]`; development task aliases belong in
+  the Makefile or project docs.
+  Do not turn arbitrary shell tasks into installed commands.
+- Replacing `pdm-backend` with Hatchling and tag-derived versions is a release-model
+  change covered by the confirmation step, not a mechanical dependency translation.
+
+**Hatch**:
+
+- Keep compatible Hatchling build configuration and merge the rendered package path and
+  dynamic-versioning settings deliberately.
+- Translate Hatch environment dependencies into uv dependency groups and useful Hatch
+  scripts into Make targets.
+  Remove environment configuration only after every relied-on command has an equivalent.
+- If the project uses a static or file-based version, changing it to git tags is a
+  release-model decision that must be confirmed.
+
 **mypy → BasedPyright**: drop `mypy.ini`/`[tool.mypy]`; the rendered
 `[tool.basedpyright]` block is the starting point.
 Existing `# type: ignore` comments still work.
@@ -127,8 +158,9 @@ don’t rewrite working code just to satisfy a rule.
   project starts at `v0.1.0`. Until a tag exists, builds get a dev version: fine for CI,
   wrong for release.
 - Commit everything (including `uv.lock` and `.copier-answers.yml`) on the branch and
-  summarize: what moved, what was translated, what was deleted, anything the user should
-  review by hand (license, classifiers, CI triggers).
+  summarize what was adopted, adapted, preserved, deferred, and removed, plus anything
+  the user should review by hand (license, classifiers, CI triggers).
+  State that the result is full template-managed and name any deliberate deviations.
 
 <!-- This document follows common-doc-guidelines.md.
 See github.com/jlevy/practical-prose and review guidelines before editing.
