@@ -30,10 +30,20 @@ make format
 make format-check
 
 # Render the template non-interactively (smoke test):
+SMOKE_DIR=$(mktemp -d)
 uvx --exclude-newer "14 days" copier@9.17.0 copy --defaults --vcs-ref=HEAD \
   --data package_name=smoke-test \
-  --data package_github_org=testorg . /tmp/smoke-test
-# Then inside the render: make install && make lint-check && make test
+  --data package_github_org=testorg . "$SMOKE_DIR"
+
+# Dynamic versioning needs an initial commit before installation:
+cd "$SMOKE_DIR"
+git init --initial-branch=main
+git add .
+git -c user.name=Smoke -c user.email=smoke@example.com \
+  commit -m "Initial commit"
+make install
+make lint-check
+make test
 ```
 
 ## Architecture Overview

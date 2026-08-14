@@ -458,13 +458,15 @@ follows:
 
 See [updating.md](updating.md#supply-chain-hygiene) for how this template applies these.
 
-## Maintaining This Template
+## Maintaining and Releasing This Template
 
 If you’re contributing to this template or forking it for your own use, see
 [**updating.md**](updating.md) for the full process to check for new versions, update
-the template, and verify changes in a downstream project.
-Maintainer research, frozen supply-chain evidence, and implementation records are
-indexed in the [project documentation](docs/project/README.md).
+the template, verify changes in a downstream project, and publish a GitHub Release.
+The GitHub Release creates the version tag only after the downstream gate passes; do not
+create a bare tag immediately after merging the template PR. Maintainer research, frozen
+supply-chain evidence, and implementation records are indexed in the
+[project documentation](docs/project/README.md).
 
 ## Contributing
 

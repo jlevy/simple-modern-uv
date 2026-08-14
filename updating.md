@@ -2,7 +2,7 @@
 
 Use this process to keep the
 [simple-modern-uv](https://github.com/jlevy/simple-modern-uv) template’s dependencies
-and tools up to date, then verifying the changes end-to-end.
+and tools up to date, then verify the changes end-to-end.
 
 There are two repos involved:
 
@@ -19,18 +19,37 @@ There are two repos involved:
   The downstream repo remains the **release gate** (full matrix, real `copier update`
   against a long-lived project).
 
-Release rule: the downstream repo is the release gate when it is reachable.
-Push the template candidate, export it into `jlevy/simple-modern-uv-template`, and wait
-for downstream CI to pass before creating a GitHub release for this template.
+## Release Sequence
+
+A normal release has five stages:
+
+1. **Finish the candidate PR:** Resolve known release blockers, freeze the dependency
+   evidence, and require every template-repo CI job to pass.
+2. **Merge and identify the candidate:** Merge the PR into `main`, record its exact
+   merge commit as `TEMPLATE_COMMIT`, and require that commit’s `main` CI run to pass.
+3. **Pass the downstream gate:** Update `jlevy/simple-modern-uv-template` from that
+   exact commit, verify it locally, merge the downstream validation PR, and require its
+   full Python matrix to pass.
+4. **Publish the template release:** Create a GitHub Release targeting
+   `TEMPLATE_COMMIT`. GitHub creates the version tag as part of this action; do not
+   create or push a bare tag separately.
+5. **Record the public tag downstream:** Update the downstream project from the new tag
+   and merge the resulting `.copier-answers.yml` bookkeeping change.
+
+The downstream project is the release gate when it is reachable.
+A merge followed immediately by a tag skips that gate, the reviewed release notes, and
+verification that the public tag reproduces the validated commit.
+
 The commands below assume the downstream repo is cloned next to this repo as
 `../simple-modern-uv-template`.
 
-**Releasing without downstream access** (for example, an agent session scoped to this
-repo only): this repo’s CI on the candidate commit is the gate—all jobs must be
-green—plus a local render verification (Step 5 run against a fresh render).
-Create the release on that basis, then complete the downstream export and tag recording
-(Steps 4–6 and 8) as post-release verification from an environment with access.
-If downstream then fails, fix forward with a patch release.
+### Releasing Without Downstream Access
+
+When the downstream repo is not reachable, this repo’s CI on the candidate commit is the
+gate—all jobs must be green—plus a local render verification (Step 5 run against a fresh
+render). Create the release on that basis, then complete the downstream export and tag
+recording (Steps 4–6 and 8) as post-release verification from an environment with
+access. If downstream then fails, fix forward with a patch release.
 
 ## Step 1: Check Latest Versions
 
@@ -218,19 +237,59 @@ make format-check  # check-only, to confirm nothing is left unformatted
 This runs the pinned `uvx flowmark-rs@0.3.2 --auto` from the top-level `Makefile`, which
 also applies the 14-day resolver gate by default.
 
-## Step 3: Commit and Push the Template Candidate
+## Step 3: Merge the Template Candidate
 
-Commit the template changes and push `main`, but do not create the release yet.
-The downstream repo needs to export the exact candidate commit first.
+Choose the release version before downstream validation:
+
+- **Minor** (`v0.5.0`): new or changed template questions, new files or dependency
+  groups in the render, or other feature-level changes.
+  Per the answer-schema policy above, the release notes must name any new question keys
+  and their defaults.
+- **Patch** (`v0.4.1`): routine dependency and tool-version bumps, documentation fixes,
+  and changes that leave the render’s shape unchanged.
+
+Resolve every known release blocker and finish review on the candidate PR. Mark it ready
+for review, require its CI to pass, and merge it into `main`. Do not create the release
+or tag yet: downstream must validate the exact merge commit first.
 
 ```shell
-git add -A
-git commit -m "Update dependencies and tool versions."
-git push origin main
+CURRENT_BRANCH=$(git branch --show-current)
+PR_NUMBER=$(gh pr view "$CURRENT_BRANCH" --repo jlevy/simple-modern-uv \
+  --json number -q '.number')
+NEW_TAG="v0.X.Y"
+LAST_TAG=$(gh release list --repo jlevy/simple-modern-uv --limit 1 \
+  --json tagName -q '.[0].tagName')
 
-# Record the exact commit that downstream CI will validate:
-TEMPLATE_COMMIT=$(git rev-parse HEAD)
+if [ "$(gh pr view "$PR_NUMBER" --repo jlevy/simple-modern-uv \
+  --json isDraft -q '.isDraft')" = "true" ]; then
+  gh pr ready "$PR_NUMBER" --repo jlevy/simple-modern-uv
+fi
+gh pr checks "$PR_NUMBER" --repo jlevy/simple-modern-uv --watch
+gh pr merge "$PR_NUMBER" --repo jlevy/simple-modern-uv --merge
+
+TEMPLATE_COMMIT=$(gh pr view "$PR_NUMBER" --repo jlevy/simple-modern-uv \
+  --json mergeCommit -q '.mergeCommit.oid')
+git fetch origin main --tags
+test "$(git rev-parse origin/main)" = "$TEMPLATE_COMMIT"
+
+SOURCE_RUN_ID=$(gh run list \
+  --repo jlevy/simple-modern-uv \
+  --workflow CI \
+  --branch main \
+  --event push \
+  --commit "$TEMPLATE_COMMIT" \
+  --json databaseId \
+  -q '.[0].databaseId')
+test -n "$SOURCE_RUN_ID"
+gh run watch --repo jlevy/simple-modern-uv \
+  "$SOURCE_RUN_ID" --exit-status
 ```
+
+The final assertion stops the release if `main` moved after the candidate merged.
+Review the additional commits and select a new candidate rather than releasing an
+unvalidated tip.
+If GitHub has not queued the `main` run when `SOURCE_RUN_ID` is queried,
+wait for it to appear and repeat the query.
 
 ## Step 4: Export the Candidate to the Downstream Repo
 
@@ -239,7 +298,11 @@ The working tree must be clean before running `copier update`.
 
 ```shell
 cd ../simple-modern-uv-template
-git status --short
+git switch main
+git pull --ff-only origin main
+test -z "$(git status --porcelain)"
+DOWNSTREAM_BRANCH="validate-${NEW_TAG}-template"
+git switch -c "$DOWNSTREAM_BRANCH"
 
 # Export the exact template candidate. This uses the _src_path already recorded in
 # .copier-answers.yml, currently gh:jlevy/simple-modern-uv.
@@ -272,23 +335,42 @@ uvx --exclude-newer "14 days" uv@0.12.0 audit --locked \
 
 ## Step 6: Push Downstream and Confirm CI
 
-Commit and push the downstream project, then wait for GitHub Actions to finish.
+Commit the downstream candidate on its own branch, open a PR, and wait for GitHub
+Actions to finish before merging it.
 
 ```shell
 git add -A
 git commit -m "Validate simple-modern-uv template ${TEMPLATE_COMMIT:0:7}."
-git push origin main
+git push -u origin "$DOWNSTREAM_BRANCH"
 
+DOWNSTREAM_PR=$(gh pr create \
+  --repo jlevy/simple-modern-uv-template \
+  --base main \
+  --head "$DOWNSTREAM_BRANCH" \
+  --title "chore: validate ${NEW_TAG} template candidate" \
+  --body "Validates simple-modern-uv commit ${TEMPLATE_COMMIT} before release.")
+gh pr checks "$DOWNSTREAM_PR" --watch
+gh pr merge "$DOWNSTREAM_PR" --merge --delete-branch
+
+DOWNSTREAM_COMMIT=$(gh pr view "$DOWNSTREAM_PR" \
+  --repo jlevy/simple-modern-uv-template \
+  --json mergeCommit -q '.mergeCommit.oid')
 RUN_ID=$(gh run list \
   --repo jlevy/simple-modern-uv-template \
   --workflow CI \
   --branch main \
   --event push \
+  --commit "$DOWNSTREAM_COMMIT" \
   --json databaseId \
   -q '.[0].databaseId')
-
+test -n "$RUN_ID"
 gh run watch --repo jlevy/simple-modern-uv-template "$RUN_ID" --exit-status
 ```
+
+If GitHub has not queued the `main` run when `RUN_ID` is queried, wait for it to appear
+and repeat the query.
+The release gate is the successful `main` run for `DOWNSTREAM_COMMIT`, not only the PR’s
+pre-merge checks.
 
 Then check that **CI passes on GitHub**: this runs the full lint and test suite across
 all Python versions in the matrix (e.g. 3.11, 3.12, 3.13, 3.14) on the stub test file
@@ -308,17 +390,10 @@ at least one target agent (CI validates structure and links, not activation):
 
 ## Step 7: Create a Release on the Template Repo
 
-Once CI passes downstream (and this repo’s own CI is green on the candidate commit),
-create a GitHub release on the template repo.
-
-Pick the version by what changed:
-
-- **Minor** (`v0.5.0`): new or changed template questions, new files or dependency
-  groups in the render, or other feature-level changes.
-  Per the answer-schema policy above, the release notes must name any new question keys
-  and their defaults.
-- **Patch** (`v0.4.1`): routine dependency and tool-version bumps, doc fixes, and
-  changes that leave the render’s shape alone.
+Once CI passes downstream and this repo’s own CI is green on `TEMPLATE_COMMIT`, create a
+GitHub Release on the template repo.
+This command creates the version tag; do not run a separate `git tag` or
+`git push --tags` first.
 
 Review the changes and author the release notes as a file first (the gitignored `tmp/`
 directory is the convention; a file keeps the shell out of the way, since notes
@@ -328,11 +403,8 @@ routinely contain backticks and `$`):
 # From the template repo:
 cd ../simple-modern-uv
 
-LAST_TAG=$(gh release list --repo jlevy/simple-modern-uv --limit 1 --json tagName -q '.[0].tagName')
-NEW_TAG="v0.X.Y"
-
-git log "${LAST_TAG}..HEAD" --oneline
-git diff --stat "${LAST_TAG}..HEAD"
+git log "${LAST_TAG}..${TEMPLATE_COMMIT}" --oneline
+git diff --stat "${LAST_TAG}..${TEMPLATE_COMMIT}"
 
 # Write tmp/release-notes-${NEW_TAG}.md, then:
 gh release create "$NEW_TAG" \
@@ -342,17 +414,28 @@ gh release create "$NEW_TAG" \
   --notes-file "tmp/release-notes-${NEW_TAG}.md"
 ```
 
-Structure the notes per `tbd guidelines release-notes-guidelines` (or the same format
-the template’s own `docs/publishing.md` describes): a one-paragraph summary of the
-release’s theme, `### New Features` / `### Improvements` sections, an upgrading note for
-existing projects, new question keys with their defaults (per the answer-schema policy),
-a statement of what validation backed the release, and the
-`compare/${LAST_TAG}...${NEW_TAG}` link.
+Structure the notes per `tbd guidelines release-notes-guidelines`: a concise summary,
+then `## What's Changed` with only the applicable `### Features`, `### Fixes`,
+`### Guidelines and content`, and `### Documentation` sections.
+Add `## Upgrading` when existing projects need action.
+Name new question keys and defaults under upgrading, state what validation backed the
+release, and end with a `**Full commit history**` link to
+`compare/${LAST_TAG}...${NEW_TAG}`.
 
-Afterwards, verify the release: the tag points at `$TEMPLATE_COMMIT`
-(`gh release view "$NEW_TAG" --json tagName,targetCommitish,isDraft`) and a fresh
-`uvx --exclude-newer "14 days" copier@9.17.0 copy gh:jlevy/simple-modern-uv` records the
-new tag as `_commit` in `.copier-answers.yml`.
+Afterwards, verify the release and tag target, then confirm a fresh render records the
+new tag as `_commit` in `.copier-answers.yml`:
+
+```shell
+gh release view "$NEW_TAG" --repo jlevy/simple-modern-uv \
+  --json tagName,targetCommitish,isDraft
+git fetch origin tag "$NEW_TAG"
+test "$(git rev-list -n 1 "$NEW_TAG")" = "$TEMPLATE_COMMIT"
+RELEASE_CHECK_DIR=$(mktemp -d)
+uvx --exclude-newer "14 days" copier@9.17.0 copy --defaults \
+  --vcs-ref "$NEW_TAG" gh:jlevy/simple-modern-uv "$RELEASE_CHECK_DIR"
+grep -q "^_commit: ${NEW_TAG}$" \
+  "$RELEASE_CHECK_DIR/.copier-answers.yml"
+```
 
 ## Step 8: Record the Release Tag Downstream
 
@@ -363,14 +446,46 @@ This should either be a no-op or only change `_commit`.
 
 ```shell
 cd ../simple-modern-uv-template
+git switch main
+git pull --ff-only origin main
+RECORD_BRANCH="record-${NEW_TAG}-template"
+git switch -c "$RECORD_BRANCH"
 uvx --exclude-newer "14 days" copier@9.17.0 update --defaults \
   --vcs-ref "$NEW_TAG"
 git diff -- .copier-answers.yml
 
 git add -A
-git commit -m "Record simple-modern-uv template ${NEW_TAG}."  # skip if no diff
-git push origin main
+git commit -m "Record simple-modern-uv template ${NEW_TAG}."
+git push -u origin "$RECORD_BRANCH"
+
+RECORD_PR=$(gh pr create \
+  --repo jlevy/simple-modern-uv-template \
+  --base main \
+  --head "$RECORD_BRANCH" \
+  --title "chore: record simple-modern-uv template ${NEW_TAG}" \
+  --body "Records the public ${NEW_TAG} template tag after release validation.")
+gh pr checks "$RECORD_PR" --watch
+gh pr merge "$RECORD_PR" --merge --delete-branch
+
+RECORD_COMMIT=$(gh pr view "$RECORD_PR" \
+  --repo jlevy/simple-modern-uv-template \
+  --json mergeCommit -q '.mergeCommit.oid')
+RECORD_RUN_ID=$(gh run list \
+  --repo jlevy/simple-modern-uv-template \
+  --workflow CI \
+  --branch main \
+  --event push \
+  --commit "$RECORD_COMMIT" \
+  --json databaseId \
+  -q '.[0].databaseId')
+test -n "$RECORD_RUN_ID"
+gh run watch --repo jlevy/simple-modern-uv-template \
+  "$RECORD_RUN_ID" --exit-status
 ```
+
+If the tagged update produces no diff, skip the commit and second downstream PR. If
+GitHub has not yet queued the final `main` run, wait for it to appear and repeat the
+`RECORD_RUN_ID` query.
 
 <!-- This document follows common-doc-guidelines.md.
 See github.com/jlevy/practical-prose and review guidelines before editing.
