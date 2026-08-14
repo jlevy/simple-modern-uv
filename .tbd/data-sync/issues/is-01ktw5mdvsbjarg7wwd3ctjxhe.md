@@ -5,7 +5,7 @@ title: "Spec: agent skill and template modernization"
 kind: epic
 status: in_progress
 priority: 1
-version: 19
+version: 20
 spec_path: docs/project/specs/active/plan-2026-06-11-agent-skill-and-modernization.md
 labels: []
 dependencies: []
@@ -25,8 +25,9 @@ child_order_hints:
   - is-01ktwbrpk0knshs4svakdk4a48
   - is-01ktwdgnj0a4fc2bwwb1szxwkw
   - is-01ktwdnahytshfemt9eff75ddg
+  - is-01m00t7pv8w57wvxw0cze48gat
 created_at: 2026-06-11T20:23:00.715Z
-updated_at: 2026-06-12T00:56:29.340Z
+updated_at: 2026-08-14T18:58:30.885Z
 ---
 Umbrella for making simple-modern-uv directly usable by AI coding agents: an installable skill with three flows (new/upgrade/update), license+publish template options, AGENTS.md output, uvtemplate removal, repo CI, and version currency. See spec for full design, the two-tier interview contract, and the D2 answer-schema evolution rules.
 
