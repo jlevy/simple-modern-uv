@@ -1,6 +1,6 @@
 # Updating This Template
 
-This doc covers the full cycle for keeping the
+Use this process to keep the
 [simple-modern-uv](https://github.com/jlevy/simple-modern-uv) template’s dependencies
 and tools up to date, then verifying the changes end-to-end.
 
@@ -26,8 +26,8 @@ The commands below assume the downstream repo is cloned next to this repo as
 `../simple-modern-uv-template`.
 
 **Releasing without downstream access** (for example, an agent session scoped to this
-repo only): this repo’s CI on the candidate commit is the gate — all jobs must be green
-— plus a local render verification (Step 5 run against a fresh render).
+repo only): this repo’s CI on the candidate commit is the gate—all jobs must be
+green—plus a local render verification (Step 5 run against a fresh render).
 Create the release on that basis, then complete the downstream export and tag recording
 (Steps 4–6 and 8) as post-release verification from an environment with access.
 If downstream then fails, fix forward with a patch release.
@@ -184,8 +184,8 @@ In the template repo, update these files as needed:
 - **The project-level uv policy**: keep `exclude-newer = "14 days"` in `uv.toml` and
   select that file explicitly in the Makefile and CI, so direct standard workflows keep
   the cool-off without merging ambient user settings into `uv.lock`
-- Review `docs/project/research/research-uv-changes.md` for new uv features the template
-  should adopt or explicitly decline
+- Review the [uv changes research](docs/project/research/research-uv-changes.md) for new
+  uv features the template should adopt or explicitly decline
 - Record the complete frozen decision in a release-specific supply-chain manifest under
   `docs/project/research/`
 
@@ -201,7 +201,7 @@ projects keep updating cleanly:
    `--defaults --skip-answered` fills new keys.
 3. **Hand customizations are reconciled by the skill**, not by defaults: the skill’s
    update workflow inspects project state and passes explicit `--data` (see
-   `skills/simple-modern-uv/references/customize.md`).
+   [customize.md](skills/simple-modern-uv/references/customize.md)).
 4. **CI guards the update path**: the `update-path` job renders the previous release and
    updates to the candidate, asserting convergence with a fresh render and that `--data`
    overrides are honored.

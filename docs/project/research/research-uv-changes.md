@@ -4,7 +4,8 @@
 
 **Author:** Joshua Levy (with agent assistance)
 
-**Status:** Maintained (review at each dependency-update cycle; see `updating.md`)
+**Status:** Maintained (review at each dependency-update cycle; see
+[updating.md](../../../updating.md))
 
 ## Overview
 
@@ -51,7 +52,7 @@ dates and provenance.
   Versions 0.11.29–0.11.33 add JSON output to `uv tree`, improve frozen-sync and
   `exclude-newer` performance, add `uv lock --refresh`, tighten path and credential
   handling, and extend the preview audit/malware/type-checking commands.
-- **0.12.x (Jul 2026–now)**: existing projects keep their build backend, while newly
+- **0.12.x (Jul 2026–present)**: existing projects keep their build backend, while newly
   initialized packages use `uv_build`. The resolver now prefers stable releases and
   falls back to prereleases only when necessary.
   Hash directives, archive and wheel paths, `pylock.toml`, project paths, and publish
@@ -61,9 +62,10 @@ dates and provenance.
   These changes do not require a template migration, but they strengthen its existing
   locked build and publish paths.
 
-(Compiled from uv release notes and the Astral blog; re-verify details against the
-[changelog](https://github.com/astral-sh/uv/blob/main/CHANGELOG.md) when updating this
-doc.)
+(Compiled from the official
+[uv changelog](https://github.com/astral-sh/uv/blob/main/CHANGELOG.md) and
+[Astral blog](https://astral.sh/blog/); re-verify both sources when updating this
+document.)
 
 ## Decisions and Action Items for the Template
 
@@ -78,7 +80,9 @@ doc.)
    `required-version = ">=0.9"` fails fast on versions that predate relative-duration
    cutoffs, and `exclude-newer = "14 days"` supplies the safe default.
    The Makefile and CI set `UV_CONFIG_FILE=uv.toml` so uv uses this file exclusively
-   instead of merging user- or system-level settings into `uv.lock`.
+   instead of merging user- or system-level settings into `uv.lock`, matching uv’s
+   documented
+   [configuration-file precedence](https://docs.astral.sh/uv/configuration/files/).
 3. **Watch `uv audit` and malware checking**: `uv audit` is old enough to use as an
    additional release-time check, but remains preview functionality in 0.12.0. Do not
    make a preview command part of generated-project CI until it stabilizes.

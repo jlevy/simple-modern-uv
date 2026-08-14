@@ -9,7 +9,7 @@ Work on a branch and land the whole migration as one reviewable change.
 This is the **full template-managed** workflow: it deliberately creates honest Copier
 lineage for future updates.
 If the user only wants selected features or wants to keep the current project structure,
-use `adopt-selectively.md` instead.
+use [adopt-selectively.md](adopt-selectively.md) instead.
 
 Out of scope (stop and tell the user): C extensions or custom build steps, conda
 environments, monorepos/workspaces with multiple packages.
@@ -27,7 +27,7 @@ These need decisions a checklist shouldn’t make.
 | `publish_to_pypi` | `true` if the package is on PyPI (`uv pip index` or check pypi.org) or clearly intended for it; `false` for apps/private code (a `Private :: Do Not Upload` classifier is a definitive no) |
 
 Confirm the essentials with the user in one batched message (per the interview contract
-in SKILL.md), flagging anything that will change.
+in [SKILL.md](../SKILL.md)), flagging anything that will change.
 One decision that must be surfaced if it applies: if the project currently supports
 Python older than 3.11 **and** is published, adopting the template raises
 `requires-python` to `>=3.11`. Dropping versions for existing users is the user’s call,
@@ -141,7 +141,7 @@ If legacy code produces a wall of errors, see the FAQ: relax first, ratchet late
 
 ```bash
 make install               # creates uv.lock; commit it
-make lint                  # codespell + ruff + basedpyright
+make lint                  # codespell, ruff, and basedpyright
 make test
 make build                 # only if publishing
 ```

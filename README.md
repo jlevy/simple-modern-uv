@@ -10,7 +10,7 @@ Appropriately enough, the comic is out of date.)
 [![uv](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json)](https://github.com/astral-sh/uv)
 [![Copier](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/copier-org/copier/master/img/badge/badge-grayscale-border.json)](https://github.com/copier-org/copier)
 
-## What is This?
+## What Is This?
 
 **simple-modern-uv** is a minimal, modern **Python project template** for new projects
 (Python 3.11–3.14) based on [**uv**](https://docs.astral.sh/uv/). This template aims to
@@ -20,12 +20,13 @@ It can also upgrade an existing project to a modern setup: uv, ruff, BasedPyrigh
 GitHub Actions, or add only the practices that fit without forcing a full migration.
 The [agent skill](#use-with-any-coding-agent) handles each adoption path.
 
-## Use With Any Coding Agent
+## Use with Any Coding Agent
 
-Install the [simple-modern-uv skill bundle](skills/simple-modern-uv/SKILL.md) and
-appoint your coding agent to do the work.
-It follows the [Agent Skills](https://agentskills.io) open standard, so it works with
-Claude Code, Codex, Cursor, Gemini CLI, and other compatible agents:
+Install the [simple-modern-uv skill bundle](skills/simple-modern-uv/SKILL.md) with the
+[skills CLI](https://github.com/vercel-labs/skills), then appoint your coding agent to
+do the work. The bundle follows the [Agent Skills](https://agentskills.io) open format;
+the installer supports Claude Code, Codex, Cursor, Gemini CLI, and other compatible
+agents:
 
 ```shell
 NPM_CONFIG_IGNORE_SCRIPTS=true NPM_CONFIG_BEFORE=2026-07-31T18:59:05Z \
@@ -68,13 +69,11 @@ See the procedures for
 [template updates](skills/simple-modern-uv/references/update-templated-project.md).
 
 Generated projects are agent-ready too: each includes an
-[`AGENTS.md`](template/AGENTS.md.jinja) following the [agents.md](https://agents.md)
-standard (read natively by Codex, Cursor, Copilot, Gemini CLI, and others) with the
-project’s build/test commands and conventions, plus a [`CLAUDE.md`](template/CLAUDE.md)
-that imports it for Claude Code.
+[`AGENTS.md`](template/AGENTS.md.jinja) following the [AGENTS.md](https://agents.md)
+standard, with the project’s build, test, and development conventions, plus a
+[`CLAUDE.md`](template/CLAUDE.md) that imports it for Claude Code.
 
-For non-agent options, scroll down to
-[How to Use This Template](#how-to-use-this-template).
+To work without an agent, see [How to Use This Template](#how-to-use-this-template).
 
 ## Why a New Python Project Template?
 
@@ -146,9 +145,9 @@ discussed next.)
 One other benefit of this template is it uses
 [**copier**](https://github.com/copier-org/copier).
 
-Unlike with many previous project template tools, Copier allows you
-[pull future changes](#updating-your-project-template) to a template back into your
-instantiated copy any time.
+Unlike many previous project template tools, Copier lets you
+[pull future template changes](#updating-your-project-template) back into your
+instantiated copy at any time.
 
 You can start a project now, then if this template improves or is updated with other
 tools, you can pull those improvements back into your project, much like a git merge.
@@ -158,10 +157,10 @@ maintain it yourself.
 If you’re not familiar with Copier, take a moment to understand the
 [update feature](#updating-your-project-template).
 Then the options below will make sense.
-I put a few more thoughts on why a workflow like this is underrated is in
+I put a few more thoughts on why a workflow like this is underrated in
 [a Twitter thread](https://x.com/ojoshe/status/1896696860297019733).
 
-## What Tools are In This Template?
+## What Tools Are in This Template?
 
 simple-modern-uv uses the tools I’ve come to think are best for new projects:
 
@@ -328,13 +327,9 @@ Option 3 is handy if you prefer a GitHub template.
 
 ### Option 1: Use Your Agent (Recommended)
 
-Install the [agent skill](skills/simple-modern-uv/SKILL.md) and ask your agent; see
-[Use With Any Coding Agent](#use-with-any-coding-agent) above for the exact installation
-command and prompts.
-The skill covers four workflows: creating a **new project**, **selectively adopting**
-coherent feature bundles, **fully upgrading** an existing Python package (including
-migrations from Poetry, setuptools/pip, or PDM), and **updating** a project already
-managed by this template.
+Install the [agent skill](skills/simple-modern-uv/SKILL.md) and ask your agent.
+[Use with Any Coding Agent](#use-with-any-coding-agent) has the exact installation
+command, four workflow prompts, and adoption boundaries.
 The agent inspects the repo, confirms only material choices, performs the work
 non-interactively, and reports the resulting adoption level and validation.
 
@@ -396,19 +391,13 @@ Once you have the code, search for **`changeme`** for all field names like proje
 author, etc. You want to do this to the `.copier-answers.yml` file as well.
 You will also want to check the license/copyright.
 
-## Getting Started on Your Project
-
-Everything to get started is linked from the project **README.md**. It links to the
-**installation.md**, **development.md**, and **publishing.md**
-[starter docs](#starter-docs).
-
 ## Updating Your Project Template
 
 If you use Option 1 or Option 2 or if you pick Option 3 and correctly fill in your
 `.copier-answers.yml` file, you have the option to update your project with any future
 updates to this template at any time.
 
-If this file is updated with your project name etc., then you can
+When `.copier-answers.yml` records your project values, you can
 [update your project](https://copier.readthedocs.io/en/latest/updating/) to reflect any
 changes to this template by running `copier update`.
 
@@ -454,8 +443,9 @@ follows:
 
 - **Cooling-off period:** Don’t install or upgrade to a release less than 14 days old
   (most malicious publishes are caught within days).
-  For uv, set `UV_EXCLUDE_NEWER` to a cool-off window (recent uv accepts a relative
-  duration like `"14 days"`); this template sets it in generated `uv.toml`, CI, and the
+  uv supports a relative
+  [dependency cooldown](https://docs.astral.sh/uv/concepts/resolution/#dependency-cooldowns)
+  such as `"14 days"`; this template sets it in generated `uv.toml`, CI, and the
   Makefile. Standard workflows select that checked-in file explicitly so ambient user
   settings cannot make `uv.lock` nonportable.
 
@@ -473,6 +463,8 @@ See [updating.md](updating.md#supply-chain-hygiene) for how this template applie
 If you’re contributing to this template or forking it for your own use, see
 [**updating.md**](updating.md) for the full process to check for new versions, update
 the template, and verify changes in a downstream project.
+Maintainer research, frozen supply-chain evidence, and implementation records are
+indexed in the [project documentation](docs/project/README.md).
 
 ## Contributing
 

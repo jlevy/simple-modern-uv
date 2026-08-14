@@ -113,7 +113,7 @@ jobs:
           test -f AGENTS.md
           test -f CLAUDE.md
           test -f uv.toml
-          grep -q '## Working With a Coding Agent' README.md
+          grep -q '## Working with a Coding Agent' README.md
           grep -q 'simple-modern-uv/tree/main/skills/simple-modern-uv' AGENTS.md
           grep -q 'required-version = ">=0.9"' uv.toml
           grep -q 'exclude-newer = "14 days"' uv.toml

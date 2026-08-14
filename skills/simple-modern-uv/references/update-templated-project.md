@@ -14,7 +14,7 @@ When the template has questions the project has never answered, pass explicit `-
 values matching the project’s existing behavior.
 Defaults describe a fresh project and must not silently re-license a package or restore
 a deliberately removed publish workflow.
-See `customize.md` for the reconciliation rules.
+See [customize.md](customize.md) for the reconciliation rules.
 
 ## Apply the Update
 

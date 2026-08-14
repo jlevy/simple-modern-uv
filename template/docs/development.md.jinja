@@ -21,10 +21,6 @@ The `Makefile` simply offers shortcuts to `uv` commands for developer convenienc
 # dependency resolution or make uv.lock nonportable. The Makefile does this itself.
 export UV_CONFIG_FILE="$PWD/uv.toml"
 
-# Apply the supply-chain cool-off to direct uv commands below. The Makefile sets the
-# same default for its recipes; override the variable explicitly if needed.
-export UV_EXCLUDE_NEWER="14 days"
-
 # First, install all dependencies and set up your virtual environment.
 # This runs `uv sync --all-extras --all-groups` to install runtime, development,
 # optional, and locked build dependencies.
@@ -33,7 +29,7 @@ make install
 # Run uv sync, lint, and test:
 make
 
-# Build wheel:
+# Build the wheel and source distribution:
 make build
 
 # Linting (auto-fixes formatting and lint issues):
@@ -53,7 +49,7 @@ make upgrade
 
 # To run tests by hand:
 uv run pytest   # all tests
-uv run pytest -s src/module/some_file.py  # one test, showing outputs
+uv run pytest -s tests/test_placeholder.py  # one test file, showing output
 
 # Build and install current dev executables, to let you use your dev copies
 # as local tools:
@@ -76,7 +72,7 @@ source .venv/bin/activate
 
 See [uv docs](https://docs.astral.sh/uv/) for details.
 
-## IDE setup
+## IDE Setup
 
 If you use VSCode or a fork like Cursor or Windsurf, you can install the following
 extensions:
@@ -97,11 +93,12 @@ Its key defaults:
 
 - **Cool-off period:** Don’t install or upgrade to a release less than 14 days old
   (absent a documented exception); most malicious publishes are caught within days.
-  For uv, set `UV_EXCLUDE_NEWER` to a cool-off window (recent uv accepts a relative
-  duration like `"14 days"`); this project sets it in `uv.toml`, CI, and the Makefile so
-  direct commands and standard workflows default to the same policy.
-  The Makefile and examples select `uv.toml` explicitly so user- or system-level uv
-  settings cannot leak into the committed lockfile.
+  uv supports a relative
+  [dependency cooldown](https://docs.astral.sh/uv/concepts/resolution/#dependency-cooldowns)
+  such as `"14 days"`. This project records the policy in `uv.toml`; the Makefile, CI,
+  and examples select that file explicitly so user- or system-level
+  [uv configuration](https://docs.astral.sh/uv/configuration/files/) cannot leak into
+  the committed lockfile.
   Override it explicitly for a stricter window, such as
   `UV_EXCLUDE_NEWER="30 days" make upgrade`. A reviewed emergency exception must be
   equally explicit, using `UV_EXCLUDE_NEWER="0 days"` only for that invocation and

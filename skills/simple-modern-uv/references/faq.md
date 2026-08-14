@@ -74,11 +74,14 @@ Follow `docs/publishing.md` in the project; no API tokens are needed.
 
 ## Lockfile Resolution Seems Stale or Refuses a Brand-New Release
 
-`UV_EXCLUDE_NEWER` (set in the template’s CI) enforces a 14-day supply-chain cooling-off
-window, so releases newer than that are deliberately invisible.
-This is a feature; don’t remove it to get a day-old package.
-Locally, leave the variable unset for normal work, or set it to match CI when debugging
-resolution differences.
+The checked-in `uv.toml` sets a 14-day supply-chain cooling-off window, so releases
+newer than that are deliberately invisible.
+The Makefile and CI select that file with `UV_CONFIG_FILE`; CI also sets the equivalent
+`UV_EXCLUDE_NEWER` value.
+This is a feature; don’t remove it to get a day-old package or let ambient user settings
+change the lock. Use the project’s standard commands when debugging resolution
+differences; make any reviewed exception an explicit, documented per-invocation
+override.
 
 ## Tests Pass Locally but CI Fails on a Python Version
 

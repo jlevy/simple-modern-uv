@@ -4,9 +4,10 @@ Create a new, fully template-managed Python project.
 
 ## Gather and Confirm the Answers
 
-Use the interview contract in `SKILL.md`. Infer author name, email, and GitHub
-organization from git and GitHub state, then confirm the package name, derived module,
-description, license, publishing choice, and inferred identity in one message.
+Use the interview contract in [SKILL.md](../SKILL.md).
+Infer author name, email, and GitHub organization from git and GitHub state, then
+confirm the package name, derived module, description, license, publishing choice, and
+inferred identity in one message.
 
 ## Render the Project
 

@@ -6,7 +6,7 @@ Preserve the project’s existing architecture and choose the smallest coherent 
 changes.
 
 If the user instead wants the repository fully converted and updateable through Copier,
-use `adopt-existing.md`.
+use [adopt-existing.md](adopt-existing.md).
 
 ## Feature Bundles and Dependencies
 

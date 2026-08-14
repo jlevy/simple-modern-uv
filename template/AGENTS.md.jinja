@@ -1,9 +1,9 @@
 # Project Instructions for AI Agents
 
-Instructions for AI coding agents working on {{ package_name }}. (This file follows the
+Instructions for AI coding agents working on {{ package_name }}. This file follows the
 [AGENTS.md](https://agents.md) convention.
-Claude Code reads `CLAUDE.md` instead, which imports this file via its `@AGENTS.md`
-line, so edits here reach every agent.)
+Claude Code reads `CLAUDE.md`, which imports this file through its `@AGENTS.md` line, so
+both instruction paths stay aligned.
 
 ## Build and Test
 
@@ -15,7 +15,7 @@ make install     # uv sync --all-extras --all-groups (install all deps into .ven
 make lint        # auto-format and lint: codespell, ruff check --fix, ruff format, basedpyright
 make lint-check  # check-only variant, matching CI (fails instead of fixing)
 make test        # uv run pytest
-make build       # locked, non-isolated uv build (wheel + sdist)
+make build       # locked, non-isolated uv build (wheel and sdist)
 ```
 
 Or call uv directly with the checked-in configuration:

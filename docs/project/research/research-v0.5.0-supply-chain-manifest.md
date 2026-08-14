@@ -24,7 +24,7 @@ packages by implication.
 
 ## Frozen Python and Tool Candidates
 
-| Component | Current declaration | Frozen decision | Published (UTC) | Source and rationale |
+| Component | Prior declaration | Frozen decision | Published (UTC) | Source and rationale |
 | --- | --- | --- | --- | --- |
 | uv | 0.11.25 | **Update to [0.12.0](https://github.com/astral-sh/uv/releases/tag/0.12.0)** | 2026-07-28 | Newest eligible official Astral release; security and validation hardening with no generated-project migration |
 | Copier | 9.16.0 | **Update to [9.17.0](https://github.com/copier-org/copier/releases/tag/v9.17.0)** | 2026-07-13 | Fixes an encoded-URL trust bypass; fresh-copy and update-path tests are required |
@@ -86,8 +86,8 @@ against `astral-sh/uv`.
   The existing `skills-ref@0.1.5` integrity remains recorded in the v0.4.0 manifest.
 - `npm audit --omit=dev` reports five high-severity dependency families in setup-uv
   v9.0.0’s bundled production graph.
-  The same families are present in the currently pinned v8.2.0 and still appear in
-  v10.0.1; there is no eligible action release that removes them.
+  The same families are present in the prior v8.2.0 pin and still appear in v10.0.1;
+  there is no eligible action release that removes them.
   They concern glob, XML, and HTTP-library behaviors rather than a known setup-uv
   exploit. Full-SHA pinning, trusted workflow inputs, disabled publish caching, and
   continued upstream tracking bound the exposure without taking a same-day major release
@@ -143,8 +143,8 @@ Local validation produced these outcomes:
 7. A Copier 9.17.0 update from v0.4.0 has no rejects, converges with a fresh candidate
    render, and honors an explicit `publish_to_pypi=false` override.
 
-Every template-repository CI job remains the final pre-merge gate, including the full
-Python 3.11–3.14 matrix.
+Candidate acceptance requires every template-repository CI job, including the full
+Python 3.11–3.14 matrix, to pass before merge.
 
 <!-- This document follows common-doc-guidelines.md.
 See github.com/jlevy/practical-prose and review guidelines before editing.
