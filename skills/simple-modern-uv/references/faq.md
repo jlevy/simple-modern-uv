@@ -23,14 +23,15 @@ No git tag yet: dynamic versioning derives the version from the latest `v*` tag.
   `fetch-depth: 0` (the template’s workflows do) so tags are available.
 - `importlib.metadata` still reports an old version after committing or tagging: the
   editable install’s metadata is captured at sync time and uv won’t refresh it on its
-  own. Run `uv sync --reinstall-package <module>` (and sync only after the first commit
-  on new projects).
+  own. Run `UV_CONFIG_FILE=uv.toml uv sync --reinstall-package <module>` (and sync only
+  after the first commit on new projects).
 
 ## `uv sync` Fails on Python Version
 
-The template requires Python 3.11+. `uv python install` downloads a managed interpreter;
-pin one for the project with `uv python pin 3.12` (writes `.python-version`). If uv
-itself errors with “required-version”, upgrade uv: the template requires uv >= 0.9.
+The template requires Python 3.11+. `UV_CONFIG_FILE=uv.toml uv python install` downloads
+a managed interpreter; pin one for the project with
+`UV_CONFIG_FILE=uv.toml uv python pin 3.12` (writes `.python-version`). If uv itself
+errors with “required-version”, upgrade uv: the template requires uv >= 0.9.
 
 ## BasedPyright Erupts with Hundreds of Errors on Legacy Code
 
@@ -62,7 +63,7 @@ commit or stash first.
 The project predates the `publish_to_pypi` and `package_license` questions and the
 update filled them with defaults.
 Re-run the update passing the project’s reality, e.g.
-`uvx --exclude-newer "14 days" copier@9.16.0 update --data publish_to_pypi=false`, and
+`uvx --exclude-newer "14 days" copier@9.17.0 update --data publish_to_pypi=false`, and
 see “Reconciling New Questions on Update” in [customize.md](customize.md).
 
 ## Publish Workflow Fails with OIDC or Permission Errors
@@ -82,7 +83,7 @@ resolution differences.
 ## Tests Pass Locally but CI Fails on a Python Version
 
 The CI matrix runs 3.11–3.14. Most failures are version-specific syntax/stdlib use; run
-the failing version locally with `uv run --python 3.11 pytest`.
+the failing version locally with `UV_CONFIG_FILE=uv.toml uv run --python 3.11 pytest`.
 
 <!-- This document follows common-doc-guidelines.md.
 See github.com/jlevy/practical-prose and review guidelines before editing.

@@ -11,7 +11,7 @@ UV_EXCLUDE_NEWER ?= 14 days
 export UV_EXCLUDE_NEWER
 
 # Pinned for reproducibility and supply-chain hygiene (see updating.md).
-FLOWMARK := uvx flowmark-rs@0.3.1
+FLOWMARK := uvx flowmark-rs@0.3.2
 
 # Format all Markdown docs, including *.md.jinja templates. Excluded paths
 # (tool-managed dirs, attic/) live in .flowmarkignore.

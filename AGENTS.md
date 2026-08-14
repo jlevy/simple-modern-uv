@@ -30,7 +30,7 @@ make format
 make format-check
 
 # Render the template non-interactively (smoke test):
-uvx --exclude-newer "14 days" copier@9.16.0 copy --defaults --vcs-ref=HEAD \
+uvx --exclude-newer "14 days" copier@9.17.0 copy --defaults --vcs-ref=HEAD \
   --data package_name=smoke-test \
   --data package_github_org=testorg . /tmp/smoke-test
 # Then inside the render: make install && make lint-check && make test

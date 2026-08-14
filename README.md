@@ -27,8 +27,8 @@ Install the [skill](skills/simple-modern-uv/SKILL.md) (the
 Codex, Cursor, Gemini CLI, and 50+ other agents):
 
 ```shell
-NPM_CONFIG_IGNORE_SCRIPTS=true NPM_CONFIG_BEFORE=2026-06-29T03:27:33Z \
-  npx --yes skills@1.5.13 add jlevy/simple-modern-uv
+NPM_CONFIG_IGNORE_SCRIPTS=true NPM_CONFIG_BEFORE=2026-07-31T18:59:05Z \
+  npx --yes skills@1.5.18 add jlevy/simple-modern-uv
 ```
 
 Then tell your agent what you want, for example:
@@ -293,7 +293,7 @@ License and publishing are template questions, not hand edits: `package_license`
 decide later) and `publish_to_pypi` (answer no for a private package; the publish
 workflow and docs are then omitted).
 Answer them at render time or change them later with
-`uvx --exclude-newer "14 days" copier@9.16.0 update --data package_license=…`; see the
+`uvx --exclude-newer "14 days" copier@9.17.0 update --data package_license=…`; see the
 skill’s [customize guide](skills/simple-modern-uv/references/customize.md) for details.
 Prefer re-answering over hand-deleting generated files like `publish.yml`, so future
 `copier update` runs stay consistent.
@@ -330,7 +330,7 @@ cd ~/projects/github   # Wherever you do your project work.
 # Clone this template under the supply-chain cool-off. This does everything!
 # It will fetch from this GitHub repo and create a new directory
 # with whatever name you put below:
-uvx --exclude-newer "14 days" copier@9.16.0 copy \
+uvx --exclude-newer "14 days" copier@9.17.0 copy \
   gh:jlevy/simple-modern-uv YOURNEWREPO
 # Then follow the instructions.
 ```
@@ -351,7 +351,7 @@ git add .
 git commit -m "Initial commit from simple-modern-uv."
 # Sync after the first commit so dynamic versioning gives the editable install
 # a real version (not 0.0.0). This creates uv.lock; commit it so CI installs
-# reproducibly with --frozen.
+# reproducibly with --locked and verifies the lockfile is current.
 make install
 git add uv.lock
 git commit -m "Add uv.lock."
@@ -430,8 +430,9 @@ follows:
 - **Cooling-off period:** Don’t install or upgrade to a release less than 14 days old
   (most malicious publishes are caught within days).
   For uv, set `UV_EXCLUDE_NEWER` to a cool-off window (recent uv accepts a relative
-  duration like `"14 days"`); this template sets it in generated `pyproject.toml`, CI,
-  and the Makefile.
+  duration like `"14 days"`); this template sets it in generated `uv.toml`, CI, and the
+  Makefile. Standard workflows select that checked-in file explicitly so ambient user
+  settings cannot make `uv.lock` nonportable.
 
 - **Vet what you add:** Only add dependencies you can verify upstream, and prefer a
   little first-party code over pulling in a new dependency.

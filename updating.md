@@ -181,8 +181,9 @@ In the template repo, update these files as needed:
   `before` cutoff, disable lifecycle scripts, and record registry integrity/provenance
 - **Safe-default Makefile paths**: keep the 14-day default on install, upgrade, format,
   and build commands, while preserving an explicit per-invocation override
-- **The project-level uv policy**: keep `tool.uv.exclude-newer = "14 days"` so direct uv
-  commands cannot silently omit the cool-off
+- **The project-level uv policy**: keep `exclude-newer = "14 days"` in `uv.toml` and
+  select that file explicitly in the Makefile and CI, so direct standard workflows keep
+  the cool-off without merging ambient user settings into `uv.lock`
 - Review `docs/project/research/research-uv-changes.md` for new uv features the template
   should adopt or explicitly decline
 - Record the complete frozen decision in a release-specific supply-chain manifest under
@@ -214,7 +215,7 @@ make format        # auto-format all Markdown docs, including *.md.jinja templat
 make format-check  # check-only, to confirm nothing is left unformatted
 ```
 
-This runs the pinned `uvx flowmark-rs@0.3.1 --auto` from the top-level `Makefile`, which
+This runs the pinned `uvx flowmark-rs@0.3.2 --auto` from the top-level `Makefile`, which
 also applies the 14-day resolver gate by default.
 
 ## Step 3: Commit and Push the Template Candidate
@@ -242,7 +243,7 @@ git status --short
 
 # Export the exact template candidate. This uses the _src_path already recorded in
 # .copier-answers.yml, currently gh:jlevy/simple-modern-uv.
-uvx --exclude-newer "14 days" copier@9.16.0 update --defaults \
+uvx --exclude-newer "14 days" copier@9.17.0 update --defaults \
   --vcs-ref "$TEMPLATE_COMMIT"
 git diff --stat
 ```
@@ -251,7 +252,7 @@ If the downstream repo ever needs a fresh render instead of an update, instantia
 the standard defaults:
 
 ```shell
-uvx --exclude-newer "14 days" copier@9.16.0 copy --defaults \
+uvx --exclude-newer "14 days" copier@9.17.0 copy --defaults \
   --vcs-ref "$TEMPLATE_COMMIT" gh:jlevy/simple-modern-uv .
 ```
 
@@ -265,7 +266,7 @@ make install
 make lint-check
 make test
 make build
-uvx --exclude-newer "14 days" uv@0.11.25 audit --locked \
+uvx --exclude-newer "14 days" uv@0.12.0 audit --locked \
   --preview-features audit-command
 ```
 
@@ -312,11 +313,11 @@ create a GitHub release on the template repo.
 
 Pick the version by what changed:
 
-- **Minor** (`v0.4.0`): new or changed template questions, new files or dependency
+- **Minor** (`v0.5.0`): new or changed template questions, new files or dependency
   groups in the render, or other feature-level changes.
   Per the answer-schema policy above, the release notes must name any new question keys
   and their defaults.
-- **Patch** (`v0.3.1`): routine dependency and tool-version bumps, doc fixes, and
+- **Patch** (`v0.4.1`): routine dependency and tool-version bumps, doc fixes, and
   changes that leave the render’s shape alone.
 
 Review the changes and author the release notes as a file first (the gitignored `tmp/`
@@ -350,7 +351,7 @@ a statement of what validation backed the release, and the
 
 Afterwards, verify the release: the tag points at `$TEMPLATE_COMMIT`
 (`gh release view "$NEW_TAG" --json tagName,targetCommitish,isDraft`) and a fresh
-`uvx --exclude-newer "14 days" copier@9.16.0 copy gh:jlevy/simple-modern-uv` records the
+`uvx --exclude-newer "14 days" copier@9.17.0 copy gh:jlevy/simple-modern-uv` records the
 new tag as `_commit` in `.copier-answers.yml`.
 
 ## Step 8: Record the Release Tag Downstream
@@ -362,7 +363,7 @@ This should either be a no-op or only change `_commit`.
 
 ```shell
 cd ../simple-modern-uv-template
-uvx --exclude-newer "14 days" copier@9.16.0 update --defaults \
+uvx --exclude-newer "14 days" copier@9.17.0 update --defaults \
   --vcs-ref "$NEW_TAG"
 git diff -- .copier-answers.yml
 

@@ -32,7 +32,7 @@ not yours.
 
 ```bash
 cd ..
-uvx --exclude-newer "14 days" copier@9.16.0 copy --defaults \
+uvx --exclude-newer "14 days" copier@9.17.0 copy --defaults \
   --data package_name=<name> ... \
   gh:jlevy/simple-modern-uv <project>-template-render
 ```
@@ -47,15 +47,15 @@ Copy from the render, adapting as you go:
 - **`pyproject.toml`**: start from the rendered one and port the project’s reality into
   it: `dependencies`, extras, entry points, tool configs that should survive (translate
   as below). Keep the rendered `[build-system]` (hatchling with uv-dynamic-versioning),
-  `[tool.uv]`, `[tool.ruff]`, `[tool.basedpyright]`, `[tool.pytest.ini_options]`
-  sections.
+  `[tool.ruff]`, `[tool.basedpyright]`, and `[tool.pytest.ini_options]` sections.
 - **Code layout**: move code to `src/<module>/` (the convention; if the user insists on
   a flat layout, adjust `packages` and `testpaths` instead).
   Ensure `py.typed` exists in the package.
   Tests go in `tests/`.
-- **Copy verbatim**: `devtools/lint.py`, `Makefile`, `.gitignore` (merge with existing
-  entries), `.github/workflows/ci.yml` (and `publish.yml` if publishing),
-  `docs/installation.md`, `docs/development.md`.
+- **Copy verbatim**: `uv.toml`, `devtools/lint.py`, `Makefile`, `.gitignore` (merge with
+  existing entries), `.github/workflows/ci.yml` (and `publish.yml` if publishing),
+  `docs/installation.md`, `docs/development.md`. Put project-specific uv indexes and
+  other resolution settings in `uv.toml` so the Makefile and CI use them consistently.
 - **Agent instruction files**: copy `AGENTS.md` and `CLAUDE.md` from the render if the
   project has neither.
   If the project already has an `AGENTS.md`, keep its content and fold in the template’s

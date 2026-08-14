@@ -18,9 +18,10 @@ make test        # uv run pytest
 make build       # locked, non-isolated uv build (wheel + sdist)
 ```
 
-Or call uv directly: `uv run pytest tests/test_foo.py`,
-`uv add --exclude-newer "14 days" some-package`, or
-`uv run python -m {{ package_module }}`.
+Or call uv directly with the checked-in configuration:
+`UV_CONFIG_FILE=uv.toml uv run pytest tests/test_foo.py`,
+`UV_CONFIG_FILE=uv.toml uv add --exclude-newer "14 days" some-package`, or
+`UV_CONFIG_FILE=uv.toml uv run python -m {{ package_module }}`.
 
 ## Conventions
 
@@ -29,11 +30,12 @@ Or call uv directly: `uv run pytest tests/test_foo.py`,
 - **Python**: 3.11+ only; use modern typing (full annotations, no `from __future__`).
 
 - **Lint/format**: ruff (line length 100) plus codespell; type checking is
-  [basedpyright](https://docs.basedpyright.com/). Settings live in `pyproject.toml`. Run
-  `make lint` before committing.
+  [basedpyright](https://docs.basedpyright.com/). Tool settings live in
+  `pyproject.toml`; project-owned uv settings live in `uv.toml`. Run `make lint` before
+  committing.
 
-- **Dependencies**: add with `uv add --exclude-newer "14 days"` (runtime) or
-  `uv add --dev --exclude-newer "14 days"` (dev).
+- **Dependencies**: add with `UV_CONFIG_FILE=uv.toml uv add --exclude-newer "14 days"`
+  (runtime) or `UV_CONFIG_FILE=uv.toml uv add --dev --exclude-newer "14 days"` (dev).
   Commit `uv.lock`. Don’t use pip, poetry, or requirements.txt.
 
 - **Versioning**: the version comes from git tags via dynamic versioning; never edit a

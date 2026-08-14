@@ -1,6 +1,6 @@
 # Feature: Agent Skill and Template Modernization
 
-**Date:** 2026-06-11 (last updated 2026-06-11, post-implementation)
+**Date:** 2026-06-11 (last updated 2026-08-14, post-implementation)
 
 **Author:** Joshua Levy (with agent assistance)
 
@@ -366,6 +366,13 @@ self-validating. `updating.md` is updated to reflect the new split.
 - Check `astral-sh/setup-uv` for a newer immutable tag.
 - Appendix A’s action items capture anything structural uv has added that the template
   should adopt or explicitly decline.
+
+**2026-08-14 follow-up:** the next focused currency cycle advances the eligible uv pin
+to 0.12.0, reviews the 0.12 compatibility changes, updates the supporting tool and
+action pins, and strengthens portable CI lockfile validation.
+See the
+[v0.5.0 supply-chain manifest](../../research/research-v0.5.0-supply-chain-manifest.md)
+and the maintained [uv changes research](../../research/research-uv-changes.md).
 
 ### D7. basedpyright stays; refresh the research doc
 

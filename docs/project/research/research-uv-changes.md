@@ -1,6 +1,6 @@
 # Research: uv Changes Relevant to This Template
 
-**Last updated:** 2026-07-12
+**Last updated:** 2026-08-14
 
 **Author:** Joshua Levy (with agent assistance)
 
@@ -12,10 +12,11 @@ This template was created in March 2025, when uv was on 0.6.x. This living doc t
 uv’s evolution since then, focused on what matters to the template: defaults, build
 backends, publishing, supply-chain features, and anything that would change the
 template’s recommendations.
-At the v0.4.0 dependency freeze (2026-07-13T03:27:33Z), the latest uv was **0.11.28**.
-The template pins **0.11.25**, the newest version clearing the exact 14-day supply-chain
-cutoff. See the [release manifest](research-v0.4.0-supply-chain-manifest.md) for dates
-and provenance.
+At the v0.5.0 dependency freeze (2026-08-14T18:59:05Z), the latest uv was **0.12.4**.
+The template pins **0.12.0**, the newest version clearing the exact 14-day supply-chain
+cutoff. Version 0.12.1 missed the cutoff by 44 minutes, so it remains deferred with the
+newer patches. See the [release manifest](research-v0.5.0-supply-chain-manifest.md) for
+dates and provenance.
 
 ## Timeline of Notable Changes
 
@@ -39,15 +40,26 @@ and provenance.
   `uv workspace list/dir` stabilized.
   `uv venv` requires `--clear` to overwrite.
   `uv format` moved to Ruff 0.15 and the 2026 style.
-- **0.11.x (Mar 2026–now)**: TLS moved to OS-native verification (`--native-tls`
+- **0.11.x (Mar–Jul 2026)**: TLS moved to OS-native verification (`--native-tls`
   deprecated in favor of `--system-certs`). **`uv audit`** (preview; announced
   2026-06-08): scans `uv.lock` against the OSV database, with
   `--ignore`/`--ignore-until-fixed`. Opt-in **malware checks** on `uv add`/`uv sync` via
   `UV_MALWARE_CHECK=1` (0.11.16+). **`uv check`** (0.11.18, preview): runs Astral’s ty
   type checker. Python 3.15 betas are available in managed downloads; 3.15 final is
-  expected around October 2026. **0.11.25 hardens tar handling** against parser
-  differentials and rejects malformed or ambiguous source distributions that older uv
-  versions could accept.
+  expected around October 2026. **0.11.25 and 0.11.28 harden archive handling** against
+  parser differentials.
+  Versions 0.11.29–0.11.33 add JSON output to `uv tree`, improve frozen-sync and
+  `exclude-newer` performance, add `uv lock --refresh`, tighten path and credential
+  handling, and extend the preview audit/malware/type-checking commands.
+- **0.12.x (Jul 2026–now)**: existing projects keep their build backend, while newly
+  initialized packages use `uv_build`. The resolver now prefers stable releases and
+  falls back to prereleases only when necessary.
+  Hash directives, archive and wheel paths, `pylock.toml`, project paths, and publish
+  filenames receive stricter validation; MD5-only hash checking is rejected.
+  `uv run path/to/script.py` discovers the project relative to the script, and Python
+  upgrade/reinstall flags and dependency-group names are validated more consistently.
+  These changes do not require a template migration, but they strengthen its existing
+  locked build and publish paths.
 
 (Compiled from uv release notes and the Astral blog; re-verify details against the
 [changelog](https://github.com/astral-sh/uv/blob/main/CHANGELOG.md) when updating this
@@ -62,23 +74,30 @@ doc.)
    Revisit if uv grows native dynamic versioning.
    The build backends are exact-pinned and mirrored in a locked `build` dependency
    group; release builds use `--no-build-isolation` so `uv.lock` covers the build graph.
-2. **`[tool.uv] required-version = ">=0.9"`** (adopted): fails fast on uv versions that
-   predate relative-duration `UV_EXCLUDE_NEWER`. The same `[tool.uv]` table sets
-   `exclude-newer = "14 days"` so direct uv commands, not only Makefile and CI paths,
-   inherit the policy.
-3. **Watch `uv audit` and `UV_MALWARE_CHECK`**: `uv audit` is old enough to use as an
-   additional release-time check, but remains preview functionality in 0.11.25. Do not
+2. **Keep resolution policy in a checked-in `uv.toml`** (adopted):
+   `required-version = ">=0.9"` fails fast on versions that predate relative-duration
+   cutoffs, and `exclude-newer = "14 days"` supplies the safe default.
+   The Makefile and CI set `UV_CONFIG_FILE=uv.toml` so uv uses this file exclusively
+   instead of merging user- or system-level settings into `uv.lock`.
+3. **Watch `uv audit` and malware checking**: `uv audit` is old enough to use as an
+   additional release-time check, but remains preview functionality in 0.12.0. Do not
    make a preview command part of generated-project CI until it stabilizes.
-   Continue watching the opt-in malware check for the same reason.
+   Continue watching the opt-in malware-check settings for the same reason.
 4. **Keep `devtools/lint.py` over `uv format`/`uv check`** (decision).
    One command runs codespell, ruff check, ruff format, and basedpyright together, which
    neither uv command covers; `uv check` is also ty-based and preview (see the
    [type-checker research doc](research-python-type-checkers.md)).
 5. **Python 3.15**: add to the CI matrix and classifiers when final (~Oct 2026).
 6. **uv pin currency**: bump the pinned uv in `template/.github/workflows/*` at each
-   update cycle to the newest version clearing the 14-day cool-off (0.11.25 at the
-   v0.4.0 freeze). Update the setup-uv action and official platform checksum in the same
+   update cycle to the newest version clearing the 14-day cool-off (0.12.0 at the v0.5.0
+   freeze). Update the setup-uv action and official platform checksum in the same
    reviewed change.
+7. **Use `uv sync --locked` in CI and publishing** (adopted).
+   `--locked` installs from `uv.lock` and fails when `pyproject.toml` would change it.
+   `--frozen` skips that freshness check, so it can hide an uncommitted lockfile update
+   and is not the right verification contract for committed project metadata.
+   Selecting the project-owned `uv.toml` exclusively also makes the check portable
+   across machines with different user-level uv settings.
 
 <!-- This document follows common-doc-guidelines.md.
 See github.com/jlevy/practical-prose and review guidelines before editing.
