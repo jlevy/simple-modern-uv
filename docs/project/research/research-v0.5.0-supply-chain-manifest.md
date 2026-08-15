@@ -131,7 +131,8 @@ Local validation produced these outcomes:
 2. `uv audit --locked` reports no known vulnerabilities or adverse project statuses in
    the 24 third-party packages.
 3. Fresh default, no-publish/proprietary, and no-license renders have the expected file,
-   license, classifier, and workflow shapes.
+   license, classifier, and workflow shapes, and their rendered Markdown passes Flowmark
+   0.3.2.
 4. The Python 3.12 default render installs, passes codespell/Ruff/BasedPyright and
    pytest, and builds its sdist and wheel through the locked non-isolated Hatchling
    path. An intentionally unformatted Python fence under `tests/` verifies that Ruff
