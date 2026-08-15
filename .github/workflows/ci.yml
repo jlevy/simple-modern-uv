@@ -121,6 +121,7 @@ jobs:
           grep -q 'UV_CONFIG_FILE := .*uv.toml' Makefile
           grep -q '@AGENTS.md' CLAUDE.md
           test -f .copier-answers.yml
+          uvx flowmark-rs@0.3.2 --auto --check .
 
       - name: Init git and install (the documented setup sequence)
         # Mirrors the next-steps the template prints: commit first, then sync, so
