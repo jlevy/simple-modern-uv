@@ -33,6 +33,17 @@ a managed interpreter; pin one for the project with
 `UV_CONFIG_FILE=uv.toml uv python pin 3.12` (writes `.python-version`). If uv itself
 errors with “required-version”, upgrade uv: the template supports the reviewed uv 0.12
 line (`>=0.12.0,<0.13`), matching its pinned CI toolchain.
+Versions older than uv 0.9.17 may instead fail while parsing the relative duration
+`"14 days"`, before they can report the project’s required version.
+Treat that parse error the same way and upgrade uv first.
+
+## Ruff Rewrites Python Blocks in Markdown
+
+Ruff 0.16 and later include Markdown by default and can format Python code fences.
+The template gives Flowmark ownership of Markdown and sets
+`[tool.ruff] extend-exclude = ["*.md"]` so the tools do not compete.
+Add that setting when updating a project that adopted Ruff separately or predates this
+template policy.
 
 ## BasedPyright Erupts with Hundreds of Errors on Legacy Code
 

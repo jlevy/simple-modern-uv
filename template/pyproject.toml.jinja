@@ -106,6 +106,8 @@ packages = ["src/{{ package_module }}"]
 [tool.ruff]
 # Set as desired, typically 88 (black standard) or 100 (wide).
 line-length = 100
+# Flowmark owns Markdown formatting; Ruff owns Python source formatting.
+extend-exclude = ["*.md"]
 
 [tool.ruff.lint]
 select = [

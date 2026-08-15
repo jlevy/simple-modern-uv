@@ -31,7 +31,7 @@ packages by implication.
 | Flowmark | 0.3.1 | **Update to [0.3.2](https://github.com/jlevy/flowmark-rs/releases/tag/v0.3.2)** | 2026-07-15 | Current eligible canonical release; formatter behavior is covered by `make format-check` |
 | pytest | >=9.1.1 | Keep >=9.1.1 | 2026-06-19 | Already latest |
 | pytest-sugar | >=1.1.1 | Keep >=1.1.1 | 2025-08-23 | Already latest |
-| Ruff | >=0.15.20 | **Raise to [>=0.16.1](https://github.com/astral-sh/ruff/releases/tag/0.16.1)** | 2026-07-30 | New default rules and Markdown formatting reviewed; explicit template rule selection isolates the lint default, with render linting as the compatibility gate |
+| Ruff | >=0.15.20 | **Raise to [>=0.16.1](https://github.com/astral-sh/ruff/releases/tag/0.16.1)** | 2026-07-30 | Markdown formatting is a new default; exclude `*.md` so Flowmark retains ownership, with a rendered regression fixture as the compatibility gate |
 | codespell | >=2.4.2 | **Raise to [>=2.4.3](https://github.com/codespell-project/codespell/releases/tag/v2.4.3)** | 2026-07-15 | Packaging fix, new ignore controls, and dictionary maintenance |
 | Rich | >=15.0.0 | Keep >=15.0.0 | 2026-04-12 | Already latest |
 | basedpyright | >=1.39.9 | Keep >=1.39.9 | 2026-06-27 | 1.39.10 is after the cutoff |
@@ -134,7 +134,8 @@ Local validation produced these outcomes:
    license, classifier, and workflow shapes.
 4. The Python 3.12 default render installs, passes codespell/Ruff/BasedPyright and
    pytest, and builds its sdist and wheel through the locked non-isolated Hatchling
-   path.
+   path. An intentionally unformatted Python fence under `tests/` verifies that Ruff
+   leaves Markdown to Flowmark.
 5. `uv sync --locked` rejects an intentionally stale `pyproject.toml` with the expected
    lockfile-update error.
 6. A lock produced with an explicitly selected `uv.toml` passes `--locked` under both

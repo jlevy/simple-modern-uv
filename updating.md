@@ -41,7 +41,12 @@ A merge followed immediately by a tag skips that gate, the reviewed release note
 verification that the public tag reproduces the validated commit.
 
 The commands below assume the downstream repo is cloned next to this repo as
-`../simple-modern-uv-template`.
+`../simple-modern-uv-template`. They also require a GitHub CLI release whose
+`gh run list` command supports `--commit`. Check that capability before starting:
+
+```shell
+gh run list --help | grep -q -- '--commit'
+```
 
 ### Releasing Without Downstream Access
 
@@ -225,6 +230,11 @@ projects keep updating cleanly:
    updates to the candidate, asserting convergence with a fresh render and that `--data`
    overrides are honored.
 5. **Call it out in release notes**, naming the new keys and their defaults.
+
+The update-path job guarantees the single jump from the most recent release to the
+candidate. For a project more than one release behind, update one release tag at a time
+and validate each hop; a direct multi-release jump is best-effort rather than covered by
+this gate.
 
 Then auto-format all docs so formatting stays consistent (CI’s `format-check` job
 enforces this):

@@ -141,6 +141,9 @@ jobs:
         run: |
           cd /tmp/render
           export UV_CONFIG_FILE="$PWD/uv.toml"
+          mkdir -p tests/review-fixtures
+          cp "$GITHUB_WORKSPACE/.github/fixtures/ruff-markdown-input.txt" \
+            tests/review-fixtures/ruff-markdown.md
           uv run python devtools/lint.py --check
           uv run pytest
           git tag v0.1.0

@@ -1,0 +1,8 @@
+# Ruff Markdown Review Fixture
+
+This fixture contains a deliberately unformatted Python fence. Template CI copies it
+under `tests/` with a `.md` extension to prove that Ruff leaves Markdown to Flowmark.
+
+```python
+values={"one":1,"two":2}
+```

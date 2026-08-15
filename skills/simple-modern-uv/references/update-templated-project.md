@@ -29,6 +29,10 @@ Inspect the complete diff.
 Resolve every `*.rej` file and conflict marker while preserving the project’s intent.
 Check the template release notes, but treat the actual rendered diff as the change under
 review.
+Once the update supplies `uv.toml` and explicit `UV_CONFIG_FILE` settings, remove
+any legacy `UV_NO_CONFIG` environment variables or command wrappers.
+Those workarounds disable the project policy that now owns the required uv version and
+cooling-off window.
 
 ## Verify and Report
 
