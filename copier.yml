@@ -11,7 +11,7 @@ _message_after_copy: |
     Remember to look for any unfilled `changeme` strings!
     The license and publishing setup follow your package_license and
     publish_to_pypi answers; change them later with, e.g.:
-    uvx --exclude-newer "14 days" copier@9.16.0 update --data package_license=Apache-2.0
+    uvx --exclude-newer "14 days" copier@9.17.0 update --data package_license=Apache-2.0
 
     Next steps:
 
@@ -21,7 +21,7 @@ _message_after_copy: |
     git commit -m "Initial commit from simple-modern-uv."
     # Sync after the first commit so dynamic versioning gives the editable
     # install a real version (not 0.0.0). This creates uv.lock; commit it so
-    # CI installs reproducibly with --frozen.
+    # CI installs reproducibly with --locked and verifies this file is current.
     make install
     git add uv.lock
     git commit -m "Add uv.lock."

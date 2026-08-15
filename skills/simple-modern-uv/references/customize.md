@@ -4,6 +4,8 @@ Common customizations after (or during) setup.
 Where a customization maps to a template question, prefer answering the question over
 hand-editing: hand edits to template-managed files can be reverted by a later
 `copier update` (see “Reconciling New Questions on Update” below).
+For selective adoption without `.copier-answers.yml`, edit the project normally and
+record the choice as an adaptation; Copier does not own those files.
 
 ## Changing the License
 
@@ -12,7 +14,7 @@ Preferred: set the `package_license` answer (`MIT`, `Apache-2.0`, `BSD-3-Clause`
 re-answer it later with:
 
 ```bash
-uvx --exclude-newer "14 days" copier@9.16.0 update --data package_license=Apache-2.0
+uvx --exclude-newer "14 days" copier@9.17.0 update --data package_license=Apache-2.0
 ```
 
 This updates the `LICENSE` file and the `license` field in `pyproject.toml` together,
@@ -50,7 +52,7 @@ visibly deviates from a fresh render, make the answer explicit.
 ## Apps and CLIs (vs. Libraries)
 
 - Entry points live in `[project.scripts]`: `mycli = "my_module.cli:main"`; then
-  `uv run mycli` works and installs expose the command.
+  `UV_CONFIG_FILE=uv.toml uv run mycli` works and installs expose the command.
 - An app that’s not a library usually wants `publish_to_pypi=false`; it still gets the
   full dev workflow.
 - For a long-lived service, consider pinning the Python version with a `.python-version`

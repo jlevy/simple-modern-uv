@@ -18,7 +18,7 @@ actions rather than telling them to run commands.
 
 <!-- END TBD INTEGRATION -->
 
-## Build & Test
+## Build and Test
 
 This is a [Copier](https://copier.readthedocs.io) template repo, not a Python project
 itself; there is no `pyproject.toml` to sync at the root.
@@ -30,10 +30,20 @@ make format
 make format-check
 
 # Render the template non-interactively (smoke test):
-uvx --exclude-newer "14 days" copier@9.16.0 copy --defaults --vcs-ref=HEAD \
+SMOKE_DIR=$(mktemp -d)
+uvx --exclude-newer "14 days" copier@9.17.0 copy --defaults --vcs-ref=HEAD \
   --data package_name=smoke-test \
-  --data package_github_org=testorg . /tmp/smoke-test
-# Then inside the render: make install && make lint-check && make test
+  --data package_github_org=testorg . "$SMOKE_DIR"
+
+# Dynamic versioning needs an initial commit before installation:
+cd "$SMOKE_DIR"
+git init --initial-branch=main
+git add .
+git -c user.name=Smoke -c user.email=smoke@example.com \
+  commit -m "Initial commit"
+make install
+make lint-check
+make test
 ```
 
 ## Architecture Overview
@@ -44,14 +54,25 @@ uvx --exclude-newer "14 days" copier@9.16.0 copy --defaults --vcs-ref=HEAD \
   use, not this repo.
 - `copier.yml`: template questions and validation; the single source of truth for
   template variables.
-- `updating.md`: the full maintenance and release flow (downstream
+- [`skills/simple-modern-uv/`](skills/simple-modern-uv/): the portable agent workflow
+  bundle. Its [`SKILL.md`](skills/simple-modern-uv/SKILL.md) is the concise router; the
+  one-level `references/` files own the new, selective, migration, and update
+  procedures. Keep README discovery and generated agent guidance aligned with these
+  routes.
+- [`updating.md`](updating.md): the full maintenance and release flow (downstream
   `jlevy/simple-modern-uv-template` repo is the release gate).
-- `docs/project/`: research docs and plan specs for this repo.
+- [`docs/project/`](docs/project/README.md): maintainer research, frozen release
+  evidence, and implementation records.
 
-## Conventions & Patterns
+## Conventions and Patterns
 
-- Follow the supply-chain rules in `updating.md`: 14-day cooling-off before adopting new
-  releases, pinned tool versions, `UV_EXCLUDE_NEWER` in workflows.
+- Follow the [supply-chain rules](updating.md#supply-chain-hygiene): 14-day cooling-off
+  before adopting new releases, pinned tool versions, and `UV_EXCLUDE_NEWER` in
+  workflows.
 - Markdown is formatted with flowmark via `make format`; run it before committing doc
   changes.
 - Docs follow common-doc-guidelines (see footer comments in each doc).
+
+<!-- This document follows common-doc-guidelines.md.
+See github.com/jlevy/practical-prose and review guidelines before editing.
+-->

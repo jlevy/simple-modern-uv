@@ -23,14 +23,27 @@ No git tag yet: dynamic versioning derives the version from the latest `v*` tag.
   `fetch-depth: 0` (the template’s workflows do) so tags are available.
 - `importlib.metadata` still reports an old version after committing or tagging: the
   editable install’s metadata is captured at sync time and uv won’t refresh it on its
-  own. Run `uv sync --reinstall-package <module>` (and sync only after the first commit
-  on new projects).
+  own. Run `UV_CONFIG_FILE=uv.toml uv sync --reinstall-package <module>` (and sync only
+  after the first commit on new projects).
 
 ## `uv sync` Fails on Python Version
 
-The template requires Python 3.11+. `uv python install` downloads a managed interpreter;
-pin one for the project with `uv python pin 3.12` (writes `.python-version`). If uv
-itself errors with “required-version”, upgrade uv: the template requires uv >= 0.9.
+The template requires Python 3.11+. `UV_CONFIG_FILE=uv.toml uv python install` downloads
+a managed interpreter; pin one for the project with
+`UV_CONFIG_FILE=uv.toml uv python pin 3.12` (writes `.python-version`). If uv itself
+errors with “required-version”, upgrade uv: the template supports the reviewed uv 0.12
+line (`>=0.12.0,<0.13`), matching its pinned CI toolchain.
+Versions older than uv 0.9.17 may instead fail while parsing the relative duration
+`"14 days"`, before they can report the project’s required version.
+Treat that parse error the same way and upgrade uv first.
+
+## Ruff Rewrites Python Blocks in Markdown
+
+Ruff 0.16 and later include Markdown by default and can format Python code fences.
+The template gives Flowmark ownership of Markdown and sets
+`[tool.ruff] extend-exclude = ["*.md"]` so the tools do not compete.
+Add that setting when updating a project that adopted Ruff separately or predates this
+template policy.
 
 ## BasedPyright Erupts with Hundreds of Errors on Legacy Code
 
@@ -62,7 +75,7 @@ commit or stash first.
 The project predates the `publish_to_pypi` and `package_license` questions and the
 update filled them with defaults.
 Re-run the update passing the project’s reality, e.g.
-`uvx --exclude-newer "14 days" copier@9.16.0 update --data publish_to_pypi=false`, and
+`uvx --exclude-newer "14 days" copier@9.17.0 update --data publish_to_pypi=false`, and
 see “Reconciling New Questions on Update” in [customize.md](customize.md).
 
 ## Publish Workflow Fails with OIDC or Permission Errors
@@ -73,16 +86,19 @@ Follow `docs/publishing.md` in the project; no API tokens are needed.
 
 ## Lockfile Resolution Seems Stale or Refuses a Brand-New Release
 
-`UV_EXCLUDE_NEWER` (set in the template’s CI) enforces a 14-day supply-chain cooling-off
-window, so releases newer than that are deliberately invisible.
-This is a feature; don’t remove it to get a day-old package.
-Locally, leave the variable unset for normal work, or set it to match CI when debugging
-resolution differences.
+The checked-in `uv.toml` sets a 14-day supply-chain cooling-off window, so releases
+newer than that are deliberately invisible.
+The Makefile and CI select that file with `UV_CONFIG_FILE`; CI also sets the equivalent
+`UV_EXCLUDE_NEWER` value.
+This is a feature; don’t remove it to get a day-old package or let ambient user settings
+change the lock. Use the project’s standard commands when debugging resolution
+differences; make any reviewed exception an explicit, documented per-invocation
+override.
 
 ## Tests Pass Locally but CI Fails on a Python Version
 
 The CI matrix runs 3.11–3.14. Most failures are version-specific syntax/stdlib use; run
-the failing version locally with `uv run --python 3.11 pytest`.
+the failing version locally with `UV_CONFIG_FILE=uv.toml uv run --python 3.11 pytest`.
 
 <!-- This document follows common-doc-guidelines.md.
 See github.com/jlevy/practical-prose and review guidelines before editing.

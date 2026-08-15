@@ -15,10 +15,13 @@ permissions:
   contents: read
 
 env:
+  # Use only the checked-in resolution policy so ambient runner configuration cannot
+  # make uv.lock appear stale or alter dependency selection.
+  UV_CONFIG_FILE: uv.toml
   # Supply-chain cool-off: only consider releases older than this, so CI never
-  # resolves packages too new to have been vetted. uv (>= 0.9, and the version
-  # pinned below) accepts a relative duration directly. See the Supply Chain
-  # Hardening section in docs/development.md.
+  # resolves packages too new to have been vetted. The uv 0.12 line required by
+  # uv.toml and pinned below accepts a relative duration directly. See the Supply
+  # Chain Hardening section in docs/development.md.
   UV_EXCLUDE_NEWER: "14 days"
 
 jobs:
@@ -40,7 +43,7 @@ jobs:
       - name: Checkout (official GitHub action)
         # Pinned to a full commit SHA (see supply-chain notes in
         # docs/development.md); bump deliberately when updating.
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           # Important for versioning plugins:
           fetch-depth: 0
@@ -49,13 +52,16 @@ jobs:
       - name: Install uv (official Astral action)
         # Pinned to a full commit SHA. Bump the action, uv version, and Linux
         # checksum together when updating.
-        uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
+        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
         with:
           # Update this as needed:
-          version: "0.11.25"
+          version: "0.12.0"
           # uv-x86_64-unknown-linux-gnu; update for another matrix OS/arch.
-          checksum: "1db18b5e76fa645a7f3865773139bdec8e2d46adbdbb35e7410b34fa8015ccd2"
+          checksum: "eaf842262aa1c418d8ecc5605f02ee1ebfd369124fa48548e85f9481a47831a9"
           enable-cache: true
+          # Retain downloaded wheels in the shared cache to reduce PyPI load.
+          # This is setup-uv v9's default, made explicit for future upgrades.
+          prune-cache: false
           python-version: ${{ matrix.python-version }}
 
       - name: Set up Python (using uv)
@@ -69,9 +75,9 @@ jobs:
       #     python-version: ${{ matrix.python-version }}
 
       - name: Install all dependencies
-        # --frozen: install exactly from the committed uv.lock, never re-resolving
-        # (UV_EXCLUDE_NEWER, set above, governs any resolution that does happen).
-        run: uv sync --all-extras --all-groups --frozen
+        # --locked: install from uv.lock and fail if pyproject.toml made it stale.
+        # (UV_EXCLUDE_NEWER, set above, governs any resolution that does happen.)
+        run: uv sync --locked --all-extras --all-groups
 
       - name: Run linting
         # Check-only mode so CI fails on unformatted code instead of fixing it.

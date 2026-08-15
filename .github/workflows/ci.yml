@@ -17,9 +17,9 @@ permissions:
 env:
   # Pinned tool versions used to exercise the template. Keep the uv version in
   # sync with template/.github/workflows/ci.yml when updating.
-  UV_VERSION: "0.11.25"
-  UV_CHECKSUM: "1db18b5e76fa645a7f3865773139bdec8e2d46adbdbb35e7410b34fa8015ccd2"
-  COPIER_SPEC: "copier@9.16.0"
+  UV_VERSION: "0.12.0"
+  UV_CHECKSUM: "eaf842262aa1c418d8ecc5605f02ee1ebfd369124fa48548e85f9481a47831a9"
+  COPIER_SPEC: "copier@9.17.0"
   # Default answers for test renders.
   RENDER_ARGS: >-
     --data package_name=smoke-test
@@ -32,13 +32,14 @@ jobs:
   format-check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
+      - uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
         with:
           version: ${{ env.UV_VERSION }}
           checksum: ${{ env.UV_CHECKSUM }}
+          enable-cache: false
       - name: Check doc formatting
         run: make format-check
 
@@ -58,15 +59,18 @@ jobs:
       # template's own CI and the Makefile default (see updating.md).
       UV_EXCLUDE_NEWER: "14 days"
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
           persist-credentials: false
-      - uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
+      - uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
         with:
           version: ${{ env.UV_VERSION }}
           checksum: ${{ env.UV_CHECKSUM }}
           enable-cache: true
+          # setup-uv v9 defaults to retaining wheels to reduce PyPI load. Keep
+          # that tradeoff explicit so a future action default cannot change it.
+          prune-cache: false
           python-version: "3.12"
 
       - name: Render template (${{ matrix.variant }})
@@ -85,6 +89,13 @@ jobs:
               head -1 LICENSE | grep -q "MIT License"
               # Only the commented-out form may appear in the default render:
               ! grep -qE '^\s*"Private :: Do Not Upload",' pyproject.toml
+              grep -q 'uv sync --locked --all-extras --all-groups' \
+                .github/workflows/ci.yml
+              grep -q 'uv sync --locked --all-extras --all-groups' \
+                .github/workflows/publish.yml
+              grep -q 'UV_CONFIG_FILE: uv.toml' .github/workflows/ci.yml
+              grep -q 'UV_CONFIG_FILE: uv.toml' .github/workflows/publish.yml
+              grep -q 'enable-cache: false' .github/workflows/publish.yml
               ;;
             no-publish-proprietary)
               test ! -e .github/workflows/publish.yml
@@ -101,6 +112,13 @@ jobs:
           esac
           test -f AGENTS.md
           test -f CLAUDE.md
+          test -f uv.toml
+          grep -q '## Working with a Coding Agent' README.md
+          grep -q 'simple-modern-uv/tree/main/skills/simple-modern-uv' AGENTS.md
+          grep -q 'required-version = ">=0.12.0,<0.13"' uv.toml
+          grep -q 'exclude-newer = "14 days"' uv.toml
+          ! grep -q '^\[tool\.uv\]' pyproject.toml
+          grep -q 'UV_CONFIG_FILE := .*uv.toml' Makefile
           grep -q '@AGENTS.md' CLAUDE.md
           test -f .copier-answers.yml
 
@@ -109,10 +127,12 @@ jobs:
         # dynamic versioning gives the editable install a real version.
         run: |
           cd /tmp/render
+          export UV_CONFIG_FILE="$PWD/uv.toml"
           git init -q --initial-branch=main
           git add -A
           git -c user.email=ci@example.com -c user.name=CI commit -qm "Initial commit"
           uv sync --all-extras --all-groups
+          uv sync --locked --all-extras --all-groups
           V=$(uv run python -c "from importlib.metadata import version; print(version('smoke-test'))")
           echo "installed version: $V"
           test "$V" != "0.0.0"
@@ -120,6 +140,10 @@ jobs:
       - name: Lint, test, build
         run: |
           cd /tmp/render
+          export UV_CONFIG_FILE="$PWD/uv.toml"
+          mkdir -p tests/review-fixtures
+          cp "$GITHUB_WORKSPACE/.github/fixtures/ruff-markdown-input.txt" \
+            tests/review-fixtures/ruff-markdown.md
           uv run python devtools/lint.py --check
           uv run pytest
           git tag v0.1.0
@@ -135,14 +159,15 @@ jobs:
     env:
       UV_EXCLUDE_NEWER: "14 days"
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
           persist-credentials: false
-      - uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
+      - uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
         with:
           version: ${{ env.UV_VERSION }}
           checksum: ${{ env.UV_CHECKSUM }}
+          enable-cache: false
 
       - name: Render from previous release tag
         run: |
@@ -185,7 +210,7 @@ jobs:
   skill-validate:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
       - name: Validate skill structure and frontmatter
@@ -193,6 +218,8 @@ jobs:
           NPM_CONFIG_IGNORE_SCRIPTS: "true"
           NPM_CONFIG_BEFORE: "2026-06-29T03:27:33Z"
         run: npx --yes skills-ref@0.1.5 validate skills/simple-modern-uv
+      - name: Check agent installation selects this repository's public skill
+        run: grep -q -- '--skill simple-modern-uv --yes' README.md
       - name: Check that relative links in skill docs resolve
         run: |
           cd skills/simple-modern-uv

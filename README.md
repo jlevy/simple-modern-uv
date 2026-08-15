@@ -10,48 +10,70 @@ Appropriately enough, the comic is out of date.)
 [![uv](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json)](https://github.com/astral-sh/uv)
 [![Copier](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/copier-org/copier/master/img/badge/badge-grayscale-border.json)](https://github.com/copier-org/copier)
 
-## What is This?
+## What Is This?
 
 **simple-modern-uv** is a minimal, modern **Python project template** for new projects
 (Python 3.11–3.14) based on [**uv**](https://docs.astral.sh/uv/). This template aims to
 be a good base for serious work but also simple so it’s an easy option for any small
 project, like an open source library or tool.
 It can also upgrade an existing project to a modern setup: uv, ruff, BasedPyright, and
-GitHub Actions. The [agent skill](#agent-quick-start) walks you through either workflow.
+GitHub Actions, or add only the practices that fit without forcing a full migration.
+The [agent skill](#use-with-any-coding-agent) handles each adoption path.
 
-## Agent Quick Start
+## Use with Any Coding Agent
 
-The fastest way to use this template is through your AI coding agent.
-Install the [skill](skills/simple-modern-uv/SKILL.md) (the
-[Agent Skills](https://agentskills.io) open standard, so it works with Claude Code,
-Codex, Cursor, Gemini CLI, and 50+ other agents):
+Install the [simple-modern-uv skill bundle](skills/simple-modern-uv/SKILL.md) with the
+[skills CLI](https://github.com/vercel-labs/skills), then appoint your coding agent to
+do the work. The bundle follows the [Agent Skills](https://agentskills.io) open format;
+the installer supports Claude Code, Codex, Cursor, Gemini CLI, and other compatible
+agents:
 
 ```shell
-NPM_CONFIG_IGNORE_SCRIPTS=true NPM_CONFIG_BEFORE=2026-06-29T03:27:33Z \
-  npx --yes skills@1.5.13 add jlevy/simple-modern-uv
+NPM_CONFIG_IGNORE_SCRIPTS=true NPM_CONFIG_BEFORE=2026-07-31T18:59:05Z \
+  npx --yes skills@1.5.18 add jlevy/simple-modern-uv \
+    --skill simple-modern-uv --yes
 ```
 
-Then tell your agent what you want, for example:
+Then describe the outcome rather than translating it into template commands:
 
-- “Start a new Python project called my-package using simple-modern-uv.”
-- “Upgrade this repo to follow simple-modern-uv best practices.”
-- “Update this project to the latest simple-modern-uv template.”
+| Goal | Example prompt | Result |
+| --- | --- | --- |
+| Start fresh | “Start a new Python project called `my-package` using simple-modern-uv.” | A complete, template-managed project |
+| Add features ad hoc | “Add simple-modern-uv’s uv lock policy and CI to this repo, but keep its build backend.” | Only the selected, compatible feature bundles |
+| Upgrade a project | “Migrate this package from Poetry to simple-modern-uv and preserve its public behavior.” | A full migration with future Copier updates |
+| Update later | “Update this project to the latest simple-modern-uv template.” | Upstream changes reconciled with local adaptations |
 
-No installer handy? Paste this into any agent instead:
+No installer handy? Tell the agent to fetch the
+[`SKILL.md`](skills/simple-modern-uv/SKILL.md) and the directly linked reference for the
+selected workflow from the same Git revision, then follow them.
 
-> Fetch
-> https://raw.githubusercontent.com/jlevy/simple-modern-uv/main/skills/simple-modern-uv/SKILL.md
-> and follow it to
-> [start a new Python project / upgrade this repo / update this project].
+### Adopt Only What Fits
+
+The skill treats conformance as a design choice, not a pass/fail label:
+
+- **Selective adoption** adds named capabilities without changing unrelated project
+  choices or claiming Copier ownership.
+- **Core toolchain adoption** adds uv, reproducible locking, linting, typing, tests, CI,
+  and agent guidance while preserving packaging or layout where appropriate.
+- **Full template-managed adoption** uses the rendered structure and
+  `.copier-answers.yml` so future `copier update` runs work.
+
+The agent first audits the repository, then reports what it will adopt unchanged, adapt
+to local constraints, preserve, or defer.
+Changes to supported Python versions, package layout, build backend, versioning,
+licensing, publishing, or CI remain explicit user decisions.
+See the procedures for
+[selective adoption](skills/simple-modern-uv/references/adopt-selectively.md),
+[full migration](skills/simple-modern-uv/references/adopt-existing.md),
+[new projects](skills/simple-modern-uv/references/start-new-project.md), and
+[template updates](skills/simple-modern-uv/references/update-templated-project.md).
 
 Generated projects are agent-ready too: each includes an
-[`AGENTS.md`](template/AGENTS.md.jinja) following the [agents.md](https://agents.md)
-standard (read natively by Codex, Cursor, Copilot, Gemini CLI, and others) with the
-project’s build/test commands and conventions, plus a [`CLAUDE.md`](template/CLAUDE.md)
-that imports it for Claude Code.
+[`AGENTS.md`](template/AGENTS.md.jinja) following the [AGENTS.md](https://agents.md)
+standard, with the project’s build, test, and development conventions, plus a
+[`CLAUDE.md`](template/CLAUDE.md) that imports it for Claude Code.
 
-For non-agent options, scroll down to
-[How to Use This Template](#how-to-use-this-template).
+To work without an agent, see [How to Use This Template](#how-to-use-this-template).
 
 ## Why a New Python Project Template?
 
@@ -123,9 +145,9 @@ discussed next.)
 One other benefit of this template is it uses
 [**copier**](https://github.com/copier-org/copier).
 
-Unlike with many previous project template tools, Copier allows you
-[pull future changes](#updating-your-project-template) to a template back into your
-instantiated copy any time.
+Unlike many previous project template tools, Copier lets you
+[pull future template changes](#updating-your-project-template) back into your
+instantiated copy at any time.
 
 You can start a project now, then if this template improves or is updated with other
 tools, you can pull those improvements back into your project, much like a git merge.
@@ -135,10 +157,10 @@ maintain it yourself.
 If you’re not familiar with Copier, take a moment to understand the
 [update feature](#updating-your-project-template).
 Then the options below will make sense.
-I put a few more thoughts on why a workflow like this is underrated is in
+I put a few more thoughts on why a workflow like this is underrated in
 [a Twitter thread](https://x.com/ojoshe/status/1896696860297019733).
 
-## What Tools are In This Template?
+## What Tools Are in This Template?
 
 simple-modern-uv uses the tools I’ve come to think are best for new projects:
 
@@ -293,7 +315,7 @@ License and publishing are template questions, not hand edits: `package_license`
 decide later) and `publish_to_pypi` (answer no for a private package; the publish
 workflow and docs are then omitted).
 Answer them at render time or change them later with
-`uvx --exclude-newer "14 days" copier@9.16.0 update --data package_license=…`; see the
+`uvx --exclude-newer "14 days" copier@9.17.0 update --data package_license=…`; see the
 skill’s [customize guide](skills/simple-modern-uv/references/customize.md) for details.
 Prefer re-answering over hand-deleting generated files like `publish.yml`, so future
 `copier update` runs stay consistent.
@@ -305,13 +327,11 @@ Option 3 is handy if you prefer a GitHub template.
 
 ### Option 1: Use Your Agent (Recommended)
 
-Install the [agent skill](skills/simple-modern-uv/SKILL.md) and ask your agent; see
-[Agent Quick Start](#agent-quick-start) above for the exact commands and prompts.
-The skill covers three workflows: creating a **new project**, **upgrading an existing
-Python package** to this template’s structure and tooling (including migrations from
-Poetry, setuptools/pip, or PDM), and **updating** a project already built from this
-template. Your agent collects the essentials (name, description, license, whether you
-publish to PyPI) and handles the rest non-interactively.
+Install the [agent skill](skills/simple-modern-uv/SKILL.md) and ask your agent.
+[Use with Any Coding Agent](#use-with-any-coding-agent) has the exact installation
+command, four workflow prompts, and adoption boundaries.
+The agent inspects the repo, confirms only material choices, performs the work
+non-interactively, and reports the resulting adoption level and validation.
 
 ### Option 2: Use `copier` and `git` Yourself
 
@@ -330,7 +350,7 @@ cd ~/projects/github   # Wherever you do your project work.
 # Clone this template under the supply-chain cool-off. This does everything!
 # It will fetch from this GitHub repo and create a new directory
 # with whatever name you put below:
-uvx --exclude-newer "14 days" copier@9.16.0 copy \
+uvx --exclude-newer "14 days" copier@9.17.0 copy \
   gh:jlevy/simple-modern-uv YOURNEWREPO
 # Then follow the instructions.
 ```
@@ -351,7 +371,7 @@ git add .
 git commit -m "Initial commit from simple-modern-uv."
 # Sync after the first commit so dynamic versioning gives the editable install
 # a real version (not 0.0.0). This creates uv.lock; commit it so CI installs
-# reproducibly with --frozen.
+# reproducibly with --locked and verifies the lockfile is current.
 make install
 git add uv.lock
 git commit -m "Add uv.lock."
@@ -371,19 +391,13 @@ Once you have the code, search for **`changeme`** for all field names like proje
 author, etc. You want to do this to the `.copier-answers.yml` file as well.
 You will also want to check the license/copyright.
 
-## Getting Started on Your Project
-
-Everything to get started is linked from the project **README.md**. It links to the
-**installation.md**, **development.md**, and **publishing.md**
-[starter docs](#starter-docs).
-
 ## Updating Your Project Template
 
 If you use Option 1 or Option 2 or if you pick Option 3 and correctly fill in your
 `.copier-answers.yml` file, you have the option to update your project with any future
 updates to this template at any time.
 
-If this file is updated with your project name etc., then you can
+When `.copier-answers.yml` records your project values, you can
 [update your project](https://copier.readthedocs.io/en/latest/updating/) to reflect any
 changes to this template by running `copier update`.
 
@@ -429,9 +443,11 @@ follows:
 
 - **Cooling-off period:** Don’t install or upgrade to a release less than 14 days old
   (most malicious publishes are caught within days).
-  For uv, set `UV_EXCLUDE_NEWER` to a cool-off window (recent uv accepts a relative
-  duration like `"14 days"`); this template sets it in generated `pyproject.toml`, CI,
-  and the Makefile.
+  uv supports a relative
+  [dependency cooldown](https://docs.astral.sh/uv/concepts/resolution/#dependency-cooldowns)
+  such as `"14 days"`; this template sets it in generated `uv.toml`, CI, and the
+  Makefile. Standard workflows select that checked-in file explicitly so ambient user
+  settings cannot make `uv.lock` nonportable.
 
 - **Vet what you add:** Only add dependencies you can verify upstream, and prefer a
   little first-party code over pulling in a new dependency.
@@ -442,11 +458,15 @@ follows:
 
 See [updating.md](updating.md#supply-chain-hygiene) for how this template applies these.
 
-## Maintaining This Template
+## Maintaining and Releasing This Template
 
 If you’re contributing to this template or forking it for your own use, see
 [**updating.md**](updating.md) for the full process to check for new versions, update
-the template, and verify changes in a downstream project.
+the template, verify changes in a downstream project, and publish a GitHub Release.
+The GitHub Release creates the version tag only after the downstream gate passes; do not
+create a bare tag immediately after merging the template PR. Maintainer research, frozen
+supply-chain evidence, and implementation records are indexed in the
+[project documentation](docs/project/README.md).
 
 ## Contributing
 
