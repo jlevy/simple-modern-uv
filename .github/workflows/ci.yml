@@ -1,5 +1,6 @@
 # CI for the template repo itself: renders the template and exercises the renders,
-# checks the update path from the previous release, and validates the agent skill.
+# checks direct update paths from recent and historical releases, and validates the
+# agent skill.
 # (Released template versions are additionally gated on the downstream
 # jlevy/simple-modern-uv-template repo's CI; see updating.md.)
 
@@ -17,8 +18,8 @@ permissions:
 env:
   # Pinned tool versions used to exercise the template. Keep the uv version in
   # sync with template/.github/workflows/ci.yml when updating.
-  UV_VERSION: "0.12.0"
-  UV_CHECKSUM: "eaf842262aa1c418d8ecc5605f02ee1ebfd369124fa48548e85f9481a47831a9"
+  UV_VERSION: "0.12.3"
+  UV_CHECKSUM: "600cf9a742aca00d292673b16b5acffaa7b8c269a364ad0c2e79498dcb1fe101"
   COPIER_SPEC: "copier@9.17.0"
   # Default answers for test renders.
   RENDER_ARGS: >-
@@ -93,9 +94,22 @@ jobs:
                 .github/workflows/ci.yml
               grep -q 'uv sync --locked --all-extras --all-groups' \
                 .github/workflows/publish.yml
-              grep -q 'UV_CONFIG_FILE: uv.toml' .github/workflows/ci.yml
-              grep -q 'UV_CONFIG_FILE: uv.toml' .github/workflows/publish.yml
+              grep -q 'uv sync --locked --only-group build' \
+                .github/workflows/publish.yml
+              grep -Fq 'github.workspace }}/uv.toml' .github/workflows/ci.yml
+              grep -Fq 'github.workspace }}/uv.toml' .github/workflows/publish.yml
               grep -q 'enable-cache: false' .github/workflows/publish.yml
+              grep -q '^  validate:' .github/workflows/publish.yml
+              grep -q '^  build:' .github/workflows/publish.yml
+              grep -q '^  publish:' .github/workflows/publish.yml
+              test "$(grep -c 'id-token: write' .github/workflows/publish.yml)" -eq 1
+              grep -q 'actions/upload-artifact@043fb46d' .github/workflows/publish.yml
+              grep -q 'actions/download-artifact@3e5f45b' .github/workflows/publish.yml
+              grep -Fq 'github.com/testorg/smoke-test/blob/main/.github/workflows/publish.yml' \
+                docs/publishing.md
+              grep -Fq 'Project: `smoke-test`' docs/publishing.md
+              ! grep -q '{{' docs/publishing.md
+              ! grep -qE '\b(OWNER|PROJECT)\b' docs/publishing.md
               ;;
             no-publish-proprietary)
               test ! -e .github/workflows/publish.yml
@@ -119,6 +133,10 @@ jobs:
           grep -q 'exclude-newer = "14 days"' uv.toml
           ! grep -q '^\[tool\.uv\]' pyproject.toml
           grep -q 'UV_CONFIG_FILE := .*uv.toml' Makefile
+          grep -q '^\[tool\.hatch\.build\.targets\.sdist\]' pyproject.toml
+          ! grep -q '"E402"' pyproject.toml
+          ! grep -q '^reportIgnoreCommentWithoutRule' pyproject.toml
+          ! grep -q '^reportUnnecessaryTypeIgnoreComment' pyproject.toml
           grep -q '@AGENTS.md' CLAUDE.md
           test -f .copier-answers.yml
           uvx flowmark-rs@0.3.2 --auto --check .
@@ -137,6 +155,7 @@ jobs:
           V=$(uv run python -c "from importlib.metadata import version; print(version('smoke-test'))")
           echo "installed version: $V"
           test "$V" != "0.0.0"
+          (cd /tmp && uv --project /tmp/render lock --check)
 
       - name: Lint, test, build
         run: |
@@ -150,12 +169,30 @@ jobs:
           git tag v0.1.0
           uv build --no-build-isolation
           ls dist/ | grep -q "smoke_test-0.1.0-py3-none-any.whl"
+          SDIST=$(find dist -name '*.tar.gz' -print -quit)
+          test -n "$SDIST"
+          ! tar -tzf "$SDIST" | grep -Eq '/(\.github|\.agents|\.claude|\.codex)/'
+          ! tar -tzf "$SDIST" | grep -Eq '/(AGENTS\.md|CLAUDE\.md|uv\.lock)$'
+
+      - name: Exercise the locked build-only publish environment
+        if: matrix.variant == 'default'
+        run: |
+          cd /tmp/render
+          export UV_CONFIG_FILE="$PWD/uv.toml"
+          export UV_PROJECT_ENVIRONMENT=/tmp/build-venv
+          uv sync --locked --only-group build
+          uv build --no-build-isolation --out-dir /tmp/build-dist
+          test -n "$(find /tmp/build-dist -name '*.whl' -print -quit)"
+          test -n "$(find /tmp/build-dist -name '*.tar.gz' -print -quit)"
 
   update-path:
-    # D2 "answer-schema evolution" rule 4: a project rendered from the previous
-    # release must update cleanly to this commit. With --defaults the result must
-    # converge to a fresh render (no conflicts, no surprise file changes), and
-    # explicit --data overrides for newer questions must be honored.
+    # Direct updates from the previous release and representative historical baselines
+    # must converge to this commit. A customized fixture also verifies that Copier
+    # preserves a realistic local delta across the long-range update.
+    strategy:
+      fail-fast: false
+      matrix:
+        source: [previous-release, v0.4.0, v0.2.20]
     runs-on: ubuntu-latest
     env:
       UV_EXCLUDE_NEWER: "14 days"
@@ -170,35 +207,72 @@ jobs:
           checksum: ${{ env.UV_CHECKSUM }}
           enable-cache: false
 
-      - name: Render from previous release tag
+      - name: Render from ${{ matrix.source }}
         run: |
-          PREV_TAG=$(git describe --tags --abbrev=0 "$GITHUB_SHA")
-          echo "Updating from $PREV_TAG to $GITHUB_SHA"
-          eval uvx "$COPIER_SPEC" copy --defaults --vcs-ref="$PREV_TAG" \
-            $RENDER_ARGS "$GITHUB_WORKSPACE" /tmp/old
+          if [ "${{ matrix.source }}" = previous-release ]; then
+            SOURCE_REF=$(git describe --tags --abbrev=0 "$GITHUB_SHA")
+          else
+            SOURCE_REF="${{ matrix.source }}"
+          fi
+          echo "SOURCE_REF=$SOURCE_REF" >> "$GITHUB_ENV"
+          echo "Updating directly from $SOURCE_REF to $GITHUB_SHA"
+          eval uvx "$COPIER_SPEC" copy --defaults --vcs-ref="$SOURCE_REF" \
+            $RENDER_ARGS --data package_module=smoke_test \
+            "$GITHUB_WORKSPACE" /tmp/old
           cd /tmp/old
           git init -q --initial-branch=main
           git add -A
-          git -c user.email=ci@example.com -c user.name=CI commit -qm "From $PREV_TAG"
+          git -c user.email=ci@example.com -c user.name=CI commit -qm "From $SOURCE_REF"
 
       - name: Update to candidate commit with defaults
         run: |
           cd /tmp/old
           eval uvx "$COPIER_SPEC" update --defaults --skip-answered \
-            --vcs-ref=$GITHUB_SHA
+            --vcs-ref=$GITHUB_SHA --data package_license=MIT \
+            --data publish_to_pypi=true
           # No conflicts:
           REJ=$(find . -name '*.rej' | wc -l); test "$REJ" -eq 0
           # Converges to a fresh render of the candidate (the answers file differs
           # only by _commit/_src_path bookkeeping, so exclude it):
           eval uvx "$COPIER_SPEC" copy --defaults --vcs-ref=$GITHUB_SHA \
-            $RENDER_ARGS "$GITHUB_WORKSPACE" /tmp/fresh
+            $RENDER_ARGS --data package_module=smoke_test \
+            --data package_license=MIT --data publish_to_pypi=true \
+            "$GITHUB_WORKSPACE" /tmp/fresh
           diff -r --exclude=.git --exclude=.copier-answers.yml /tmp/old /tmp/fresh
+          export UV_CONFIG_FILE="$PWD/uv.toml"
+          uv sync --all-extras --all-groups
+          uv sync --locked --all-extras --all-groups
+          uv run python devtools/lint.py --check
+          uv run pytest
+
+      - name: Direct update preserves project customizations
+        run: |
+          eval uvx "$COPIER_SPEC" copy --defaults --vcs-ref="$SOURCE_REF" \
+            $RENDER_ARGS --data package_module=smoke_test \
+            "$GITHUB_WORKSPACE" /tmp/custom
+          cd /tmp/custom
+          mkdir -p docs
+          printf '%s\n' '# Project Policy' '' 'Repository-specific guidance.' \
+            > docs/project-policy.md
+          sed -i 's/# ignore-words-list = "foo,bar"/ignore-words-list = "fo"/' \
+            pyproject.toml
+          git init -q --initial-branch=main
+          git add -A
+          git -c user.email=ci@example.com -c user.name=CI commit -qm "Customized"
+          eval uvx "$COPIER_SPEC" update --defaults --skip-answered \
+            --vcs-ref=$GITHUB_SHA --data package_license=MIT \
+            --data publish_to_pypi=true
+          REJ=$(find . -name '*.rej' | wc -l); test "$REJ" -eq 0
+          ! grep -R -n -E '^(<<<<<<<|=======|>>>>>>>)' --exclude-dir=.git .
+          test -f docs/project-policy.md
+          grep -q '^ignore-words-list = "fo"$' pyproject.toml
 
       - name: Update honors --data overrides for newer questions
+        if: matrix.source == 'previous-release'
         run: |
           eval uvx "$COPIER_SPEC" copy --defaults \
-            --vcs-ref="$(git describe --tags --abbrev=0 "$GITHUB_SHA")" \
-            $RENDER_ARGS "$GITHUB_WORKSPACE" /tmp/old2
+            --vcs-ref="$SOURCE_REF" $RENDER_ARGS \
+            --data package_module=smoke_test "$GITHUB_WORKSPACE" /tmp/old2
           cd /tmp/old2
           git init -q --initial-branch=main
           git add -A

@@ -52,7 +52,7 @@ visibly deviates from a fresh render, make the answer explicit.
 ## Apps and CLIs (vs. Libraries)
 
 - Entry points live in `[project.scripts]`: `mycli = "my_module.cli:main"`; then
-  `UV_CONFIG_FILE=uv.toml uv run mycli` works and installs expose the command.
+  `UV_CONFIG_FILE="$PWD/uv.toml" uv run mycli` works and installs expose the command.
 - An app that’s not a library usually wants `publish_to_pypi=false`; it still gets the
   full dev workflow.
 - For a long-lived service, consider pinning the Python version with a `.python-version`
@@ -69,6 +69,20 @@ visibly deviates from a fresh render, make the answer explicit.
 - **OS matrix in CI**: edit `os:` in `.github/workflows/ci.yml`
   (`["ubuntu-latest", "macos-latest", "windows-latest"]`).
 - **Spell-check exceptions**: `[tool.codespell] ignore-words-list`.
+
+## Supply-Chain and Non-Python Tools
+
+Keep resolution policy in operational configuration (`uv.toml`, lockfiles, CI, and the
+Makefile) and maintainer guidance in `docs/development.md`. Avoid adding generic
+cool-off or pinning prose to an end-user README when it does not change how users
+install or run the package.
+
+Inventory every executable development tool, including tools launched through `npx`,
+`bunx`, or another ecosystem.
+Use an exact direct version and that ecosystem’s native lockfile rather than a changing
+`@latest` graph. A reviewed cool-off exception applies only to the named package: audit
+transitive publication dates and override unrelated recent packages to eligible
+versions.
 
 After any customization, re-run `make lint` and `make test`.
 

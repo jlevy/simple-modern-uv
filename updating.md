@@ -10,8 +10,8 @@ There are two repos involved:
   All version changes start here.
   This repo’s own CI (`.github/workflows/ci.yml`) makes PRs self-validating: it renders
   the template (default and non-default options), runs the full lint/test/build cycle on
-  the render, runs the update-path test from the previous release tag, and validates the
-  agent skill (`skills/simple-modern-uv/`).
+  the render, runs direct update-path tests from the previous release and representative
+  historical tags, and validates the agent skill (`skills/simple-modern-uv/`).
 - **Downstream project(s)**: Projects created from the template (e.g.
   [`jlevy/simple-modern-uv-template`](https://github.com/jlevy/simple-modern-uv-template)).
   These pull updates via `copier update` and have CI configured to run linting and tests
@@ -137,6 +137,8 @@ Apply the same cutoff to direct and transitive packages and disable lifecycle sc
 Check GitHub Action releases and their tag targets:
 
 - `actions/checkout`: <https://github.com/actions/checkout/releases>
+- `actions/upload-artifact`: <https://github.com/actions/upload-artifact/releases>
+- `actions/download-artifact`: <https://github.com/actions/download-artifact/releases>
 - `astral-sh/setup-uv`: <https://github.com/astral-sh/setup-uv/releases>
 
 Pin every active action to its full commit SHA and keep the reviewed version in a
@@ -176,6 +178,11 @@ confirm the release is not yanked, and query OSV or the relevant advisory databa
 Then inspect the entire rendered lockfile diff; a clean direct-package query does not
 approve changed transitive packages.
 
+A human-approved cooling-off exception is package-specific, not ecosystem-wide.
+After resolving the approved release, audit publication dates across the complete graph
+and constrain unrelated recent transitive packages to eligible versions with the
+ecosystem’s native override mechanism.
+
 Only add or upgrade dependencies you can vet upstream (active maintenance, reputable
 source, clear changelog).
 Avoid introducing new dependencies when a small amount of first-party code will do.
@@ -202,12 +209,15 @@ In the template repo, update these files as needed:
   invocations current (subject to the same cool-off), and update the FAQ/checklists if
   this cycle changed behavior they describe
 - **Executable npm tools** in the README and CI: pin exact versions, preserve the frozen
-  `before` cutoff, disable lifecycle scripts, and record registry integrity/provenance
+  `before` cutoff, disable lifecycle scripts, and record registry integrity/provenance.
+  Audit transitive publication dates after any direct-package exception
 - **Safe-default Makefile paths**: keep the 14-day default on install, upgrade, format,
   and build commands, while preserving an explicit per-invocation override
 - **The project-level uv policy**: keep `exclude-newer = "14 days"` in `uv.toml` and
   select that file explicitly in the Makefile and CI, so direct standard workflows keep
   the cool-off without merging ambient user settings into `uv.lock`
+- **Published artifact contents**: keep the explicit Hatch sdist allowlist and validate
+  that repository-management files are absent from built distributions
 - Review the [uv changes research](docs/project/research/research-uv-changes.md) for new
   uv features the template should adopt or explicitly decline
 - Record the complete frozen decision in a release-specific supply-chain manifest under
@@ -227,14 +237,19 @@ projects keep updating cleanly:
    update workflow inspects project state and passes explicit `--data` (see
    [customize.md](skills/simple-modern-uv/references/customize.md)).
 4. **CI guards the update path**: the `update-path` job renders the previous release and
-   updates to the candidate, asserting convergence with a fresh render and that `--data`
-   overrides are honored.
+   representative historical releases, updates each directly to the candidate, asserts
+   convergence with a fresh render, and verifies that project customizations and
+   `--data` overrides are honored.
 5. **Call it out in release notes**, naming the new keys and their defaults.
 
-The update-path job guarantees the single jump from the most recent release to the
-candidate. For a project more than one release behind, update one release tag at a time
-and validate each hop; a direct multi-release jump is best-effort rather than covered by
-this gate.
+Copier’s standard update model reconstructs the old render, computes the project’s local
+changes, and reapplies them to the selected target.
+Update directly from the recorded release to the reviewed target by default, including
+for multi-release jumps.
+Use an intermediate tag only when a migration declares a staging requirement or a direct
+trial needs a diagnostic checkpoint; do not make every project reconcile obsolete
+intermediate states.
+See [Copier’s update model](https://copier.readthedocs.io/en/stable/updating/).
 
 Then auto-format all docs so formatting stays consistent (CI’s `format-check` job
 enforces this):
@@ -339,7 +354,7 @@ make install
 make lint-check
 make test
 make build
-uvx --exclude-newer "14 days" uv@0.12.0 audit --locked \
+uvx --exclude-newer "14 days" uv@0.12.3 audit --locked \
   --preview-features audit-command
 ```
 

@@ -64,6 +64,7 @@ Then map:
 - project metadata, dependencies, Python support, package layout, and build backend
 - current lockfiles, environment manager, linting, typing, tests, and CI
 - versioning, release, publishing, license, private-index, and platform constraints
+- generated-document sources, non-Python developer tools, and zero-install runners
 - existing `AGENTS.md`, `CLAUDE.md`, `.copier-answers.yml`, and local modifications
 
 Preserve user work and established behavior.
@@ -108,6 +109,8 @@ These are project decisions, not incidental implementation details.
   For example, a locked CI workflow also needs compatible project metadata, `uv.toml`,
   `uv.lock`, and commands.
 - Keep equivalent existing tooling when replacement is outside the requested scope.
+- Preserve stricter established lint, type-check, test, and policy settings unless a
+  concrete incompatibility requires changing them.
 - Add `.copier-answers.yml` only for a deliberate full migration.
   Selective copying does not create honest Copier lineage and must not pretend that it
   does.

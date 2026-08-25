@@ -23,16 +23,16 @@ No git tag yet: dynamic versioning derives the version from the latest `v*` tag.
   `fetch-depth: 0` (the template’s workflows do) so tags are available.
 - `importlib.metadata` still reports an old version after committing or tagging: the
   editable install’s metadata is captured at sync time and uv won’t refresh it on its
-  own. Run `UV_CONFIG_FILE=uv.toml uv sync --reinstall-package <module>` (and sync only
-  after the first commit on new projects).
+  own. Run `UV_CONFIG_FILE="$PWD/uv.toml" uv sync --reinstall-package <module>` (and sync
+  only after the first commit on new projects).
 
 ## `uv sync` Fails on Python Version
 
-The template requires Python 3.11+. `UV_CONFIG_FILE=uv.toml uv python install` downloads
-a managed interpreter; pin one for the project with
-`UV_CONFIG_FILE=uv.toml uv python pin 3.12` (writes `.python-version`). If uv itself
-errors with “required-version”, upgrade uv: the template supports the reviewed uv 0.12
-line (`>=0.12.0,<0.13`), matching its pinned CI toolchain.
+The template requires Python 3.11+. `UV_CONFIG_FILE="$PWD/uv.toml" uv python install`
+downloads a managed interpreter; pin one for the project with
+`UV_CONFIG_FILE="$PWD/uv.toml" uv python pin 3.12` (writes `.python-version`). If uv
+itself errors with “required-version”, upgrade uv: the template supports the reviewed uv
+0.12 line (`>=0.12.0,<0.13`), matching its pinned CI toolchain.
 Versions older than uv 0.9.17 may instead fail while parsing the relative duration
 `"14 days"`, before they can report the project’s required version.
 Treat that parse error the same way and upgrade uv first.
@@ -58,6 +58,9 @@ Don’t rewrite the codebase to satisfy it, and don’t turn it off:
 3. Existing mypy-style `# type: ignore` comments still work; prefer fixing real findings
    over suppressing them.
 
+For an already-templated project that passes stricter checks, preserve its current
+settings rather than copying new-project suppressions from a later template release.
+
 ## codespell Flags Names or Legacy Prose
 
 Add exceptions in `pyproject.toml`: `[tool.codespell] ignore-words-list = "word1,word2"`
@@ -69,6 +72,10 @@ Copier writes `*.rej` files (or inline conflict markers) where the template and 
 edits collide. Resolve each by hand, keeping the project’s intent; delete the `.rej`
 files; re-run `make lint` and `make test`. A dirty working tree also blocks updates;
 commit or stash first.
+
+For a project several releases behind, trial a direct update to the desired target
+first. An intermediate tag is a diagnostic tool, not a mandatory policy, unless the
+template explicitly declares a staged migration for that version range.
 
 ## `publish.yml` Came Back or License Reverted After an Update
 
@@ -95,10 +102,17 @@ change the lock. Use the project’s standard commands when debugging resolution
 differences; make any reviewed exception an explicit, documented per-invocation
 override.
 
+If the exception approves one package but the resolved lock also selects a recent
+third-party dependency, constrain that dependency to the newest eligible release with
+the package manager’s override mechanism.
+Locking a graph makes the selection reproducible; it does not broaden the human
+approval.
+
 ## Tests Pass Locally but CI Fails on a Python Version
 
 The CI matrix runs 3.11–3.14. Most failures are version-specific syntax/stdlib use; run
-the failing version locally with `UV_CONFIG_FILE=uv.toml uv run --python 3.11 pytest`.
+the failing version locally with
+`UV_CONFIG_FILE="$PWD/uv.toml" uv run --python 3.11 pytest`.
 
 <!-- This document follows common-doc-guidelines.md.
 See github.com/jlevy/practical-prose and review guidelines before editing.

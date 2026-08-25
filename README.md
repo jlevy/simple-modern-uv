@@ -211,7 +211,7 @@ The template includes a few **starter docs** for you, collaborators, and users:
 - [development.md](https://github.com/jlevy/simple-modern-uv/blob/main/template/docs/development.md.jinja)
   covers basic developer workflows.
 
-- [publishing.md](https://github.com/jlevy/simple-modern-uv/blob/main/template/docs/publishing.md)
+- [publishing.md](https://github.com/jlevy/simple-modern-uv/blob/main/template/docs/%7B%25%20if%20publish_to_pypi%20%25%7Dpublishing.md%7B%25%20endif%20%25%7D.jinja)
   covers how to publish your project to PyPI.
 
 If you haven’t done it before, publishing a package to PyPI can be a bit confusing,
@@ -399,7 +399,14 @@ updates to this template at any time.
 
 When `.copier-answers.yml` records your project values, you can
 [update your project](https://copier.readthedocs.io/en/latest/updating/) to reflect any
-changes to this template by running `copier update`.
+changes to this template by running `copier update`. Update directly from the recorded
+template revision to the reviewed target release by default; Copier reconstructs the old
+render and reapplies your local changes to that target.
+Use an intermediate release only when a migration explicitly requires staging or a
+direct trial needs diagnosis.
+The skill’s
+[update workflow](skills/simple-modern-uv/references/update-templated-project.md) covers
+the preservation inventory, conflict review, and validation steps.
 
 ## Alternatives
 

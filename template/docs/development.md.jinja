@@ -73,6 +73,11 @@ source .venv/bin/activate
 
 See [uv docs](https://docs.astral.sh/uv/) for details.
 
+The wheel contains the importable package and metadata.
+The source distribution uses an explicit allowlist for source, tests, user-facing docs,
+the README, and license; repository workflows and agent-management files are not
+published to PyPI.
+
 ## IDE Setup
 
 If you use VSCode or a fork like Cursor or Windsurf, you can install the following
@@ -104,6 +109,8 @@ Its key defaults:
   `UV_EXCLUDE_NEWER="30 days" make upgrade`. A reviewed emergency exception must be
   equally explicit, using `UV_EXCLUDE_NEWER="0 days"` only for that invocation and
   recording why the normal gate was bypassed.
+  The exception applies only to the named package: audit the complete resolved graph and
+  constrain unrelated recent transitive packages to eligible versions.
 
 - **Vet before adding:** Confirm the package is actually needed and its name is spelled
   correctly (typosquats are common), and prefer a little first-party code over a new
