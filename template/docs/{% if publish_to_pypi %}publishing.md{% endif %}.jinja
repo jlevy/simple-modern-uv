@@ -47,15 +47,18 @@ for details.
 
    - In the GitHub repository, go to **Settings → Environments** and create a
      [GitHub environment](https://docs.github.com/en/actions/reference/workflows-and-actions/deployments-and-environments)
-     named `pypi`. No secret is stored there. Entering the same name in PyPI restricts
-     this Trusted Publisher to jobs that declare the environment.
+     named `pypi`. No secret is stored there.
+     Entering the same name in PyPI restricts this Trusted Publisher to jobs that
+     declare the environment.
 
-   - Decide who has release authority. A release-only workflow removes the ordinary
-     manual-branch path, but anyone allowed to create a matching release tag may still
-     invoke it. If not every repository writer should publish, use a GitHub tag ruleset
-     to restrict creation and updates of release-pattern tags to release maintainers,
-     and/or require an environment reviewer. Limiting the environment to selected
-     release tags rejects other refs but does not control who can create a matching tag.
+   - Decide who has release authority.
+     A release-only workflow removes the ordinary manual-branch path, but anyone allowed
+     to create a matching release tag may still invoke it.
+     If not every repository writer should publish, use a GitHub tag ruleset to restrict
+     creation and updates of release-pattern tags to release maintainers, and/or require
+     an environment reviewer.
+     Limiting the environment to selected release tags rejects other refs but does not
+     control who can create a matching tag.
      A solo or low-impact project need not require a second approval when no independent
      reviewer exists.
 
