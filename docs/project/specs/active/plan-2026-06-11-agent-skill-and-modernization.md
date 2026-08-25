@@ -415,6 +415,14 @@ The same review also moves the eligible uv pin to 0.12.3, renders project-specif
 publishing docs, makes CI uv configuration absolute, defines source-distribution
 contents, preserves stricter established lint/type policy, and isolates trusted
 publishing across validation, build, and OIDC-only publishing jobs.
+The threat-model follow-up keeps the 14-day delay as a balanced default rather than a
+trust claim, uses uv’s persistent package-scoped cutoff for reviewed fresh releases,
+restricts publishing to GitHub Release events, and declares a `pypi` environment.
+PyPI must be configured with the same environment to enforce the match; GitHub reviewer
+or tag protections remain optional escalations.
+A release-only trigger does not stop a repository writer who is also allowed to create
+the matching release tag, so projects where not every writer has release authority need
+a tag ruleset and/or environment reviewer.
 
 ### D7. Keep BasedPyright and Refresh the Research
 
@@ -460,7 +468,8 @@ cutoff. No checker switch.
 - [x] Refresh basedpyright config comments and the type-checker research doc (D7)
 - [x] Apply the Repren migration findings: direct updates, protected customization
   inventory, absolute uv config, explicit sdist contents, stricter fresh-project
-  defaults, rendered publishing docs, and least-privilege publishing
+  defaults, rendered publishing docs, least-privilege release-only publishing, a named
+  PyPI environment, package-scoped uv exceptions, and calibrated threat-model guidance
 - [ ] Validate via the downstream repo flow in `updating.md`
 
 ### Phase 3: Repo CI and Maintenance Docs
@@ -482,7 +491,8 @@ cutoff. No checker switch.
 - **Template renders**: CI renders both the default and the proprietary/no-publish
   variants and runs the full `sync → lint --check → pytest → build` cycle on the default
   render. It separately exercises the locked build-group-only environment and checks
-  published artifact contents.
+  published artifact contents, the release-only trigger, the single OIDC permission, and
+  the `pypi` environment and setup guidance.
 - **Update path**: CI’s update-path matrix (D2 rule 4) guards every future template
   change, not just this one—render at the previous and representative historical tags,
   update directly to the candidate, assert vanilla convergence, and preserve a realistic

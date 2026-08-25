@@ -65,10 +65,32 @@ legacy `UV_NO_CONFIG` environment variables or command wrappers.
 Those workarounds disable the project policy that now owns the required uv version and
 cooling-off window.
 
-If one approved package is exempt from the cool-off, audit publication dates for the
-entire resolved graph afterward.
-Constrain unrelated recent transitive packages with the ecosystem’s native override
-mechanism; an exception for one first-party package is not an exception for its
+If the update adds `environment: pypi` to an existing publish workflow, report the
+matching external configuration step.
+A PyPI Trusted Publisher with a blank environment continues to accept the workflow but
+remains unconstrained; set its environment to `pypi` in the project’s PyPI publishing
+settings to enforce the boundary.
+Required reviewers or selected-tag restrictions are optional GitHub environment
+protections, not consequences of the name alone.
+Also inspect the repository’s authority model: a release-only trigger removes the
+ordinary manual-branch path, but anyone allowed to create a matching release tag may
+still invoke it. If some writers should not publish, add a tag ruleset that restricts
+creation and updates of release-pattern tags to release maintainers, and/or require an
+environment reviewer.
+A selected-tag environment rule filters refs but does not control who creates a matching
+tag.
+
+If one approved uv package is exempt from the cool-off, keep the global gate and record
+an absolute `exclude-newer-package` cutoff in `uv.toml` just after the approved
+release’s last artifact upload.
+Resolve only that package with
+`UV_CONFIG_FILE="$PWD/uv.toml" uv lock --upgrade-package package-name`, inspect the
+complete lockfile diff, and commit the policy with the lock so `--locked` CI sees the
+same resolution settings.
+Remove the override and relock after the release clears the normal window.
+For another ecosystem without a package-scoped age gate, audit publication dates for the
+entire resolved graph and constrain unrelated recent transitives with its native
+override mechanism. An exception for one first-party package is not an exception for its
 dependencies.
 
 ## Verify and Report

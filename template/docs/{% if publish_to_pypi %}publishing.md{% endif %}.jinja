@@ -15,6 +15,12 @@ PyPI.
 The workflow validates without publishing credentials, builds from a fresh checkout
 containing only the locked build toolchain, and gives the short-lived PyPI OIDC
 permission only to a final job that receives the built distributions.
+This separation limits credential exposure; the
+[PyPI Trusted Publisher security model](https://docs.pypi.org/trusted-publishers/security-model/)
+does not treat it as proof that the source, build dependencies, or distributions are
+safe. The validation and build jobs execute repository code, and the final job publishes
+their output. Code review, protected release authority, and lockfile review remain the
+controls against a malicious or compromised build.
 
 ### First-Time Setup
 
@@ -39,6 +45,20 @@ for details.
 
 3. **Authorize** your repository to publish to PyPI:
 
+   - In the GitHub repository, go to **Settings → Environments** and create a
+     [GitHub environment](https://docs.github.com/en/actions/reference/workflows-and-actions/deployments-and-environments)
+     named `pypi`. No secret is stored there. Entering the same name in PyPI restricts
+     this Trusted Publisher to jobs that declare the environment.
+
+   - Decide who has release authority. A release-only workflow removes the ordinary
+     manual-branch path, but anyone allowed to create a matching release tag may still
+     invoke it. If not every repository writer should publish, use a GitHub tag ruleset
+     to restrict creation and updates of release-pattern tags to release maintainers,
+     and/or require an environment reviewer. Limiting the environment to selected
+     release tags rejects other refs but does not control who can create a matching tag.
+     A solo or low-impact project need not require a second approval when no independent
+     reviewer exists.
+
    - Go to [the publishing settings page](https://pypi.org/manage/account/publishing/).
 
    - Find “Trusted Publisher Management” and register your GitHub repo as a new
@@ -54,7 +74,11 @@ for details.
 
      - Workflow: `publish.yml`
 
-     You can leave the environment name blank.
+     - Environment: `pypi`
+
+     An existing Trusted Publisher with a blank environment remains compatible but is
+     unconstrained. Update it to `pypi` in PyPI’s project publishing settings to obtain
+     the environment restriction.
 
 4. **Create a release** on GitHub:
 

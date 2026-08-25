@@ -91,16 +91,39 @@ The one-time PyPI Trusted Publisher setup hasn’t been done for this repo (or t
 workflow filename doesn’t match what PyPI was told).
 Follow `docs/publishing.md` in the project; no API tokens are needed.
 
+## Does the `pypi` Environment Require Manual Approval?
+
+No. The environment name lets PyPI constrain authorization to jobs that declare it, but
+GitHub adds no approval or tag restriction unless a maintainer configures those
+protection rules. A solo or low-impact project can use the named environment without a
+second approval.
+
+A release-only workflow removes the ordinary manual-branch path, but anyone allowed to
+create a matching release tag may still invoke it.
+If not every repository writer should publish, use a tag ruleset to restrict creation
+and updates of release-pattern tags to release maintainers, and/or require an
+environment reviewer.
+An environment rule that selects release tags rejects other refs but does not control
+who can create a matching tag.
+
+If an existing PyPI Trusted Publisher has a blank environment, the updated workflow
+continues to publish but the publisher remains unconstrained.
+Set its environment to `pypi` in the PyPI project settings to enforce the match.
+
 ## Lockfile Resolution Seems Stale or Refuses a Brand-New Release
 
 The checked-in `uv.toml` sets a 14-day supply-chain cooling-off window, so releases
 newer than that are deliberately invisible.
 The Makefile and CI select that file with `UV_CONFIG_FILE`; CI also sets the equivalent
 `UV_EXCLUDE_NEWER` value.
-This is a feature; don’t remove it to get a day-old package or let ambient user settings
-change the lock. Use the project’s standard commands when debugging resolution
-differences; make any reviewed exception an explicit, documented per-invocation
-override.
+This is a feature; don’t remove the global gate to get a day-old package or let ambient
+user settings change the lock.
+Use the project’s standard commands when debugging resolution differences.
+For a reviewed first-party or urgent release, add an absolute `exclude-newer-package`
+cutoff for only that package to `uv.toml`, run
+`UV_CONFIG_FILE="$PWD/uv.toml" uv lock --upgrade-package <package>`, inspect the
+complete lock diff, and commit the configuration with the lock.
+Remove the exception and relock after the release clears the normal window.
 
 If the exception approves one package but the resolved lock also selects a recent
 third-party dependency, constrain that dependency to the newest eligible release with

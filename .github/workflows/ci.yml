@@ -103,11 +103,17 @@ jobs:
               grep -q '^  build:' .github/workflows/publish.yml
               grep -q '^  publish:' .github/workflows/publish.yml
               test "$(grep -c 'id-token: write' .github/workflows/publish.yml)" -eq 1
+              test "$(grep -c 'contents: read' .github/workflows/publish.yml)" -eq 2
+              test "$(grep -c 'actions/checkout@' .github/workflows/publish.yml)" -eq 2
+              grep -q '^    environment: pypi$' .github/workflows/publish.yml
+              ! grep -q 'workflow_dispatch' .github/workflows/publish.yml
               grep -q 'actions/upload-artifact@043fb46d' .github/workflows/publish.yml
               grep -q 'actions/download-artifact@3e5f45b' .github/workflows/publish.yml
               grep -Fq 'github.com/testorg/smoke-test/blob/main/.github/workflows/publish.yml' \
                 docs/publishing.md
               grep -Fq 'Project: `smoke-test`' docs/publishing.md
+              grep -Fq 'Environment: `pypi`' docs/publishing.md
+              grep -q 'exclude-newer-package' docs/development.md
               ! grep -q '{{' docs/publishing.md
               ! grep -qE '\b(OWNER|PROJECT)\b' docs/publishing.md
               ;;

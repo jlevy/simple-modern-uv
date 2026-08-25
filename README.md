@@ -445,19 +445,21 @@ Dependencies are an attack surface.
 The best resource on this is
 [**supply-chain-hardening**](https://github.com/jlevy/supply-chain-hardening), a concise
 guidebook of concrete recipes for npm, PyPI, and other ecosystems.
-**If you use this template, follow it.** Its key defaults, which this template also
-follows:
+This template applies its balanced defaults:
 
-- **Cooling-off period:** Don’t install or upgrade to a release less than 14 days old
-  (most malicious publishes are caught within days).
+- **Cooling-off period:** By default, don’t select a registry artifact uploaded less
+  than 14 days ago. The delay targets newly compromised or broken releases; age is not
+  proof that a package is safe.
   uv supports a relative
   [dependency cooldown](https://docs.astral.sh/uv/concepts/resolution/#dependency-cooldowns)
   such as `"14 days"`; this template sets it in generated `uv.toml`, CI, and the
   Makefile. Standard workflows select that checked-in file explicitly so ambient user
   settings cannot make `uv.lock` nonportable.
 
-- **Vet what you add:** Only add dependencies you can verify upstream, and prefer a
-  little first-party code over pulling in a new dependency.
+- **Vet what you add:** Verify the canonical source and selected changes.
+  Prefer a small, well-understood, easily tested piece of first-party code over a
+  dependency, but do not reimplement security-sensitive or complex components merely to
+  reduce dependency count.
 
 - **Pin and lock:** Commit your `uv.lock` and pin GitHub Actions to full commit SHAs.
   Treat a version tag as immutable only after verifying that release state through the
