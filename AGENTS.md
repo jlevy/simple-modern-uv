@@ -3,12 +3,12 @@
 This file provides instructions and context for AI coding agents working on this
 project.
 
-<!-- BEGIN TBD INTEGRATION format=f04 surface=agents-md -->
+<!-- BEGIN TBD INTEGRATION format=f08 surface=agents-md -->
 ## tbd
 
 This repository uses **tbd** for git-native issue tracking (beads), spec-driven
 planning, and on-demand engineering guidelines.
-As the agent, you operate tbd on the user’s behalf — translate their requests into tbd
+As the agent, you operate tbd on the user’s behalf: translate their requests into tbd
 actions rather than telling them to run commands.
 
 - Run `tbd prime` to load current project state and the full tbd workflow.
