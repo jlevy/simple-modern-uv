@@ -103,6 +103,9 @@ packages = ["src/{{ package_module }}"]
 [tool.hatch.build.targets.sdist]
 # Publish source, tests, and user-facing documentation without repository-management
 # files such as workflows, agent integrations, or local tooling state.
+# `/tests` is deliberate: downstream packagers are the main consumers of tests in an
+# sdist, and `pytest` alone runs them. The Makefile and `devtools/` stay out, so the
+# sdist has no `make lint` or `make test` entry point.
 include = [
     "/src",
     "/tests",

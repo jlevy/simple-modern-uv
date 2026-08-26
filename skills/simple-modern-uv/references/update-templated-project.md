@@ -57,11 +57,18 @@ Treat instruction files as protected policy surfaces and merge applicable upstre
 guidance into local rules rather than replacing them wholesale.
 Do not add broad Ruff or BasedPyright suppressions merely because a newer template uses
 different fresh-project defaults; widen an established project’s exemptions only for a
-concrete finding.
-Check the template release notes, but treat the actual rendered diff as
-the change under review.
-Once the update supplies `uv.toml` and explicit `UV_CONFIG_FILE` settings, remove any
-legacy `UV_NO_CONFIG` environment variables or command wrappers.
+concrete finding. A template release can also tighten a default, by dropping a Ruff
+`ignore` entry or re-enabling a BasedPyright rule.
+Those lines are rarely edited locally, so the update applies them without conflict and
+the project’s existing code fails `make lint` on the next run.
+Treat the new findings as findings: fix them, or reinstate that specific exemption with
+a recorded reason.
+Do not disable a broader rule set to clear them, and do not revert the
+whole hunk without deciding rule by rule.
+Check the template release notes, but treat the actual rendered diff as the change under
+review.
+Once the update supplies `uv.toml` and explicit `UV_CONFIG_FILE` settings, remove
+any legacy `UV_NO_CONFIG` environment variables or command wrappers.
 Those workarounds disable the project policy that now owns the required uv version and
 cooling-off window.
 

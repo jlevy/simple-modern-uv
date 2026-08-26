@@ -73,20 +73,43 @@ jobs:
       - name: Build package
         run: uv build --no-build-isolation
 
+      - name: Record distribution digests
+        # The job split isolates the publishing credential; it does not by itself
+        # prove that what is uploaded is what was built. Recording the digests here
+        # and re-checking them in `publish` puts that evidence in the run log.
+        run: sha256sum dist/* | tee dist-checksums.txt
+
       - name: Upload distributions
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: distributions
           path: dist/*
           if-no-files-found: error
-          retention-days: 1
+          # Long enough that "Re-run failed jobs" the next day still finds the
+          # artifact after a transient PyPI or OIDC failure. With no
+          # `workflow_dispatch` path, an expired artifact means deleting and
+          # recreating the release.
+          retention-days: 7
+
+      - name: Upload distribution digests
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: distribution-checksums
+          path: dist-checksums.txt
+          if-no-files-found: error
+          retention-days: 7
 
   publish:
     needs: build
     runs-on: ubuntu-latest
     environment: pypi
     permissions:
-      id-token: write # Only this job can request the short-lived publishing credential.
+      # Only this job can request the short-lived publishing credential, and it is
+      # the only permission granted: every other GITHUB_TOKEN scope is `none`.
+      # That is sufficient because setup-uv resolves an exact pinned version without
+      # a GitHub API call, and same-run artifact downloads authenticate with the
+      # Actions runtime token rather than GITHUB_TOKEN.
+      id-token: write
     steps:
       - name: Install uv (official Astral action)
         uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
@@ -101,6 +124,16 @@ jobs:
         with:
           name: distributions
           path: dist
+
+      - name: Download distribution digests
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: distribution-checksums
+
+      - name: Verify the distributions match what the build job produced
+        run: |
+          sha256sum -c dist-checksums.txt
+          sha256sum dist/*
 
       - name: Publish to PyPI
         run: uv publish --trusted-publishing always

@@ -236,6 +236,18 @@ In the template repo, update these files as needed:
   the cool-off without merging ambient user settings into `uv.lock`
 - **Published artifact contents**: keep the explicit Hatch sdist allowlist and validate
   that repository-management files are absent from built distributions
+- **Lint and type-check defaults** in `template/pyproject.toml.jinja`. Removing an entry
+  from the Ruff `ignore` list or re-enabling a BasedPyright rule is a breaking change
+  for existing projects, not just a fresh-project default: those lines are the ones a
+  downstream project is least likely to have edited, so Copier applies them as clean,
+  non-conflicting hunks and the next routine update fails `make lint`. Name the rule and
+  the targeted remedy under `## Upgrading` in the release notes, and keep the
+  `update-path` job’s assertion of the new failure current
+- **The historical update matrix** in this repo’s `.github/workflows/ci.yml`
+  (`source: [previous-release, v0.4.0, v0.2.20]`). CI depends on those tags continuing
+  to exist. Add an entry when a release changes the answer schema or a migration-relevant
+  default; prune one only when the range it represents is no longer supported, and say
+  so in the release notes
 - Review the [uv changes research](docs/project/research/research-uv-changes.md) for new
   uv features the template should adopt or explicitly decline
 - Record the complete frozen decision in a release-specific supply-chain manifest under
@@ -259,6 +271,8 @@ projects keep updating cleanly:
    convergence with a fresh render, and verifies that project customizations and
    `--data` overrides are honored.
 5. **Call it out in release notes**, naming the new keys and their defaults.
+   The same applies to a lint or type-check default that becomes stricter: name the
+   rule, and give the remedy for a project that legitimately relies on the old behavior.
 
 Copier’s standard update model reconstructs the old render, computes the project’s local
 changes, and reapplies them to the selected target.
@@ -461,9 +475,9 @@ Structure the notes per `tbd guidelines release-notes-guidelines`: a concise sum
 then `## What's Changed` with only the applicable `### Features`, `### Fixes`,
 `### Guidelines and content`, and `### Documentation` sections.
 Add `## Upgrading` when existing projects need action.
-Name new question keys and defaults under upgrading, state what validation backed the
-release, and end with a `**Full commit history**` link to
-`compare/${LAST_TAG}...${NEW_TAG}`.
+Name new question keys and defaults under upgrading, along with any lint or type-check
+default that became stricter and its remedy, state what validation backed the release,
+and end with a `**Full commit history**` link to `compare/${LAST_TAG}...${NEW_TAG}`.
 
 Afterwards, verify the release and tag target, then confirm a fresh render records the
 new tag as `_commit` in `.copier-answers.yml`:

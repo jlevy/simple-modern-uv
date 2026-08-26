@@ -61,6 +61,29 @@ Don’t rewrite the codebase to satisfy it, and don’t turn it off:
 For an already-templated project that passes stricter checks, preserve its current
 settings rather than copying new-project suppressions from a later template release.
 
+## `make lint` Fails Right After a Template Update
+
+A template release can also move the other way and make a default *stricter*, by
+dropping a rule from the Ruff `ignore` list or re-enabling a BasedPyright rule.
+Those lines are usually untouched locally, so `copier update` applies them cleanly and
+the project’s existing code starts failing.
+Recent examples: Ruff `E402` (module-level import after code) and BasedPyright’s
+`reportIgnoreCommentWithoutRule` and `reportUnnecessaryTypeIgnoreComment` (an
+unqualified `# pyright: ignore`).
+
+This is a real finding, not a bug in the update.
+Decide per rule, and record the decision:
+
+1. Fix the findings when they are few and the rule is one you want.
+2. Otherwise reinstate that specific exemption in `pyproject.toml` — the exact `ignore`
+   entry or `report*` setting the project relied on — with a comment saying why.
+   A targeted exemption is not the same as a broad suppression.
+3. Qualify individual suppressions where that is cheap, e.g.
+   `# pyright: ignore[reportUnknownMemberType]` instead of a bare `# pyright: ignore`.
+
+Check the release notes’ `## Upgrading` section: a release that tightens a default names
+the rule and the remedy there.
+
 ## codespell Flags Names or Legacy Prose
 
 Add exceptions in `pyproject.toml`: `[tool.codespell] ignore-words-list = "word1,word2"`
