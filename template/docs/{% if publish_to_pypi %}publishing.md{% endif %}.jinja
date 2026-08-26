@@ -75,6 +75,10 @@ for details.
 
      - Repository: `{{ package_name }}`
 
+       This is the **GitHub repository name**, which the template assumes matches the
+       package name; if yours differs, enter the repo name, since PyPI checks it against
+       the OIDC token and a mismatch only shows up as a rejected publish.
+
      - Workflow: `publish.yml`
 
      - Environment: `pypi`

@@ -79,14 +79,21 @@ jobs:
           name: distributions
           path: dist/*
           if-no-files-found: error
-          retention-days: 1
+          # Long enough that "Re-run failed jobs" the next day still finds the
+          # artifact: with no `workflow_dispatch` path, an expired one means
+          # deleting and recreating the release.
+          retention-days: 7
 
   publish:
     needs: build
     runs-on: ubuntu-latest
     environment: pypi
     permissions:
-      id-token: write # Only this job can request the short-lived publishing credential.
+      # The only permission granted, so every other GITHUB_TOKEN scope is `none`.
+      # Nothing here needs one: setup-uv resolves an exact pinned version without a
+      # GitHub API call, and a same-run artifact download uses the Actions runtime
+      # token. Keep it that way -- this job is the only holder of the PyPI credential.
+      id-token: write
     steps:
       - name: Install uv (official Astral action)
         uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
@@ -101,6 +108,11 @@ jobs:
         with:
           name: distributions
           path: dist
+
+      - name: Record what is being published
+        # These digests stay in the run log, so a release can be matched against the
+        # file hashes PyPI shows for it.
+        run: sha256sum dist/*
 
       - name: Publish to PyPI
         run: uv publish --trusted-publishing always

@@ -99,14 +99,9 @@ jobs:
               grep -Fq 'github.workspace }}/uv.toml' .github/workflows/ci.yml
               grep -Fq 'github.workspace }}/uv.toml' .github/workflows/publish.yml
               grep -q 'enable-cache: false' .github/workflows/publish.yml
-              grep -q '^  validate:' .github/workflows/publish.yml
-              grep -q '^  build:' .github/workflows/publish.yml
-              grep -q '^  publish:' .github/workflows/publish.yml
-              test "$(grep -c 'id-token: write' .github/workflows/publish.yml)" -eq 1
-              test "$(grep -c 'contents: read' .github/workflows/publish.yml)" -eq 2
-              test "$(grep -c 'actions/checkout@' .github/workflows/publish.yml)" -eq 2
-              grep -q '^    environment: pypi$' .github/workflows/publish.yml
-              ! grep -q 'workflow_dispatch' .github/workflows/publish.yml
+              # The publish workflow's job/permission/trigger structure is asserted
+              # against the parsed YAML in the next step; only the reviewed action
+              # pins are matched textually here.
               grep -q 'actions/upload-artifact@043fb46d' .github/workflows/publish.yml
               grep -q 'actions/download-artifact@3e5f45b' .github/workflows/publish.yml
               grep -Fq 'github.com/testorg/smoke-test/blob/main/.github/workflows/publish.yml' \
@@ -146,6 +141,18 @@ jobs:
           grep -q '@AGENTS.md' CLAUDE.md
           test -f .copier-answers.yml
           uvx flowmark-rs@0.3.2 --auto --check .
+
+      - name: Check publish workflow structure
+        if: matrix.variant == 'default'
+        # Which job may request the PyPI credential, what else that job is allowed
+        # to do, and how the workflow can be triggered are the most important
+        # assertions here. Check them against the parsed YAML, so they cannot be
+        # broken by a comment that mentions a permission or satisfied by one that
+        # landed in the wrong job.
+        run: |
+          uv run --no-project --with pyyaml python \
+            "$GITHUB_WORKSPACE/.github/scripts/check_publish_workflow.py" \
+            /tmp/render/.github/workflows/publish.yml
 
       - name: Init git and install (the documented setup sequence)
         # Mirrors the next-steps the template prints: commit first, then sync, so
@@ -190,6 +197,43 @@ jobs:
           uv build --no-build-isolation --out-dir /tmp/build-dist
           test -n "$(find /tmp/build-dist -name '*.whl' -print -quit)"
           test -n "$(find /tmp/build-dist -name '*.tar.gz' -print -quit)"
+
+  publish-preflight:
+    # The rendered publish job holds no ordinary GITHUB_TOKEN scope: it declares only
+    # `id-token: write`, checks nothing out, and has no project directory. Two
+    # assumptions ride on that, and a real release is a bad place to find out: that
+    # setup-uv installs an exactly pinned uv without a GitHub API call, and that a
+    # same-run artifact download works without `actions: read`. `permissions: {}` is
+    # strictly tighter than the real job, which adds only `id-token: write`.
+    runs-on: ubuntu-latest
+    permissions: {}
+    steps:
+      - uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+        with:
+          version: ${{ env.UV_VERSION }}
+          checksum: ${{ env.UV_CHECKSUM }}
+          enable-cache: false
+      - name: Stand in for a built distribution
+        run: |
+          mkdir -p dist
+          printf 'preflight\n' > dist/preflight-0.0.0-py3-none-any.whl
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: preflight-distributions
+          path: dist/*
+          if-no-files-found: error
+          retention-days: 1
+      - name: Drop the local copy, so the download has to supply it
+        run: rm -rf dist
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: preflight-distributions
+          path: dist
+      - name: Check the publish job's toolchain and inputs
+        run: |
+          test "$(uv --version | cut -d' ' -f2)" = "$UV_VERSION"
+          test -s dist/preflight-0.0.0-py3-none-any.whl
+          uv publish --help > /dev/null
 
   update-path:
     # Direct updates from the previous release and representative historical baselines
@@ -247,7 +291,9 @@ jobs:
           diff -r --exclude=.git --exclude=.copier-answers.yml /tmp/old /tmp/fresh
           export UV_CONFIG_FILE="$PWD/uv.toml"
           uv sync --all-extras --all-groups
-          uv sync --locked --all-extras --all-groups
+          # The sync above writes uv.lock, so re-running it with --locked could not
+          # fail. Check the lock from another directory instead, as render-test does.
+          (cd /tmp && uv --project /tmp/old lock --check)
           uv run python devtools/lint.py --check
           uv run pytest
 
@@ -260,8 +306,27 @@ jobs:
           mkdir -p docs
           printf '%s\n' '# Project Policy' '' 'Repository-specific guidance.' \
             > docs/project-policy.md
+          # Source shaped like a long-lived project: a module-level import after
+          # code and an unqualified pyright suppression, both exempted by earlier
+          # template defaults.
+          mkdir -p src/smoke_test
+          cat > src/smoke_test/legacy.py <<'LEGACY'
+          """Module written before the template tightened its lint and type defaults."""
+
+          DEFAULT_TIMEOUT = 30
+
+          import os
+
+
+          def timeout_from_env() -> int:
+              raw = os.environ.get("TIMEOUT", "")  # pyright: ignore
+              return int(raw) if raw else DEFAULT_TIMEOUT
+          LEGACY
           sed -i 's/# ignore-words-list = "foo,bar"/ignore-words-list = "fo"/' \
             pyproject.toml
+          # sed does not fail on a non-match, so check it landed here rather than
+          # letting a reworded template comment surface later as an unrelated failure.
+          grep -q '^ignore-words-list = "fo"$' pyproject.toml
           git init -q --initial-branch=main
           git add -A
           git -c user.email=ci@example.com -c user.name=CI commit -qm "Customized"
@@ -272,6 +337,39 @@ jobs:
           ! grep -R -n -E '^(<<<<<<<|=======|>>>>>>>)' --exclude-dir=.git .
           test -f docs/project-policy.md
           grep -q '^ignore-words-list = "fo"$' pyproject.toml
+
+      - name: Stricter lint and type defaults reach the established project
+        if: matrix.source == 'previous-release'
+        # This candidate re-enables Ruff E402 and the BasedPyright ignore-comment
+        # rules. Copier applies both as clean, non-conflicting hunks, so a project
+        # carrying either idiom starts failing `make lint` right after a routine
+        # update. Assert that, naming the rules, so the break stays deliberate
+        # instead of being discovered downstream; then check that the findings are
+        # ordinary ones the project can fix.
+        run: |
+          cd /tmp/custom
+          export UV_CONFIG_FILE="$PWD/uv.toml"
+          uv sync --all-extras --all-groups
+          LINT_RC=0
+          uv run python devtools/lint.py --check > /tmp/lint-out.txt 2>&1 || LINT_RC=$?
+          cat /tmp/lint-out.txt
+          test "$LINT_RC" -ne 0
+          grep -q 'E402' /tmp/lint-out.txt
+          grep -q 'reportIgnoreCommentWithoutRule' /tmp/lint-out.txt
+          grep -q 'reportUnnecessaryTypeIgnoreComment' /tmp/lint-out.txt
+          cat > src/smoke_test/legacy.py <<'FIXED'
+          """Module updated for the template's stricter lint and type defaults."""
+
+          import os
+
+          DEFAULT_TIMEOUT = 30
+
+
+          def timeout_from_env() -> int:
+              raw = os.environ.get("TIMEOUT", "")
+              return int(raw) if raw else DEFAULT_TIMEOUT
+          FIXED
+          uv run python devtools/lint.py --check
 
       - name: Update honors --data overrides for newer questions
         if: matrix.source == 'previous-release'

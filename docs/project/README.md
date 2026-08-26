@@ -14,6 +14,9 @@ This index covers research, frozen release evidence, and implementation records.
 
 ## Release Evidence
 
+- [v0.6.0 supply-chain manifest](research/research-v0.6.0-supply-chain-manifest.md):
+  frozen 2026-08-25 version, action-pin, exception, and validation record for the
+  publishing and migration hardening cycle
 - [v0.5.0 supply-chain manifest](research/research-v0.5.0-supply-chain-manifest.md):
   frozen 2026-08-14 version, provenance, advisory, and validation record
 - [v0.4.0 supply-chain manifest](research/research-v0.4.0-supply-chain-manifest.md):
