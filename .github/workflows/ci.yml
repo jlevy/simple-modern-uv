@@ -352,7 +352,9 @@ jobs:
           uv sync --all-extras --all-groups
           LINT_RC=0
           uv run python devtools/lint.py --check > /tmp/lint-out.txt 2>&1 || LINT_RC=$?
-          cat /tmp/lint-out.txt
+          # Indent any `::workflow command::` lines so replaying the captured output
+          # does not raise annotations for findings this step expects.
+          sed 's/^::/ ::/' /tmp/lint-out.txt
           test "$LINT_RC" -ne 0
           grep -q 'E402' /tmp/lint-out.txt
           grep -q 'reportIgnoreCommentWithoutRule' /tmp/lint-out.txt
