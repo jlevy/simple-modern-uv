@@ -1,6 +1,6 @@
 # Research: uv Changes Relevant to This Template
 
-**Last updated:** 2026-08-14
+**Last updated:** 2026-08-25
 
 **Author:** Joshua Levy (with agent assistance)
 
@@ -14,10 +14,15 @@ uv’s evolution since then, focused on what matters to the template: defaults, 
 backends, publishing, supply-chain features, and anything that would change the
 template’s recommendations.
 At the v0.5.0 dependency freeze (2026-08-14T18:59:05Z), the latest uv was **0.12.4**.
-The template pins **0.12.0**, the newest version clearing the exact 14-day supply-chain
-cutoff. Version 0.12.1 missed the cutoff by 44 minutes, so it remains deferred with the
-newer patches. See the [release manifest](research-v0.5.0-supply-chain-manifest.md) for
-dates and provenance.
+The template pinned **0.12.0**, the newest version clearing that exact 14-day
+supply-chain cutoff.
+Version 0.12.1 missed the cutoff by 44 minutes, so it remained deferred with the newer
+patches. See the [release manifest](research-v0.5.0-supply-chain-manifest.md) for dates
+and provenance.
+
+The 2026-08-25 Repren migration review moved the candidate pin to **0.12.3**, published
+2026-08-07 and now the newest release clearing the current 14-day cutoff.
+Versions 0.12.4 and 0.12.5, published August 13 and 14, remain deferred.
 
 ## Timeline of Notable Changes
 
@@ -87,7 +92,7 @@ document.)
    documented
    [configuration-file precedence](https://docs.astral.sh/uv/configuration/files/).
 3. **Watch `uv audit` and malware checking**: `uv audit` is old enough to use as an
-   additional release-time check, but remains preview functionality in 0.12.0. Do not
+   additional release-time check, but remains preview functionality in 0.12.3. Do not
    make a preview command part of generated-project CI until it stabilizes.
    Continue watching the opt-in malware-check settings for the same reason.
 4. **Keep `devtools/lint.py` over `uv format`/`uv check`** (decision).
@@ -97,8 +102,9 @@ document.)
 5. **Python 3.15**: add to the CI matrix and classifiers when final (~Oct 2026).
 6. **uv pin currency**: bump the pinned uv in `template/.github/workflows/*` at each
    update cycle to the newest version clearing the 14-day cool-off (0.12.0 at the v0.5.0
-   freeze). Update the setup-uv action and official platform checksum in the same
-   reviewed change.
+   freeze and 0.12.3 at the 2026-08-25 review).
+   Update the setup-uv action and official platform checksum in the same reviewed
+   change.
 7. **Use `uv sync --locked` in CI and publishing** (adopted).
    `--locked` installs from `uv.lock` and fails when `pyproject.toml` would change it.
    `--frozen` skips that freshness check, so it can hide an uncommitted lockfile update

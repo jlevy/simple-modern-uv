@@ -211,7 +211,7 @@ The template includes a few **starter docs** for you, collaborators, and users:
 - [development.md](https://github.com/jlevy/simple-modern-uv/blob/main/template/docs/development.md.jinja)
   covers basic developer workflows.
 
-- [publishing.md](https://github.com/jlevy/simple-modern-uv/blob/main/template/docs/publishing.md)
+- [publishing.md](https://github.com/jlevy/simple-modern-uv/blob/main/template/docs/%7B%25%20if%20publish_to_pypi%20%25%7Dpublishing.md%7B%25%20endif%20%25%7D.jinja)
   covers how to publish your project to PyPI.
 
 If you haven’t done it before, publishing a package to PyPI can be a bit confusing,
@@ -399,7 +399,14 @@ updates to this template at any time.
 
 When `.copier-answers.yml` records your project values, you can
 [update your project](https://copier.readthedocs.io/en/latest/updating/) to reflect any
-changes to this template by running `copier update`.
+changes to this template by running `copier update`. Update directly from the recorded
+template revision to the reviewed target release by default; Copier reconstructs the old
+render and reapplies your local changes to that target.
+Use an intermediate release only when a migration explicitly requires staging or a
+direct trial needs diagnosis.
+The skill’s
+[update workflow](skills/simple-modern-uv/references/update-templated-project.md) covers
+the preservation inventory, conflict review, and validation steps.
 
 ## Alternatives
 
@@ -438,19 +445,21 @@ Dependencies are an attack surface.
 The best resource on this is
 [**supply-chain-hardening**](https://github.com/jlevy/supply-chain-hardening), a concise
 guidebook of concrete recipes for npm, PyPI, and other ecosystems.
-**If you use this template, follow it.** Its key defaults, which this template also
-follows:
+This template applies its balanced defaults:
 
-- **Cooling-off period:** Don’t install or upgrade to a release less than 14 days old
-  (most malicious publishes are caught within days).
+- **Cooling-off period:** By default, don’t select a registry artifact uploaded less
+  than 14 days ago. The delay targets newly compromised or broken releases; age is not
+  proof that a package is safe.
   uv supports a relative
   [dependency cooldown](https://docs.astral.sh/uv/concepts/resolution/#dependency-cooldowns)
   such as `"14 days"`; this template sets it in generated `uv.toml`, CI, and the
   Makefile. Standard workflows select that checked-in file explicitly so ambient user
   settings cannot make `uv.lock` nonportable.
 
-- **Vet what you add:** Only add dependencies you can verify upstream, and prefer a
-  little first-party code over pulling in a new dependency.
+- **Vet what you add:** Verify the canonical source and selected changes.
+  Prefer a small, well-understood, easily tested piece of first-party code over a
+  dependency, but do not reimplement security-sensitive or complex components merely to
+  reduce dependency count.
 
 - **Pin and lock:** Commit your `uv.lock` and pin GitHub Actions to full commit SHAs.
   Treat a version tag as immutable only after verifying that release state through the

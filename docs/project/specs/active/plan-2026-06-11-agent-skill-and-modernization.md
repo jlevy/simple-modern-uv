@@ -1,6 +1,6 @@
 # Feature: Agent Skill and Template Modernization
 
-**Date:** 2026-06-11 (last updated 2026-08-14, post-implementation)
+**Date:** 2026-06-11 (last updated 2026-08-25, post-implementation)
 
 **Author:** Joshua Levy (with agent assistance)
 
@@ -367,10 +367,12 @@ push and pull request while preserving the downstream release gate in
    non-default options: proprietary license, `publish_to_pypi=false`) into temp dirs.
 2. In the default render: `uv sync --locked --all-extras --all-groups`,
    `uv run python devtools/lint.py --check`, `uv run pytest`, `uv build` (with
-   `UV_EXCLUDE_NEWER` set, matching template CI).
-3. Runs the update-path test (D2 rule 4): render at the previous release tag, then
-   `copier update --defaults` to the candidate commit; assert the vanilla case is a
-   no-op and `--data` overrides for new questions are honored.
+   `UV_EXCLUDE_NEWER` set, matching template CI), plus a separate locked
+   build-group-only environment matching the unprivileged publishing build job.
+3. Runs direct update-path tests (D2 rule 4) from the previous release and
+   representative historical tags to the candidate commit; asserts vanilla convergence,
+   preservation of a realistic local customization delta, and correct `--data` overrides
+   for new questions, then installs, lints, and tests each updated project.
 4. Validates the skill: `npx skills-ref validate skills/simple-modern-uv` plus a check
    that every `references/` file and relative link resolves.
 5. Runs `make format-check` so doc formatting is enforced.
@@ -402,6 +404,25 @@ keeping routine project work self-contained.
 See the
 [v0.5.0 supply-chain manifest](../../research/research-v0.5.0-supply-chain-manifest.md)
 and the maintained [uv changes research](../../research/research-uv-changes.md).
+
+**2026-08-25 follow-up:** Repren’s direct v0.2.20-to-v0.5.0 migration showed that
+mandatory one-release-at-a-time updates multiplied obsolete conflict work without
+improving Copier’s three-way update model.
+The maintained workflow now defaults to a direct target, tests representative historical
+baselines, inventories protected project decisions, and reserves intermediate tags for
+declared staged migrations or diagnosis.
+The same review also moves the eligible uv pin to 0.12.3, renders project-specific
+publishing docs, makes CI uv configuration absolute, defines source-distribution
+contents, preserves stricter established lint/type policy, and isolates trusted
+publishing across validation, build, and OIDC-only publishing jobs.
+The threat-model follow-up keeps the 14-day delay as a balanced default rather than a
+trust claim, uses uv’s persistent package-scoped cutoff for reviewed fresh releases,
+restricts publishing to GitHub Release events, and declares a `pypi` environment.
+PyPI must be configured with the same environment to enforce the match; GitHub reviewer
+or tag protections remain optional escalations.
+A release-only trigger does not stop a repository writer who is also allowed to create
+the matching release tag, so projects where not every writer has release authority need
+a tag ruleset and/or environment reviewer.
 
 ### D7. Keep BasedPyright and Refresh the Research
 
@@ -445,6 +466,10 @@ cutoff. No checker switch.
 - [x] Add `AGENTS.md` to the template output (D3)
 - [x] Bump uv pin, dependency floors, and `setup-uv` tag per cool-off (D6)
 - [x] Refresh basedpyright config comments and the type-checker research doc (D7)
+- [x] Apply the Repren migration findings: direct updates, protected customization
+  inventory, absolute uv config, explicit sdist contents, stricter fresh-project
+  defaults, rendered publishing docs, least-privilege release-only publishing, a named
+  PyPI environment, package-scoped uv exceptions, and calibrated threat-model guidance
 - [ ] Validate via the downstream repo flow in `updating.md`
 
 ### Phase 3: Repo CI and Maintenance Docs
@@ -456,6 +481,8 @@ cutoff. No checker switch.
   evolution rules as a standing policy for future question changes
 - [x] Add the uv-changes research doc (`docs/project/research/research-uv-changes.md`)
   as a living doc seeded from Appendix A
+- [x] Extend update-path CI to cover representative historical direct jumps and a
+  realistic project customization delta
 - [ ] Follow-up (outside this repo): retire jlevy/uvtemplate—deprecation note in its
   README, final PyPI release printing a pointer here, archive the repo (D4)
 
@@ -463,10 +490,13 @@ cutoff. No checker switch.
 
 - **Template renders**: CI renders both the default and the proprietary/no-publish
   variants and runs the full `sync → lint --check → pytest → build` cycle on the default
-  render.
-- **Update path**: CI’s update-path test (D2 rule 4) guards every future template
-  change, not just this one—render at the previous tag, update to the candidate, vanilla
-  no-op asserted.
+  render. It separately exercises the locked build-group-only environment and checks
+  published artifact contents, the release-only trigger, the single OIDC permission, and
+  the `pypi` environment and setup guidance.
+- **Update path**: CI’s update-path matrix (D2 rule 4) guards every future template
+  change, not just this one—render at the previous and representative historical tags,
+  update directly to the candidate, assert vanilla convergence, and preserve a realistic
+  local delta. Each vanilla updated project must also install, lint, and test.
 - **Skill validation**: `npx skills-ref validate` in CI; link/reference resolution
   check.
 - **Skill behavior**: manual end-to-end runs of all four User Flows with a real agent

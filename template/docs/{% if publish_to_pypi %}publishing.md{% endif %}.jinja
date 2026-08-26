@@ -7,16 +7,25 @@ Actions, when using the
 Thanks to
 [the dynamic versioning plugin](https://github.com/ninoseki/uv-dynamic-versioning/) and
 the
-[`publish.yml` workflow](https://github.com/jlevy/simple-modern-uv/blob/main/template/.github/workflows/publish.yml),
+[`publish.yml` workflow](https://github.com/{{ package_github_org }}/{{ package_name }}/blob/main/.github/workflows/publish.yml),
 you can simply create tagged releases (using standard format for the tag name, e.g.
 `v0.1.0`) on GitHub and the tag will trigger a release build, which then uploads it to
 PyPI.
+
+The workflow validates without publishing credentials, builds from a fresh checkout
+containing only the locked build toolchain, and gives the short-lived PyPI OIDC
+permission only to a final job that receives the built distributions.
+This separation limits credential exposure; the
+[PyPI Trusted Publisher security model](https://docs.pypi.org/trusted-publishers/security-model/)
+does not treat it as proof that the source, build dependencies, or distributions are
+safe. The validation and build jobs execute repository code, and the final job publishes
+their output. Code review, protected release authority, and lockfile review remain the
+controls against a malicious or compromised build.
 
 ### First-Time Setup
 
 This part is a little confusing the first time.
 Here is the simplest way to do it.
-For the purposes of this example replace OWNER and PROJECT with the right values.
 
 **Note:** These steps assume you already have a GitHub repo with your code pushed.
 If not, create an **empty** GitHub repo (no README, no .gitignore, no license; the
@@ -29,20 +38,54 @@ for details.
 
 2. **Pick a name for the project** that isn’t already taken.
 
-   - Go to `https://pypi.org/project/PROJECT` to see if another project with that name
-     already exists.
+   - Revisit <https://pypi.org/project/{{ package_name }}/> to confirm the name is still
+     available before the first release.
 
    - If needed, update your `pyproject.toml` with the correct name.
 
 3. **Authorize** your repository to publish to PyPI:
+
+   - In the GitHub repository, go to **Settings → Environments** and create a
+     [GitHub environment](https://docs.github.com/en/actions/reference/workflows-and-actions/deployments-and-environments)
+     named `pypi`. No secret is stored there.
+     Entering the same name in PyPI restricts this Trusted Publisher to jobs that
+     declare the environment.
+
+   - Decide who has release authority.
+     A release-only workflow removes the ordinary manual-branch path, but anyone allowed
+     to create a matching release tag may still invoke it.
+     If not every repository writer should publish, use a GitHub tag ruleset to restrict
+     creation and updates of release-pattern tags to release maintainers, and/or require
+     an environment reviewer.
+     Limiting the environment to selected release tags rejects other refs but does not
+     control who can create a matching tag.
+     A solo or low-impact project need not require a second approval when no independent
+     reviewer exists.
 
    - Go to [the publishing settings page](https://pypi.org/manage/account/publishing/).
 
    - Find “Trusted Publisher Management” and register your GitHub repo as a new
      “pending” trusted publisher.
 
-   - Enter the project name, repo owner, repo name, and `publish.yml` as the workflow
-     name. (You can leave the “environment name” field blank.)
+   - Enter these values:
+
+     - Project: `{{ package_name }}`
+
+     - Owner: `{{ package_github_org }}`
+
+     - Repository: `{{ package_name }}`
+
+       This is the **GitHub repository name**, which the template assumes matches the
+       package name; if yours differs, enter the repo name, since PyPI checks it against
+       the OIDC token and a mismatch only shows up as a rejected publish.
+
+     - Workflow: `publish.yml`
+
+     - Environment: `pypi`
+
+     An existing Trusted Publisher with a blank environment remains compatible but is
+     unconstrained. Update it to `pypi` in PyPI’s project publishing settings to obtain
+     the environment restriction.
 
 4. **Create a release** on GitHub:
 
@@ -66,7 +109,7 @@ for details.
 
    - Watch for the release workflow in the GitHub Actions tab.
 
-   - If it succeeds, you should see it appear at `https://pypi.org/project/PROJECT`.
+   - If it succeeds, it appears at <https://pypi.org/project/{{ package_name }}/>.
 
 ### Publishing Subsequent Releases
 
@@ -91,8 +134,10 @@ Follow this checklist for each new release.
 3. **Run linting and tests locally:**
 
    ```shell
-   make lint
-   make test
+   make
+   make lint-check
+   make build
+   git diff --exit-code
    ```
 
 4. **Confirm CI is passing on `main`:**
@@ -144,7 +189,7 @@ Follow this checklist for each new release.
    commands or expand as variables.
    End the notes with a *concrete* compare link built from the actual tags (substitute
    the real `LAST_TAG` and `NEW_TAG` values into the URL), e.g.
-   `https://github.com/OWNER/PROJECT/compare/v0.1.0...v0.2.0`.
+   `https://github.com/{{ package_github_org }}/{{ package_name }}/compare/v0.1.0...v0.2.0`.
 
    ```shell
    NEW_TAG="vX.Y.Z"  # Replace with the actual version
@@ -163,14 +208,14 @@ Follow this checklist for each new release.
    gh run list --workflow=publish.yml --limit 1
 
    # Verify on PyPI (may take a minute):
-   # https://pypi.org/project/PROJECT
+   # https://pypi.org/project/{{ package_name }}
    ```
 
    Once it appears on PyPI, smoke-test that the published artifact actually resolves and
    installs from PyPI. If your project exposes a CLI:
 
    ```shell
-   uvx --from PROJECT==X.Y.Z PROJECT --version
+   uvx --from {{ package_name }}==X.Y.Z {{ package_name }} --version
    ```
 
 ### Release Notes Format
@@ -200,7 +245,7 @@ Description of what changed and how to migrate.
 
 ### Full Changelog
 
-https://github.com/OWNER/PROJECT/compare/vPREVIOUS...vNEW
+https://github.com/{{ package_github_org }}/{{ package_name }}/compare/vPREVIOUS...vNEW
 ```
 
 Guidelines:

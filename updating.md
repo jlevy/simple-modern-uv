@@ -10,8 +10,8 @@ There are two repos involved:
   All version changes start here.
   This repo’s own CI (`.github/workflows/ci.yml`) makes PRs self-validating: it renders
   the template (default and non-default options), runs the full lint/test/build cycle on
-  the render, runs the update-path test from the previous release tag, and validates the
-  agent skill (`skills/simple-modern-uv/`).
+  the render, runs direct update-path tests from the previous release and representative
+  historical tags, and validates the agent skill (`skills/simple-modern-uv/`).
 - **Downstream project(s)**: Projects created from the template (e.g.
   [`jlevy/simple-modern-uv-template`](https://github.com/jlevy/simple-modern-uv-template)).
   These pull updates via `copier update` and have CI configured to run linting and tests
@@ -137,6 +137,8 @@ Apply the same cutoff to direct and transitive packages and disable lifecycle sc
 Check GitHub Action releases and their tag targets:
 
 - `actions/checkout`: <https://github.com/actions/checkout/releases>
+- `actions/upload-artifact`: <https://github.com/actions/upload-artifact/releases>
+- `actions/download-artifact`: <https://github.com/actions/download-artifact/releases>
 - `astral-sh/setup-uv`: <https://github.com/astral-sh/setup-uv/releases>
 
 Pin every active action to its full commit SHA and keep the reviewed version in a
@@ -157,35 +159,58 @@ And check if new Python versions should be added to the test matrix.
 These practices follow
 [supply-chain-hardening](https://github.com/jlevy/supply-chain-hardening), the
 recommended guide for this template; see it for the full rationale and per-ecosystem
-recipes.
+recipes. The template uses the guide’s balanced baseline.
+Use strict mode when reviewing an untrusted repository or when the runner has broader
+production or publishing authority.
 
-Follow a **cooling-off period**: do not adopt any release published within the last 14
-days. Fresh releases are the most likely to be yanked, to carry regressions, or (rarely)
-to be a compromised/typosquatted artifact that hasn’t yet been caught.
-Prefer the latest version that is both at least 14 days old and has had subsequent patch
-releases without being yanked.
+Follow a **cooling-off period**: by default, do not adopt a registry artifact uploaded
+within the last 14 days.
+The delay targets the period when a compromised, typosquatted, or broken release is most
+likely to be detected and removed; it is not evidence that an older release is
+trustworthy. Prefer the latest version that is both at least 14 days old and has had
+subsequent patch releases without being yanked.
 Generated `pyproject.toml`, CI, the generated Makefile, and the repository Makefile
 enforce a 14-day cool-off window (the pinned uv accepts the relative duration
 `"14 days"` directly).
-Keep the project setting as the primary safe default for direct uv commands; environment
+Keep the project setting as the primary default for direct uv commands; environment
 variables remain explicit per-invocation overrides.
 
-For every changed item, verify the canonical repository and maintainer, inspect all
-intervening release notes and source changes, record registry hashes or attestations,
-confirm the release is not yanked, and query OSV or the relevant advisory database.
-Then inspect the entire rendered lockfile diff; a clean direct-package query does not
-approve changed transitive packages.
+For every changed direct dependency or executable tool, verify the canonical repository
+and maintainer, inspect the release notes and relevant source changes in the selected
+range, confirm the release is not yanked, and query OSV or the relevant advisory
+database. Use registry integrity or provenance metadata to bind the reviewed release to
+the fetched artifact.
+Do not add a second manual hash when the package-manager lock already records an
+independently supplied artifact hash.
+Inspect the complete rendered lockfile diff and investigate every added,
+source-switched, or unexpected transitive package; a clean direct-package query does not
+approve the graph.
 
-Only add or upgrade dependencies you can vet upstream (active maintenance, reputable
-source, clear changelog).
-Avoid introducing new dependencies when a small amount of first-party code will do.
+A human-approved cooling-off exception is package-specific, not ecosystem-wide.
+For uv, put an absolute `exclude-newer-package` cutoff in `uv.toml` just after the last
+artifact of the approved release and before any unreviewed release, then resolve only
+that package with
+`UV_CONFIG_FILE="$PWD/uv.toml" uv lock --upgrade-package package-name`. Commit the
+policy with `uv.lock`, and remove it and relock after the release clears the normal
+window. This preserves the global gate and keeps `--locked` CI consistent with the
+resolution that produced the lock.
+For an ecosystem without a package-scoped age gate, audit publication dates across the
+complete graph after the exception and constrain unrelated recent transitives with its
+native override mechanism.
+
+Only add or upgrade dependencies whose canonical source, maintenance, selected changes,
+and advisories you can inspect.
+Avoid a dependency when the replacement is small, well understood, and easy to test; do
+not reimplement cryptography, security-sensitive parsers, or complex protocols to reduce
+dependency count.
 
 ## Step 2: Update the Template Files
 
 In the template repo, update these files as needed:
 
 - **Dev dependency lower bounds** in `template/pyproject.toml.jinja` (these are `>=`
-  floors, not exact pins; CI enforces the cool-off via `UV_EXCLUDE_NEWER`)
+  floors, not exact pins; lock resolution applies the cool-off, and locked CI verifies
+  the recorded policy and graph)
 - **Build backend pins** in both `[build-system].requires` and the locked `build`
   dependency group. Keep the generated non-isolated build path in sync so release
   artifacts use the lockfile-resolved graph
@@ -202,12 +227,25 @@ In the template repo, update these files as needed:
   invocations current (subject to the same cool-off), and update the FAQ/checklists if
   this cycle changed behavior they describe
 - **Executable npm tools** in the README and CI: pin exact versions, preserve the frozen
-  `before` cutoff, disable lifecycle scripts, and record registry integrity/provenance
+  `before` cutoff, disable lifecycle scripts, and record registry integrity/provenance.
+  Audit transitive publication dates after any direct-package exception
 - **Safe-default Makefile paths**: keep the 14-day default on install, upgrade, format,
   and build commands, while preserving an explicit per-invocation override
 - **The project-level uv policy**: keep `exclude-newer = "14 days"` in `uv.toml` and
   select that file explicitly in the Makefile and CI, so direct standard workflows keep
   the cool-off without merging ambient user settings into `uv.lock`
+- **Published artifact contents**: keep the explicit Hatch sdist allowlist and validate
+  that repository-management files are absent from built distributions
+- **Lint and type-check defaults** in `template/pyproject.toml.jinja`. Dropping a Ruff
+  `ignore` entry or re-enabling a BasedPyright rule breaks existing projects, not just
+  fresh ones: those lines are rarely edited downstream, so Copier applies them without
+  conflict and the next routine update fails `make lint`. Name the rule and its remedy
+  under `## Upgrading`, and keep the `update-path` job’s assertion of the failure
+  current
+- **The historical update matrix** in this repo’s `.github/workflows/ci.yml`
+  (`source: [previous-release, v0.4.0, v0.2.20]`). CI depends on those tags continuing
+  to exist. Add an entry when a release changes the answer schema or a migration-relevant
+  default; prune one only when its range is no longer supported
 - Review the [uv changes research](docs/project/research/research-uv-changes.md) for new
   uv features the template should adopt or explicitly decline
 - Record the complete frozen decision in a release-specific supply-chain manifest under
@@ -227,14 +265,19 @@ projects keep updating cleanly:
    update workflow inspects project state and passes explicit `--data` (see
    [customize.md](skills/simple-modern-uv/references/customize.md)).
 4. **CI guards the update path**: the `update-path` job renders the previous release and
-   updates to the candidate, asserting convergence with a fresh render and that `--data`
-   overrides are honored.
+   representative historical releases, updates each directly to the candidate, asserts
+   convergence with a fresh render, and verifies that project customizations and
+   `--data` overrides are honored.
 5. **Call it out in release notes**, naming the new keys and their defaults.
 
-The update-path job guarantees the single jump from the most recent release to the
-candidate. For a project more than one release behind, update one release tag at a time
-and validate each hop; a direct multi-release jump is best-effort rather than covered by
-this gate.
+Copier’s standard update model reconstructs the old render, computes the project’s local
+changes, and reapplies them to the selected target.
+Update directly from the recorded release to the reviewed target by default, including
+for multi-release jumps.
+Use an intermediate tag only when a migration declares a staging requirement or a direct
+trial needs a diagnostic checkpoint; do not make every project reconcile obsolete
+intermediate states.
+See [Copier’s update model](https://copier.readthedocs.io/en/stable/updating/).
 
 Then auto-format all docs so formatting stays consistent (CI’s `format-check` job
 enforces this):
@@ -339,7 +382,7 @@ make install
 make lint-check
 make test
 make build
-uvx --exclude-newer "14 days" uv@0.12.0 audit --locked \
+uvx --exclude-newer "14 days" uv@0.12.3 audit --locked \
   --preview-features audit-command
 ```
 
@@ -428,9 +471,9 @@ Structure the notes per `tbd guidelines release-notes-guidelines`: a concise sum
 then `## What's Changed` with only the applicable `### Features`, `### Fixes`,
 `### Guidelines and content`, and `### Documentation` sections.
 Add `## Upgrading` when existing projects need action.
-Name new question keys and defaults under upgrading, state what validation backed the
-release, and end with a `**Full commit history**` link to
-`compare/${LAST_TAG}...${NEW_TAG}`.
+Name new question keys and defaults under upgrading, along with any lint or type-check
+default that became stricter and its remedy, state what validation backed the release,
+and end with a `**Full commit history**` link to `compare/${LAST_TAG}...${NEW_TAG}`.
 
 Afterwards, verify the release and tag target, then confirm a fresh render records the
 new tag as `_commit` in `.copier-answers.yml`:

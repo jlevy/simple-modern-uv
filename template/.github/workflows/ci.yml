@@ -17,7 +17,7 @@ permissions:
 env:
   # Use only the checked-in resolution policy so ambient runner configuration cannot
   # make uv.lock appear stale or alter dependency selection.
-  UV_CONFIG_FILE: uv.toml
+  UV_CONFIG_FILE: ${{ github.workspace }}/uv.toml
   # Supply-chain cool-off: only consider releases older than this, so CI never
   # resolves packages too new to have been vetted. The uv 0.12 line required by
   # uv.toml and pinned below accepts a relative duration directly. See the Supply
@@ -55,9 +55,9 @@ jobs:
         uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
         with:
           # Update this as needed:
-          version: "0.12.0"
+          version: "0.12.3"
           # uv-x86_64-unknown-linux-gnu; update for another matrix OS/arch.
-          checksum: "eaf842262aa1c418d8ecc5605f02ee1ebfd369124fa48548e85f9481a47831a9"
+          checksum: "600cf9a742aca00d292673b16b5acffaa7b8c269a364ad0c2e79498dcb1fe101"
           enable-cache: true
           # Retain downloaded wheels in the shared cache to reduce PyPI load.
           # This is setup-uv v9's default, made explicit for future upgrades.
