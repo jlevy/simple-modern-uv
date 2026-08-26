@@ -352,9 +352,11 @@ jobs:
           uv sync --all-extras --all-groups
           LINT_RC=0
           uv run python devtools/lint.py --check > /tmp/lint-out.txt 2>&1 || LINT_RC=$?
-          # Indent any `::workflow command::` lines so replaying the captured output
-          # does not raise annotations for findings this step expects.
-          sed 's/^::/ ::/' /tmp/lint-out.txt
+          # Prefix every replayed line, so basedpyright's `::warning::` output does
+          # not raise annotations for findings this step expects. Indenting is not
+          # enough: the Actions log parser trims leading whitespace before matching
+          # a workflow command, so the prefix has to be a non-space character.
+          sed 's/^/| /' /tmp/lint-out.txt
           test "$LINT_RC" -ne 0
           grep -q 'E402' /tmp/lint-out.txt
           grep -q 'reportIgnoreCommentWithoutRule' /tmp/lint-out.txt
