@@ -180,6 +180,9 @@ reportUnreachable = false
 # skip = "foo.py,bar.py"
 
 [tool.pytest.ini_options]
+# Delete a passing run's temp files when it ends; keep only failing tests' (latest run).
+tmp_path_retention_policy = "failed"
+tmp_path_retention_count = 1
 python_files = ["*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
